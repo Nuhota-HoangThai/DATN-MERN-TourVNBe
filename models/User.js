@@ -6,12 +6,13 @@ const userSchema = new mongoose.Schema({
   password: { type: String },
   phone: { type: Number },
   address: { type: String },
-
+  companyName: { type: String },
+  companyAddress: { type: String },
   cartData: { type: Object },
   date: { type: Date, default: Date.now },
   role: {
     type: String,
-    enum: ["admin", "tour_organizer", "customer"],
+    enum: ["admin", "company", "customer"],
     default: "customer",
   },
 });

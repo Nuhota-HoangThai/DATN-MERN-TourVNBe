@@ -4,14 +4,13 @@ const orderSchema = new mongoose.Schema({
   user: {
     type: mongoose.Schema.Types.ObjectId,
     required: true,
-    ref: "User", // Assuming you have a User model for detailed user info
+    ref: "User",
   },
   tour: {
     type: mongoose.Schema.Types.ObjectId,
     required: true,
-    ref: "Tour", // Reference to the Tour model
+    ref: "Tour",
   },
-
   numberOfChildren: {
     type: Number,
     required: true,

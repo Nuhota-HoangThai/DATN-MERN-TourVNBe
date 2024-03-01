@@ -3,14 +3,22 @@ const Order = require("../models/Order"); // Adjust the path as necessary to whe
 const OrderController = {
   // Create a new order
   createOrder: async (req, res) => {
-    const { user, tour, children, adults, totalAmount, additionalInformation } =
-      req.body;
+    const {
+      user,
+      tour,
+      children,
+      adults,
+      orderDate,
+      totalAmount,
+      additionalInformation,
+    } = req.body;
 
     try {
-      console.log(tour);
+      console.log(user);
       const newOrder = new Order({
         user,
         tour,
+        orderDate,
         numberOfChildren: children,
         numberOfAdults: adults,
         totalAmount,
@@ -37,33 +45,6 @@ const OrderController = {
           .json({ message: "No orders found for this user" });
       }
       res.json(orders);
-    } catch (error) {
-      res.status(500).json({ message: error.message });
-    }
-  },
-
-  // Update an order
-  updateOrder: async (req, res) => {
-    try {
-      const updatedOrder = await Order.findByIdAndUpdate(
-        req.params.id,
-        req.body,
-        { new: true }
-      );
-      res.json(updatedOrder);
-    } catch (error) {
-      res.status(400).json({ message: error.message });
-    }
-  },
-
-  // Delete an order
-  deleteOrder: async (req, res) => {
-    try {
-      const deletedOrder = await Order.findByIdAndDelete(req.params.id);
-      if (!deletedOrder) {
-        return res.status(404).json({ message: "Order not found" });
-      }
-      res.status(204).send();
     } catch (error) {
       res.status(500).json({ message: error.message });
     }
@@ -97,6 +78,28 @@ const OrderController = {
       if (!updatedOrder) {
         return res.status(404).json({ message: "Order not found" });
       }
+      res.json(updatedOrder);
+    } catch (error) {
+      res.status(500).json({ message: error.message });
+    }
+  },
+
+  cancelOrder: async (req, res) => {
+    try {
+      const order = await Order.findById(req.params.id);
+
+      if (!order) {
+        return res.status(404).json({ message: "Order not found" });
+      }
+
+      if (order.status !== "pending") {
+        return res
+          .status(400)
+          .json({ message: "Only pending orders can be cancelled" });
+      }
+
+      order.status = "cancelled";
+      const updatedOrder = await order.save();
       res.json(updatedOrder);
     } catch (error) {
       res.status(500).json({ message: error.message });

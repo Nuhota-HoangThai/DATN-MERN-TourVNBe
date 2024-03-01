@@ -1,38 +1,38 @@
 const Tour = require("../models/Tour");
 
-// Cấu hình multer
-
 // Add a new tour
 exports.addTour = async (req, res) => {
-  let tours = await Tour.find({});
-  let id;
-  if (tours.length > 0) {
-    let last_tour_array = tours.slice(-1);
-    let last_tour = last_tour_array[0];
-    id = last_tour.id + 1;
-  } else {
-    id = 1;
+  try {
+    let tours = await Tour.find({});
+    let id;
+    if (tours.length > 0) {
+      let last_tour_array = tours.slice(-1);
+      let last_tour = last_tour_array[0];
+      id = last_tour.id + 1;
+    } else {
+      id = 1;
+    }
+    const images = req.files.map((file) => file.path);
+    const tour = new Tour({
+      id: id,
+      nameTour: req.body.nameTour,
+      image: images,
+      regions: req.body.regions,
+      price: req.body.price,
+      description: req.body.description,
+      maxParticipants: req.body.maxParticipants,
+      startDate: req.body.startDate,
+      endDate: req.body.endDate,
+    });
+    await tour.save();
+    res.json({
+      success: true,
+      name: req.body.name,
+    });
+  } catch (error) {
+    res.status(404).json({ error: error });
   }
-  const tour = new Tour({
-    id: id,
-    name: req.body.name,
-    image: req.body.image,
-    regions: req.body.regions,
-    new_price: req.body.new_price,
-    old_price: req.body.old_price,
-    // distance: req.body.distance,
-    desc: req.body.desc,
-    maxGroupSize: req.body.maxGroupSize,
-    date: req.body.date,
-  });
-  await tour.save();
-  res.json({
-    success: true,
-    name: req.body.name,
-  });
 };
-
-// Remove a tour
 
 // Remove a tour
 exports.removeTour = async (req, res) => {
@@ -66,49 +66,52 @@ exports.removeTour = async (req, res) => {
   }
 };
 
-// Update a tour
 exports.updateTour = async (req, res) => {
   const { id } = req.params;
-  const { image, name, maxGroupSize, old_price, new_price, regions, desc } =
-    req.body; // Lấy dữ liệu cần cập nhật từ body của request
+  let update = {
+    nameTour: req.body.nameTour,
+    maxParticipants: req.body.maxParticipants,
+    price: req.body.price,
+    regions: req.body.regions,
+    description: req.body.description,
+    startDate: req.body.startDate,
+    endDate: req.body.endDate,
+  };
+
+  // Nếu có file ảnh được upload thì cập nhật image field
+  if (req.files && req.files.length > 0) {
+    // Mảng để chứa đường dẫn của tất cả hình ảnh được upload
+    const imagesPaths = req.files.map((file) => file.path);
+
+    // Cập nhật trường image trong đối tượng update
+    update.image = imagesPaths;
+  }
 
   try {
-    // Cập nhật tour dựa trên ID và trả về thông tin sau khi cập nhật
-    const updatedTour = await Tour.findByIdAndUpdate(
-      id,
-      {
-        image,
-        name,
-        maxGroupSize,
-        old_price,
-        new_price,
-        regions,
-        desc,
-      },
-      { new: true, runValidators: true }
-    );
+    const updatedTour = await Tour.findByIdAndUpdate(id, update, {
+      new: true,
+      runValidators: true,
+    });
 
-    // Kiểm tra xem có tìm thấy tour cần cập nhật hay không
     if (!updatedTour) {
       return res
         .status(404)
-        .send({ success: false, message: "Tour not found" });
+        .json({ success: false, message: "Tour not found" });
     }
 
-    // Trả về response thành công cùng với dữ liệu của tour sau khi cập nhật
-    res.send({
+    res.json({
       success: true,
       message: "Tour updated successfully",
       tour: updatedTour,
     });
-  } catch (err) {
-    console.error("Error updating tour:", err);
-    res
-      .status(500)
-      .json({ success: false, message: "Error updating the tour" });
+  } catch (error) {
+    res.status(500).json({
+      success: false,
+      message: "Error updating the tour",
+      error: error.message,
+    });
   }
 };
-
 // Search a tour
 
 // Get all tours
@@ -126,9 +129,37 @@ exports.getNewCollection = async (req, res) => {
 
 // Get popular tours in the central region
 exports.getPopularInCentral = async (req, res) => {
-  let tours = await Tour.find({ regions: "mt" });
-  let popular_in_central = tours.slice(0, 4);
+  let tours = await Tour.find({ regions: "miền Trung" });
+  let popular_in_central = tours.slice(0, 6);
   res.send(popular_in_central);
+};
+
+// Lấy tour theo ID
+exports.getTourById = async (req, res) => {
+  try {
+    // Lấy ID từ params
+    const { id } = req.params;
+
+    // Tìm tour bằng ID
+    const tour = await Tour.findById(id);
+
+    // Kiểm tra xem tour có tồn tại không
+    if (!tour) {
+      return res
+        .status(404)
+        .json({ success: false, message: "Tour not found" });
+    }
+
+    // Nếu tour tồn tại, trả về tour
+    res.json({ success: true, tour: tour });
+  } catch (error) {
+    console.error("Error finding tour:", error);
+    res.status(500).json({
+      success: false,
+      message: "Error finding the tour",
+      error: error.message,
+    });
+  }
 };
 
 module.exports = exports;

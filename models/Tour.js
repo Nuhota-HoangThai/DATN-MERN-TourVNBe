@@ -2,21 +2,32 @@ const mongoose = require("mongoose");
 
 const tourSchema = new mongoose.Schema({
   id: { type: Number, required: true },
-  name: { type: String, required: true },
-  image: { type: String, required: true },
+  nameTour: { type: String, required: true },
+  startDate: {
+    type: Date,
+    required: true,
+  },
+  endDate: {
+    type: Date,
+    required: true,
+  },
+  image: [{ type: String, required: true }],
   regions: { type: String, required: true },
-  new_price: { type: Number, required: true },
-  old_price: { type: Number },
-  desc: {
+  price: { type: Number, required: true },
+  description: {
     type: String,
     required: true,
   },
-  maxGroupSize: {
+  timeTravel: { type: String },
+  maxParticipants: {
     type: Number,
     required: true,
   },
-
-  date: { type: Date, default: Date.now },
+  convergeTime: { type: Date },
+  tourGuide: { type: String },
+  promotion: {
+    type: String,
+  },
 });
 
 const Tour = mongoose.model("Tour", tourSchema);

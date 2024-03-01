@@ -4,11 +4,10 @@ const OrderController = require("../controllers/OrderController"); // Đảm b�
 
 router.post("/createOrders", OrderController.createOrder);
 
-router.put("/orders/:id", OrderController.updateOrder);
-router.delete("/orders/:id", OrderController.deleteOrder);
-
 router.get("/listOrders", OrderController.listOrders);
 router.patch("/:id/confirmStatus", OrderController.confirmOrderStatus);
 router.get("/user/:id", OrderController.listOrdersByUser);
+// Route để hủy đơn hàng
+router.patch("/:id/cancel", OrderController.cancelOrder);
 
 module.exports = router;

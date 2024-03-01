@@ -27,6 +27,7 @@ exports.signup = async (req, res) => {
       password: hashedPassword,
       phone: req.body.phone,
       cartData: cart,
+      //role: req.body.role,
     });
 
     await user.save();
@@ -44,30 +45,36 @@ exports.signup = async (req, res) => {
 };
 
 // User login
+// Đăng nhập cho Người dùng, Công ty và Admin
 exports.login = async (req, res) => {
   try {
     let user = await User.findOne({ email: req.body.email });
-    if (user) {
-      const passCompare = await bcrypt.compare(
-        req.body.password,
-        user.password
-      );
-      if (passCompare) {
-        const data = {
-          user: {
-            id: user.id,
-          },
-        };
-        const token = jwt.sign(data, "secret_ecom");
-        res.json({ success: true, token });
-      } else {
-        res.json({ success: false, error: "Wrong Password" });
-      }
-    } else {
-      res.json({ success: false, error: "Wrong Email" });
+    if (!user) {
+      return res.json({ success: false, error: "Email không tồn tại" });
     }
+
+    const passCompare = await bcrypt.compare(req.body.password, user.password);
+    if (!passCompare) {
+      return res.json({ success: false, error: "Sai mật khẩu" });
+    }
+
+    const data = {
+      user: {
+        id: user.id,
+        role: user.role, // Bổ sung vai trò người dùng vào token
+      },
+    };
+
+    const token = jwt.sign(data, "secret_ecom");
+
+    // Phản hồi bổ sung thông tin về vai trò của người dùng
+    res.json({
+      success: true,
+      token,
+      role: user.role, // Trả về vai trò người dùng để ứng dụng client có thể xử lý tương ứng
+    });
   } catch (error) {
-    res.status(500).send("Internal Server Error");
+    res.status(500).send("Lỗi máy chủ nội bộ");
   }
 };
 
@@ -84,11 +91,11 @@ exports.getAllUsers = async (req, res) => {
 // Update a user
 exports.updateUser = async (req, res) => {
   const { id } = req.params;
-  const { name, email, phone, address } = req.body; // Extract fields you allow to update
+  const { name, email, phone, address, role } = req.body; // Extract fields you allow to update
   try {
     const updatedUser = await User.findByIdAndUpdate(
       id,
-      { name, phone, address, email },
+      { name, phone, address, email, role },
       { new: true, runValidators: true } // options
     );
 
