@@ -44,7 +44,6 @@ exports.signup = async (req, res) => {
   }
 };
 
-// User login
 // Đăng nhập cho Người dùng, Công ty và Admin
 exports.login = async (req, res) => {
   try {
@@ -61,7 +60,7 @@ exports.login = async (req, res) => {
     const data = {
       user: {
         id: user.id,
-        role: user.role, // Bổ sung vai trò người dùng vào token
+        role: user.role, // Thêm vai trò người dùng vào token
       },
     };
 
@@ -141,4 +140,31 @@ exports.removeUser = async (req, res) => {
   }
 };
 
+// Lấy user theo ID
+exports.getUserById = async (req, res) => {
+  try {
+    // Lấy ID từ params
+    const { id } = req.params;
+
+    // Tìm user bằng ID
+    const user = await User.findById(id);
+
+    // Kiểm tra xem user có tồn tại không
+    if (!user) {
+      return res
+        .status(404)
+        .json({ success: false, message: "User not found" });
+    }
+
+    // Nếu user tồn tại, trả về user
+    res.json({ success: true, user: user });
+  } catch (error) {
+    console.error("Error finding user:", error);
+    res.status(500).json({
+      success: false,
+      message: "Error finding the user",
+      error: error.message,
+    });
+  }
+};
 module.exports = exports;
