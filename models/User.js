@@ -6,7 +6,7 @@ const userSchema = new mongoose.Schema({
   password: { type: String },
   phone: { type: Number },
   address: { type: String },
-
+  image: { type: String },
   cartData: { type: Object },
   date: { type: Date, default: Date.now },
   role: {

@@ -90,18 +90,27 @@ exports.getAllUsers = async (req, res) => {
 // Update a user
 exports.updateUser = async (req, res) => {
   const { id } = req.params;
-  const { name, email, phone, address, role } = req.body; // Extract fields you allow to update
-  try {
-    const updatedUser = await User.findByIdAndUpdate(
-      id,
-      { name, phone, address, email, role },
-      { new: true, runValidators: true } // options
-    );
+  let update = {
+    name: req.body.name,
+    phone: req.body.phone, // Fixed typo here and below
+    email: req.body.email,
+    address: req.body.address,
+    role: req.body.role,
+  };
 
+  // If a file was uploaded, process it
+  if (req.file) {
+    update.image = req.file.path; // Change here for single image
+  }
+
+  try {
+    const updatedUser = await User.findByIdAndUpdate(id, update, {
+      new: true,
+      runValidators: true,
+    });
     if (!updatedUser) {
       return res.status(404).send({ error: "User not found" });
     }
-
     res.send(updatedUser);
   } catch (error) {
     res.status(400).send(error);
@@ -170,43 +179,62 @@ exports.getUserById = async (req, res) => {
 
 // add user
 exports.addUser = async (req, res) => {
+  const { name, email, password, phone, role, address } = req.body;
+
   try {
-    let check = await User.findOne({ email: req.body.email });
-    if (check) {
+    // Kiểm tra xem người dùng đã tồn tại chưa
+    const existingUser = await User.findOne({ email });
+    if (existingUser) {
       return res.status(400).json({
         success: false,
-        error: "existing user found with same email address",
+        message: "A user with the same email address already exists.",
       });
     }
 
-    const hashedPassword = await bcrypt.hash(req.body.password, 10);
+    // Mã hóa mật khẩu
+    const hashedPassword = await bcrypt.hash(password, 10);
 
+    // Tạo cart mặc định
     let cart = {};
     for (let i = 0; i < 300; i++) {
       cart[i] = 0;
     }
 
-    const user = new User({
-      name: req.body.name,
-      email: req.body.email,
+    // Tạo người dùng mới
+    const newUser = new User({
+      name,
+      email,
       password: hashedPassword,
-      phone: req.body.phone,
+      phone,
       cartData: cart,
-      role: req.body.role,
-      address: req.body.address,
+      role,
+      address,
     });
 
-    await user.save();
+    // Lưu người dùng vào cơ sở dữ liệu
+    await newUser.save();
 
-    const data = {
+    // Tạo token JWT cho người dùng mới
+    const payload = {
       user: {
-        id: user.id,
+        id: newUser.id,
       },
     };
-    const token = jwt.sign(data, "secret_ecom");
-    res.json({ success: true, token });
+    const token = jwt.sign(payload, "secret_ecom", { expiresIn: "1h" }); // Chú ý thay thế "secret_ecom" bằng biến môi trường trong sản phẩm thực tế
+
+    // Phản hồi thành công cùng với token
+    res.json({
+      success: true,
+      message: "User added successfully.",
+      token,
+    });
   } catch (error) {
-    res.status(500).send("Internal Server Error");
+    console.error("addUser error:", error);
+    res.status(500).json({
+      success: false,
+      message: "Internal server error. Please try again later.",
+    });
   }
 };
+
 module.exports = exports;

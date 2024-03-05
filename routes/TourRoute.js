@@ -22,7 +22,7 @@ const upload = multer({ storage: storage });
 router.post(
   "/addTour",
   upload.array("image", 5),
-  verifyTokenCompany,
+
   tourController.addTour
 );
 
