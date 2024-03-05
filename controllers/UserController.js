@@ -167,4 +167,46 @@ exports.getUserById = async (req, res) => {
     });
   }
 };
+
+// add user
+exports.addUser = async (req, res) => {
+  try {
+    let check = await User.findOne({ email: req.body.email });
+    if (check) {
+      return res.status(400).json({
+        success: false,
+        error: "existing user found with same email address",
+      });
+    }
+
+    const hashedPassword = await bcrypt.hash(req.body.password, 10);
+
+    let cart = {};
+    for (let i = 0; i < 300; i++) {
+      cart[i] = 0;
+    }
+
+    const user = new User({
+      name: req.body.name,
+      email: req.body.email,
+      password: hashedPassword,
+      phone: req.body.phone,
+      cartData: cart,
+      role: req.body.role,
+      address: req.body.address,
+    });
+
+    await user.save();
+
+    const data = {
+      user: {
+        id: user.id,
+      },
+    };
+    const token = jwt.sign(data, "secret_ecom");
+    res.json({ success: true, token });
+  } catch (error) {
+    res.status(500).send("Internal Server Error");
+  }
+};
 module.exports = exports;
