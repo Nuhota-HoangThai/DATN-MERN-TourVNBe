@@ -2,7 +2,6 @@ const express = require("express");
 const router = express.Router();
 const CartController = require("../controllers/CartController");
 const { verifyToken } = require("../middleware/verifyToken");
-
 // Định nghĩa các route
 router.post("/addToCart", verifyToken, CartController.addToCart);
 

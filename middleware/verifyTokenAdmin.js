@@ -1,7 +1,7 @@
 const jwt = require("jsonwebtoken");
 const verifyTokenAdmin = async (req, res, next) => {
-  const token = req.header("auth-token");
-  //const token = authHeader && authHeader.split(" ")[1];
+  const authHeader = req.header("auth-token");
+  const token = authHeader && authHeader.split(" ")[1];
 
   if (!token) {
     return res.status(401).json({
@@ -10,8 +10,9 @@ const verifyTokenAdmin = async (req, res, next) => {
     });
   }
   try {
-    const data = jwt.verify(token, "secret_ecom");
-    if (data.user.role == "admin") return next();
+    const decoded = jwt.verify(token, "secret_ecom");
+
+    if (decoded.user.role === "admin") return next();
     return res.status(400).json({
       success: false,
       message: "Bạn không có quyền",

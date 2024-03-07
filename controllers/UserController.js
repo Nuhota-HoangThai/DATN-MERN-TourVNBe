@@ -220,7 +220,7 @@ exports.addUser = async (req, res) => {
         id: newUser.id,
       },
     };
-    const token = jwt.sign(payload, "secret_ecom", { expiresIn: "1h" }); // Chú ý thay thế "secret_ecom" bằng biến môi trường trong sản phẩm thực tế
+    const token = jwt.sign(payload, "secret_ecom", { expiresIn: "30d" }); // Chú ý thay thế "secret_ecom" bằng biến môi trường trong sản phẩm thực tế
 
     // Phản hồi thành công cùng với token
     res.json({

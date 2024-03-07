@@ -1,8 +1,7 @@
 const express = require("express");
 const router = express.Router();
 const tourController = require("../controllers/TourController");
-const { verifyTokenCompany } = require("../middleware/verifyTokenCompany");
-const { verifyTokenAdmin } = require("../middleware/verifyTokenAdmin");
+const { checkRole } = require("../middleware/verifyToken");
 
 const multer = require("multer");
 const path = require("path");
