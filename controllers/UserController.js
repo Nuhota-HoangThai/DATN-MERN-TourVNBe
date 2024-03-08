@@ -2,6 +2,7 @@ const User = require("../models/User");
 
 const bcrypt = require("bcrypt");
 const jwt = require("jsonwebtoken");
+require("dotenv").config();
 
 // User registration
 exports.signup = async (req, res) => {
@@ -37,7 +38,7 @@ exports.signup = async (req, res) => {
         id: user.id,
       },
     };
-    const token = jwt.sign(data, "secret_ecom");
+    const token = jwt.sign(data, process.env.JWT_SECRET);
     res.json({ success: true, token });
   } catch (error) {
     res.status(500).send("Internal Server Error");
@@ -64,7 +65,7 @@ exports.login = async (req, res) => {
       },
     };
 
-    const token = jwt.sign(data, "secret_ecom");
+    const token = jwt.sign(data, process.env.JWT_SECRET);
 
     // Phản hồi bổ sung thông tin về vai trò của người dùng
     res.json({
@@ -149,13 +150,13 @@ exports.removeUser = async (req, res) => {
   }
 };
 
-// Lấy user theo ID
+// Lấy user theo id
 exports.getUserById = async (req, res) => {
   try {
-    // Lấy ID từ params
+    // Lấy id từ params
     const { id } = req.params;
 
-    // Tìm user bằng ID
+    // Tìm user bằng id
     const user = await User.findById(id);
 
     // Kiểm tra xem user có tồn tại không
@@ -220,7 +221,9 @@ exports.addUser = async (req, res) => {
         id: newUser.id,
       },
     };
-    const token = jwt.sign(payload, "secret_ecom", { expiresIn: "30d" }); // Chú ý thay thế "secret_ecom" bằng biến môi trường trong sản phẩm thực tế
+    const token = jwt.sign(payload, process.env.JWT_SECRET, {
+      expiresIn: "30d",
+    });
 
     // Phản hồi thành công cùng với token
     res.json({

@@ -10,7 +10,7 @@ const verifyTokenAdmin = async (req, res, next) => {
     });
   }
   try {
-    const decoded = jwt.verify(token, "secret_ecom");
+    const decoded = jwt.verify(token, process.env.JWT_SECRET);
 
     if (decoded.user.role === "admin") return next();
     return res.status(400).json({

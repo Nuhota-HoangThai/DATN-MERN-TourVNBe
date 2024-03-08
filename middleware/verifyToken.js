@@ -1,6 +1,8 @@
 const jwt = require("jsonwebtoken");
+require("dotenv").config();
+
 const verifyToken = async (req, res, next) => {
-  const token = req.header("auth-token");
+  const token = req.header(process.env.AUTH_TOKEN_HEADER);
   //const token = authHeader && authHeader.split(" ")[1];
 
   if (!token) {
@@ -10,7 +12,7 @@ const verifyToken = async (req, res, next) => {
     });
   }
   try {
-    const data = jwt.verify(token, "secret_ecom");
+    const data = jwt.verify(token, process.env.JWT_SECRET);
     req.user = data.user;
     next();
   } catch (error) {
