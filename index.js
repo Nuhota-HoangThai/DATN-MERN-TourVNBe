@@ -8,8 +8,9 @@ const cors = require("cors");
 const { connectDB } = require("./utils/mongoDB");
 const tourRoutes = require("./routes/TourRoute");
 const userRoutes = require("./routes/UserRoute");
-const orderRoutes = require("./routes/OrderRoute"); // Đảm bảo đường dẫn đến OrderRoute đúng
+const orderRoutes = require("./routes/OrderRoute");
 const cartRoutes = require("./routes/CartRoute");
+const tourTypeRoutes = require("./routes/TourTypeRoute");
 // ...
 
 dotenv.config();
@@ -28,6 +29,7 @@ app.use("/api/tour", tourRoutes);
 app.use("/api/user", userRoutes);
 app.use("/api/cart", cartRoutes);
 app.use("/api/order", orderRoutes);
+app.use("/api/tourType", tourTypeRoutes);
 // Connect to Database
 connectDB();
 

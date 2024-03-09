@@ -3,18 +3,8 @@ const Tour = require("../models/Tour");
 // Add a new tour
 exports.addTour = async (req, res) => {
   try {
-    let tours = await Tour.find({});
-    let id;
-    if (tours.length > 0) {
-      let last_tour_array = tours.slice(-1);
-      let last_tour = last_tour_array[0];
-      id = last_tour.id + 1;
-    } else {
-      id = 1;
-    }
     const images = req.files.map((file) => file.path);
     const tour = new Tour({
-      id: id,
       nameTour: req.body.nameTour,
       image: images,
       regions: req.body.regions,
@@ -23,6 +13,7 @@ exports.addTour = async (req, res) => {
       maxParticipants: req.body.maxParticipants,
       startDate: req.body.startDate,
       endDate: req.body.endDate,
+      tourType: req.body.tourType,
     });
     await tour.save();
     res.json({
@@ -37,20 +28,16 @@ exports.addTour = async (req, res) => {
 // Remove a tour
 exports.removeTour = async (req, res) => {
   try {
-    // Lấy _id từ params thay vì id
     const { id } = req.params;
 
-    // Tìm và xóa tour dựa trên _id
     const deletedTour = await Tour.findByIdAndDelete(id);
 
-    // Kiểm tra xem tour có tồn tại để xóa không
     if (!deletedTour) {
       return res
         .status(404)
         .json({ success: false, message: "Tour not found" });
     }
 
-    // Nếu tìm thấy và xóa thành công, trả về response
     res.json({
       success: true,
       message: "Tour successfully deleted",
@@ -76,6 +63,7 @@ exports.updateTour = async (req, res) => {
     description: req.body.description,
     startDate: req.body.startDate,
     endDate: req.body.endDate,
+    tourType: req.body.tourType,
   };
 
   // Nếu có file ảnh được upload thì cập nhật image field
@@ -112,12 +100,21 @@ exports.updateTour = async (req, res) => {
     });
   }
 };
+
 // Search a tour
 
 // Get all tours
 exports.getAllTours = async (req, res) => {
-  let tours = await Tour.find({});
-  res.send(tours);
+  try {
+    let tours = await Tour.find({}).populate("tourType", "typeName");
+    res.json(tours);
+  } catch (error) {
+    console.error("Error fetching tours:", error);
+    res.status(500).json({
+      message: "Error fetching the tours",
+      error: error.message,
+    });
+  }
 };
 
 // Get new collection tours
@@ -135,28 +132,89 @@ exports.getPopularInCentral = async (req, res) => {
 };
 
 // Lấy tour theo ID
+// exports.getTourById = async (req, res) => {
+//   try {
+//     // Lấy ID từ params
+//     const { id } = req.params;
+
+//     // Tìm tour bằng ID
+//     const tour = await Tour.findById(id);
+
+//     // Kiểm tra xem tour có tồn tại không
+//     if (!tour) {
+//       return res
+//         .status(404)
+//         .json({ success: false, message: "Tour not found" });
+//     }
+//     if (!id) {
+//       return res
+//         .status(400)
+//         .json({ success: false, message: "Tour ID is missing" });
+//     }
+//     // Nếu tour tồn tại, trả về tour
+//     res.json({ success: true, tour: tour });
+//   } catch (error) {
+//     console.error("Error finding tour:", error);
+//     res.status(500).json({
+//       success: false,
+//       message: "Error finding the tour",
+//       error: error.message,
+//     });
+//   }
+// };
 exports.getTourById = async (req, res) => {
   try {
-    // Lấy ID từ params
     const { id } = req.params;
 
-    // Tìm tour bằng ID
+    // Kiểm tra xem ID có được truyền và có đúng định dạng hay không
+    if (!id) {
+      return res
+        .status(400)
+        .json({ success: false, message: "Invalid or missing tour ID" });
+    }
+
     const tour = await Tour.findById(id);
 
-    // Kiểm tra xem tour có tồn tại không
     if (!tour) {
       return res
         .status(404)
         .json({ success: false, message: "Tour not found" });
     }
 
-    // Nếu tour tồn tại, trả về tour
     res.json({ success: true, tour: tour });
   } catch (error) {
     console.error("Error finding tour:", error);
     res.status(500).json({
       success: false,
       message: "Error finding the tour",
+      error: error.message,
+    });
+  }
+};
+
+// Lấy tất cả các tour có cùng loại tour
+exports.getToursByTourTypeId = async (req, res) => {
+  try {
+    const { tourTypeId } = req.params;
+
+    // Use `find` with a filter instead of `findById`
+    const tours = await Tour.find({ tourType: tourTypeId });
+
+    if (!tours || tours.length === 0) {
+      return res.status(404).json({
+        success: false,
+        message: "No tours found for the specified tour type",
+      });
+    }
+
+    res.json({
+      success: true,
+      tours: tours,
+    });
+  } catch (error) {
+    res.status(500).json({
+      success: false,
+      message: "Error retrieving tours by tour type",
       error: error.message,
     });
   }

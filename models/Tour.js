@@ -1,7 +1,11 @@
 const mongoose = require("mongoose");
 
 const tourSchema = new mongoose.Schema({
-  id: { type: Number, required: true },
+  tourType: {
+    type: mongoose.Schema.Types.ObjectId,
+    ref: "TourType",
+    required: true,
+  },
   nameTour: { type: String, required: true },
   startDate: {
     type: Date,

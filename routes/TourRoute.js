@@ -1,7 +1,6 @@
 const express = require("express");
 const router = express.Router();
 const tourController = require("../controllers/TourController");
-const { checkRole } = require("../middleware/verifyToken");
 
 const multer = require("multer");
 const path = require("path");
@@ -45,4 +44,6 @@ router.put(
 );
 
 router.get("/getTourById/:id", tourController.getTourById);
+router.get("/getTourType/:tourTypeId", tourController.getToursByTourTypeId);
+
 module.exports = router;
