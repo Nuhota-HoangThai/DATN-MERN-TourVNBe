@@ -131,49 +131,17 @@ exports.getPopularInCentral = async (req, res) => {
   res.send(popular_in_central);
 };
 
-// Lấy tour theo ID
-// exports.getTourById = async (req, res) => {
-//   try {
-//     // Lấy ID từ params
-//     const { id } = req.params;
-
-//     // Tìm tour bằng ID
-//     const tour = await Tour.findById(id);
-
-//     // Kiểm tra xem tour có tồn tại không
-//     if (!tour) {
-//       return res
-//         .status(404)
-//         .json({ success: false, message: "Tour not found" });
-//     }
-//     if (!id) {
-//       return res
-//         .status(400)
-//         .json({ success: false, message: "Tour ID is missing" });
-//     }
-//     // Nếu tour tồn tại, trả về tour
-//     res.json({ success: true, tour: tour });
-//   } catch (error) {
-//     console.error("Error finding tour:", error);
-//     res.status(500).json({
-//       success: false,
-//       message: "Error finding the tour",
-//       error: error.message,
-//     });
-//   }
-// };
 exports.getTourById = async (req, res) => {
   try {
-    const { id } = req.params;
+    const { tourId } = req.params;
 
-    // Kiểm tra xem ID có được truyền và có đúng định dạng hay không
-    if (!id) {
+    if (!tourId) {
       return res
         .status(400)
         .json({ success: false, message: "Invalid or missing tour ID" });
     }
 
-    const tour = await Tour.findById(id);
+    const tour = await Tour.findById(tourId);
 
     if (!tour) {
       return res
@@ -197,7 +165,6 @@ exports.getToursByTourTypeId = async (req, res) => {
   try {
     const { tourTypeId } = req.params;
 
-    // Use `find` with a filter instead of `findById`
     const tours = await Tour.find({ tourType: tourTypeId });
 
     if (!tours || tours.length === 0) {

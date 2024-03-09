@@ -1,4 +1,5 @@
 const Order = require("../models/Order"); // Adjust the path as necessary to where your Order model is located
+const Tour = require("../models/Tour");
 
 const OrderController = {
   // Create a new order
@@ -14,7 +15,20 @@ const OrderController = {
     } = req.body;
 
     try {
-      console.log(user);
+      const tourDetails = await Tour.findById(tour); // Fetch the tour details using the tour ID
+
+      if (!tourDetails) {
+        return res.status(404).json({ message: "Tour not found" });
+      }
+
+      const totalParticipants = children + adults;
+      if (tourDetails.maxParticipants < totalParticipants) {
+        return res
+          .status(400)
+          .json({ message: "Not enough spots available on the tour" });
+      }
+
+      // Proceed to create the order if there are enough spots
       const newOrder = new Order({
         user,
         tour,
@@ -25,7 +39,13 @@ const OrderController = {
         additionalInformation,
       });
 
+      // Save the new order
       const savedOrder = await newOrder.save();
+
+      // Update the number of spots available on the tour
+      tourDetails.maxParticipants -= totalParticipants; // Subtract the number of participants from the maxParticipants
+      await tourDetails.save(); // Save the updated tour details
+
       res.status(201).json(savedOrder);
     } catch (error) {
       res.status(400).json({ message: error.message });

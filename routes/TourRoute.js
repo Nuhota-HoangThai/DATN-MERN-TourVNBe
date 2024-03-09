@@ -43,7 +43,7 @@ router.put(
   tourController.updateTour
 );
 
-router.get("/getTourById/:id", tourController.getTourById);
+router.get("/getTourById/:tourId", tourController.getTourById);
 router.get("/getTourType/:tourTypeId", tourController.getToursByTourTypeId);
 
 module.exports = router;
