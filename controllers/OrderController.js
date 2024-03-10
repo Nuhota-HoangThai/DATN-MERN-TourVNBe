@@ -39,12 +39,11 @@ const OrderController = {
         additionalInformation,
       });
 
-      // Save the new order
       const savedOrder = await newOrder.save();
 
       // Update the number of spots available on the tour
       tourDetails.maxParticipants -= totalParticipants; // Subtract the number of participants from the maxParticipants
-      await tourDetails.save(); // Save the updated tour details
+      await tourDetails.save();
 
       res.status(201).json(savedOrder);
     } catch (error) {
