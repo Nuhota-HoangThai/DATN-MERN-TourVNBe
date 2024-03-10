@@ -15,13 +15,20 @@ const OrderController = {
     } = req.body;
 
     try {
-      const tourDetails = await Tour.findById(tour); // Fetch the tour details using the tour ID
+      const tourDetails = await Tour.findById(tour);
 
       if (!tourDetails) {
         return res.status(404).json({ message: "Tour not found" });
       }
 
       const totalParticipants = children + adults;
+      if (totalParticipants <= 0) {
+        return res
+          .status(400)
+          .json({ message: "At least one participant is required" });
+      }
+
+      // Kiểm tra xem số lượng người đăng ký có vượt quá số lượng chỗ còn lại hay không
       if (tourDetails.maxParticipants < totalParticipants) {
         return res
           .status(400)
@@ -41,8 +48,8 @@ const OrderController = {
 
       const savedOrder = await newOrder.save();
 
-      // Update the number of spots available on the tour
-      tourDetails.maxParticipants -= totalParticipants; // Subtract the number of participants from the maxParticipants
+      // Cập nhật số lượng chỗ còn lại trên tour
+      tourDetails.maxParticipants -= totalParticipants; // Trừ số người tham gia khỏi maxParticipants
       await tourDetails.save();
 
       res.status(201).json(savedOrder);

@@ -66,12 +66,12 @@ exports.updateTour = async (req, res) => {
     tourType: req.body.tourType,
   };
 
-  // Nếu có file ảnh được upload thì cập nhật image field
+  // If there is an image file to be uploaded, update the image field
   if (req.files && req.files.length > 0) {
-    // Mảng để chứa đường dẫn của tất cả hình ảnh được upload
+    // Array to contain the paths of all uploaded images
     const imagesPaths = req.files.map((file) => file.path);
 
-    // Cập nhật trường image trong đối tượng update
+    // Update the image field in the update object
     update.image = imagesPaths;
   }
 
@@ -126,9 +126,23 @@ exports.getNewCollection = async (req, res) => {
 
 // Get popular tours in the central region
 exports.getPopularInCentral = async (req, res) => {
-  let tours = await Tour.find({ regions: "miền Trung" });
+  let tours = await Tour.find({ regions: "mt" });
   let popular_in_central = tours.slice(0, 6);
   res.send(popular_in_central);
+};
+
+//Get popular tours in the north
+exports.getPopularInNorth = async (req, res) => {
+  let tours = await Tour.find({ regions: "mb" });
+  let popular_in_north = tours.slice(0, 6);
+  res.send(popular_in_north);
+};
+
+//Get popular tours in the southern
+exports.getPopularInSouthern = async (req, res) => {
+  let tours = await Tour.find({ regions: "mn" });
+  let popular_in_southern = tours.slice(0, 6);
+  res.send(popular_in_southern);
 };
 
 exports.getTourById = async (req, res) => {
