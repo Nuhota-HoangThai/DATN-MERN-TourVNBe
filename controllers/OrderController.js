@@ -58,6 +58,27 @@ const OrderController = {
     }
   },
 
+  removeOrder: async (req, res) => {
+    try {
+      const { id } = req.params;
+      const deletedOrder = await Order.findByIdAndDelete(id);
+      if (!deletedOrder) {
+        return res.status(404).json({ message: "Order not found" });
+      }
+      res.json({
+        success: true,
+        message: "Order successfully deleted",
+        deletedOrder: deletedOrder,
+      });
+    } catch (error) {
+      console.error(error);
+      res.status(500).json({
+        success: false,
+        message: "Error while deleting order",
+      });
+    }
+  },
+
   // Lấy tất cả các order của một khách hàng dựa trên userId
   listOrdersByUser: async (req, res) => {
     try {
