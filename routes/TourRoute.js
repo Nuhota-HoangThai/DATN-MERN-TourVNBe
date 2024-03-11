@@ -36,6 +36,12 @@ router.get("/getNewCollection", tourController.getNewCollection);
 // Get popular tours in the central region
 router.get("/getPopularInCentral", tourController.getPopularInCentral);
 
+// Get popular tours in the southern region
+router.get("/getPopularInSouthern", tourController.getPopularInSouthern);
+
+// Get popular tours in the north region
+router.get("/getPopularInNorth", tourController.getPopularInNorth);
+
 //Cập nhật tour
 router.put(
   "/update_tour/:id",
