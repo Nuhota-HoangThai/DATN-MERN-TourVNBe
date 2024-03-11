@@ -131,14 +131,14 @@ exports.getPopularInCentral = async (req, res) => {
   res.send(popular_in_central);
 };
 
-//Get popular tours in the north
+//Get popular tours in the North
 exports.getPopularInNorth = async (req, res) => {
   let tours = await Tour.find({ regions: "mb" });
   let popular_in_north = tours.slice(0, 6);
   res.send(popular_in_north);
 };
 
-//Get popular tours in the southern
+//Get popular tours in the Southern
 exports.getPopularInSouthern = async (req, res) => {
   let tours = await Tour.find({ regions: "mn" });
   let popular_in_southern = tours.slice(0, 6);
