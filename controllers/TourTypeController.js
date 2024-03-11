@@ -105,4 +105,26 @@ exports.getAllTourTypes = async (req, res) => {
   }
 };
 
+// Lấy tour types theo id
+exports.getTourTypeById = async (req, res) => {
+  try {
+    const { id } = req.params;
+    const tourType = await TourType.findById(id);
+    if (!tourType) {
+      return res
+        .status(404)
+        .json({ success: false, message: "Tour type not found" });
+    }
+    res.json({ success: true, tourType });
+  } catch (error) {
+    res
+      .status(500)
+      .json({
+        success: false,
+        message: "Error retrieving tour type",
+        error: error.message,
+      });
+  }
+};
+
 module.exports = exports;
