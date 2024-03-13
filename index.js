@@ -29,6 +29,7 @@ app.use("/api/user", userRoutes);
 app.use("/api/cart", cartRoutes);
 app.use("/api/booking", bookingRoutes);
 app.use("/api/tourType", tourTypeRoutes);
+
 // Connect to Database
 connectDB();
 

@@ -155,8 +155,8 @@ exports.getTourById = async (req, res) => {
         .json({ success: false, message: "Invalid or missing tour ID" });
     }
 
+    //console.log(tourId);
     const tour = await Tour.findById(tourId);
-
     if (!tour) {
       return res
         .status(404)

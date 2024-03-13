@@ -1,6 +1,6 @@
 const express = require("express");
 const router = express.Router();
-const BookingController = require("../controllers/BookingController"); // Đảm bảo đường dẫn đến OrderController đúng
+const BookingController = require("../controllers/BookingController");
 
 router.post("/createBooking", BookingController.createBooking);
 
