@@ -1,6 +1,5 @@
 const express = require("express");
 const dotenv = require("dotenv");
-const multer = require("multer");
 //const path = require("path");
 const bodyParser = require("body-parser");
 const cors = require("cors");
@@ -8,7 +7,7 @@ const cors = require("cors");
 const { connectDB } = require("./utils/mongoDB");
 const tourRoutes = require("./routes/TourRoute");
 const userRoutes = require("./routes/UserRoute");
-const orderRoutes = require("./routes/OrderRoute");
+const bookingRoutes = require("./routes/BookingRoute");
 const cartRoutes = require("./routes/CartRoute");
 const tourTypeRoutes = require("./routes/TourTypeRoute");
 // ...
@@ -28,7 +27,7 @@ app.use("/api/upload/images", express.static("upload/images"));
 app.use("/api/tour", tourRoutes);
 app.use("/api/user", userRoutes);
 app.use("/api/cart", cartRoutes);
-app.use("/api/order", orderRoutes);
+app.use("/api/booking", bookingRoutes);
 app.use("/api/tourType", tourTypeRoutes);
 // Connect to Database
 connectDB();
