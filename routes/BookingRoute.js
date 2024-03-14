@@ -1,8 +1,9 @@
 const express = require("express");
 const router = express.Router();
 const BookingController = require("../controllers/BookingController");
+const { verifyToken } = require("../middleware/verifyToken");
 
-router.post("/createBooking", BookingController.createBooking);
+router.post("/createBooking", verifyToken, BookingController.createBooking);
 
 router.get("/listBookings", BookingController.listBookings);
 router.patch("/:id/confirmStatus", BookingController.confirmBookingStatus);

@@ -1,27 +1,27 @@
-const Order = require("../models/Booking"); // Adjust the path as necessary to where your Order model is located
+const Booking = require("../models/Booking"); // Adjust the path as necessary to where your Order model is located
 const Tour = require("../models/Tour");
 
 const BookingController = {
   // Create a new booking
   createBooking: async (req, res) => {
     const {
-      user,
-      tour,
-      children,
-      adults,
+      tourId,
+      numberOfAdults,
+      numberOfChildren,
       bookingDate,
       totalAmount,
       additionalInformation,
     } = req.body;
+    const user = req.user;
 
     try {
-      const tourDetails = await Tour.findById(tour);
+      const tourDetails = await Tour.findById(tourId);
 
       if (!tourDetails) {
         return res.status(404).json({ message: "Tour not found" });
       }
 
-      const totalParticipants = children + adults;
+      const totalParticipants = numberOfAdults + numberOfChildren;
       //console.log("so luong: ", totalParticipants);
       if (totalParticipants <= 0) {
         return res
@@ -38,11 +38,11 @@ const BookingController = {
 
       // Proceed to create the order if there are enough spots
       const newBooking = new Booking({
-        user,
-        tour,
+        user: user.id,
+        tour: tourId,
         bookingDate,
-        numberOfChildren: children,
-        numberOfAdults: adults,
+        numberOfChildren: numberOfChildren,
+        numberOfAdults: numberOfAdults,
         totalAmount,
         additionalInformation,
       });
