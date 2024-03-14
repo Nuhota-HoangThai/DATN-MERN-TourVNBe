@@ -1,6 +1,10 @@
 const mongoose = require("mongoose");
 
 const userSchema = new mongoose.Schema({
+  guide: {
+    type: mongoose.Schema.Types.ObjectId,
+    ref: "TourGuide",
+  },
   name: { type: String },
   email: { type: String, unique: true },
   password: { type: String },
@@ -11,7 +15,7 @@ const userSchema = new mongoose.Schema({
   date: { type: Date, default: Date.now },
   role: {
     type: String,
-    enum: ["admin", "company", "customer"],
+    enum: ["admin", "company", "customer", "guide"],
     default: "customer",
   },
 });

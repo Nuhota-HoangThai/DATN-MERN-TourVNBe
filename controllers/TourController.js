@@ -5,6 +5,7 @@ exports.addTour = async (req, res) => {
   try {
     const images = req.files.map((file) => file.path);
     const tour = new Tour({
+      tourType: req.body.tourType,
       nameTour: req.body.nameTour,
       image: images,
       regions: req.body.regions,
@@ -13,7 +14,7 @@ exports.addTour = async (req, res) => {
       maxParticipants: req.body.maxParticipants,
       startDate: req.body.startDate,
       endDate: req.body.endDate,
-      tourType: req.body.tourType,
+      convergeTime: req.body.convergeTime,
     });
     await tour.save();
     res.json({

@@ -6,7 +6,12 @@ const tourSchema = new mongoose.Schema({
     ref: "TourType",
     required: true,
   },
+
   nameTour: { type: String, required: true },
+
+  image: [{ type: String, required: true }],
+  regions: { type: String, required: true },
+  price: { type: Number, required: true },
   startDate: {
     type: Date,
     required: true,
@@ -15,18 +20,15 @@ const tourSchema = new mongoose.Schema({
     type: Date,
     required: true,
   },
-  image: [{ type: String, required: true }],
-  regions: { type: String, required: true },
-  price: { type: Number, required: true },
+  timeTravel: { type: String },
+  convergeTime: { type: Date },
   description: {
     type: String,
   },
-  timeTravel: { type: String },
   maxParticipants: {
     type: Number,
     required: true,
   },
-  convergeTime: { type: Date },
   tourGuide: { type: String },
   promotion: {
     type: String,

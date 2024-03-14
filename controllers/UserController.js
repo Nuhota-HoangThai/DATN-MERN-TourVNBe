@@ -99,9 +99,8 @@ exports.updateUser = async (req, res) => {
     role: req.body.role,
   };
 
-  // If a file was uploaded, process it
   if (req.file) {
-    update.image = req.file.path; // Change here for single image
+    update.image = req.file.path;
   }
 
   try {
