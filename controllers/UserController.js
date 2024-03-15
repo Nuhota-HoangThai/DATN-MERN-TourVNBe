@@ -61,6 +61,7 @@ exports.login = async (req, res) => {
     const data = {
       user: {
         id: user.id,
+        name: user.name,
         role: user.role, // Thêm vai trò người dùng vào token
       },
     };
@@ -71,6 +72,7 @@ exports.login = async (req, res) => {
     res.json({
       success: true,
       token,
+      name: user.name,
       role: user.role, // Trả về vai trò người dùng để ứng dụng client có thể xử lý tương ứng
     });
   } catch (error) {
