@@ -6,9 +6,13 @@ const { verifyToken } = require("../middleware/verifyToken");
 router.post("/addToCart", verifyToken, CartController.addToCart);
 
 // Remove tour from user's cart
-router.post("/removeFromCart", verifyToken, CartController.removeFromCart);
+router.delete(
+  "/removeFromCart/:id",
+  verifyToken,
+  CartController.removeFromCart
+);
 
 // Get user's cart data
-router.post("/getCart", verifyToken, CartController.getCart);
+router.get("/getCart", verifyToken, CartController.getCart);
 
 module.exports = router;

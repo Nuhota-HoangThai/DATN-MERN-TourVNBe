@@ -3,6 +3,7 @@ const router = express.Router();
 const userController = require("../controllers/UserController");
 
 const { verifyTokenAdmin } = require("../middleware/verifyTokenAdmin");
+const { verifyToken } = require("../middleware/verifyToken");
 
 const multer = require("multer");
 const path = require("path");
@@ -36,6 +37,6 @@ router.put(
 );
 
 router.delete("/removeUser/:id", userController.removeUser);
-router.get("/getUserById/:id", userController.getUserById);
+router.get("/getUserById", verifyToken, userController.getUserById);
 
 module.exports = router;

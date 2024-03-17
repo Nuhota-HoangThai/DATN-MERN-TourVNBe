@@ -30,7 +30,7 @@ exports.removeFromCart = async (req, res) => {
     if (!userData || !userData.cartData) {
       return res.status(404).send("User not found or cart is empty");
     }
-    const itemId = req.body.itemId;
+    const itemId = req.params.id;
     if (userData.cartData[itemId] > 0) {
       userData.cartData[itemId] -= 1;
     }
@@ -48,7 +48,8 @@ exports.removeFromCart = async (req, res) => {
 // Get user's cart data
 exports.getCart = async (req, res) => {
   try {
-    let userData = await User.findOne({ _id: req.user.id });
+    const id = req.user.id;
+    const userData = await User.findById(id);
     if (!userData) {
       return res.status(404).send("User not found");
     }

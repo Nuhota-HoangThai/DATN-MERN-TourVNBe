@@ -72,6 +72,7 @@ exports.login = async (req, res) => {
     res.json({
       success: true,
       token,
+      id: user._id,
       name: user.name,
       role: user.role, // Trả về vai trò người dùng để ứng dụng client có thể xử lý tương ứng
     });
@@ -154,11 +155,9 @@ exports.removeUser = async (req, res) => {
 // Lấy user theo id
 exports.getUserById = async (req, res) => {
   try {
-    // Lấy id từ params
-    const { id } = req.params;
-
+    console.log("req.user.id", req.user.id);
     // Tìm user bằng id
-    const user = await User.findById(id);
+    const user = await User.findById(req.user.id);
 
     // Kiểm tra xem user có tồn tại không
     if (!user) {

@@ -13,6 +13,7 @@ const BookingController = {
       additionalInformation,
     } = req.body;
     const user = req.user;
+    console.log("Booking created", req.body);
 
     try {
       const tourDetails = await Tour.findById(tourId);
@@ -21,8 +22,9 @@ const BookingController = {
         return res.status(404).json({ message: "Tour not found" });
       }
 
-      const totalParticipants = numberOfAdults + numberOfChildren;
-      //console.log("so luong: ", totalParticipants);
+      const totalParticipants =
+        parseInt(numberOfAdults) + parseInt(numberOfChildren);
+      console.log("so luong: ", totalParticipants);
       if (totalParticipants <= 0) {
         return res
           .status(400)
@@ -83,7 +85,7 @@ const BookingController = {
   // Lấy tất cả các order của một khách hàng dựa trên userId
   listBookingsByUser: async (req, res) => {
     try {
-      const userId = req.params.id;
+      const userId = req.user.id;
       const bookings = await Booking.find({ user: userId })
         .populate("user")
         .populate("tour");

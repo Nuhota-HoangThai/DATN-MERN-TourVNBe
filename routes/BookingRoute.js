@@ -7,7 +7,7 @@ router.post("/createBooking", verifyToken, BookingController.createBooking);
 
 router.get("/listBookings", BookingController.listBookings);
 router.patch("/:id/confirmStatus", BookingController.confirmBookingStatus);
-router.get("/user/:id", BookingController.listBookingsByUser);
+router.get("/user", verifyToken, BookingController.listBookingsByUser);
 router.patch("/:id/cancel", BookingController.cancelBooking);
 router.delete("/removeBooking/:id", BookingController.removeBooking);
 
