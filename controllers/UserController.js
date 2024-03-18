@@ -96,7 +96,7 @@ exports.updateUser = async (req, res) => {
   const { id } = req.params;
   let update = {
     name: req.body.name,
-    phone: req.body.phone, // Fixed typo here and below
+    phone: req.body.phone,
     email: req.body.email,
     address: req.body.address,
     role: req.body.role,
@@ -154,10 +154,10 @@ exports.removeUser = async (req, res) => {
 
 // Lấy user theo id
 exports.getUserById = async (req, res) => {
+  const { id } = req.params;
   try {
-    console.log("req.user.id", req.user.id);
     // Tìm user bằng id
-    const user = await User.findById(req.user.id);
+    const user = await User.findById(id);
 
     // Kiểm tra xem user có tồn tại không
     if (!user) {
