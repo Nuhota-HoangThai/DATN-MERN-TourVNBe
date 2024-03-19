@@ -14,6 +14,7 @@ exports.addTour = async (req, res) => {
       maxParticipants: req.body.maxParticipants,
       startDate: req.body.startDate,
       endDate: req.body.endDate,
+      startingGate: req.body.startingGate,
       convergeTime: req.body.convergeTime,
     });
     await tour.save();
@@ -64,6 +65,8 @@ exports.updateTour = async (req, res) => {
     description: req.body.description,
     startDate: req.body.startDate,
     endDate: req.body.endDate,
+    convergeTime: req.body.convergeTime,
+    startingGate: req.body.startingGate,
     tourType: req.body.tourType,
   };
 

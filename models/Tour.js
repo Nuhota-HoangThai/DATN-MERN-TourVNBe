@@ -9,7 +9,6 @@ const tourSchema = new mongoose.Schema(
     },
 
     nameTour: { type: String, required: true },
-
     image: [{ type: String, required: true }],
     regions: { type: String, required: true },
     price: { type: Number, required: true },
@@ -23,6 +22,7 @@ const tourSchema = new mongoose.Schema(
     },
     timeTravel: { type: String },
     convergeTime: { type: Date },
+    startingGate: { type: String },
     description: {
       type: String,
     },
