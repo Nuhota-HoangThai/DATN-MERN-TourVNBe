@@ -56,4 +56,6 @@ router.get("/getTourById/:tourId", tourController.getTourById);
 
 router.get("/getTourType/:tourTypeId", tourController.getToursByTourTypeId);
 
+router.get("/search", tourController.searchToursAdvanced);
+
 module.exports = router;
