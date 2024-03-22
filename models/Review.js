@@ -1,20 +1,33 @@
 const mongoose = require("mongoose");
 
-const reviewSchema = new mongoose.Schema({
-  user: {
-    type: mongoose.Schema.Types.ObjectId,
-    required: true,
-    ref: "User", // Assuming you have a User model for detailed user info
-  },
-  tour: {
-    type: mongoose.Schema.Types.ObjectId,
-    required: true,
-    ref: "Tour", // Reference to the Tour model
-  },
-  reviews: [
-    {
-      type: mongoose.Types.ObjectId,
-      ref: "Review",
+const reviewSchema = new mongoose.Schema(
+  {
+    tourId: {
+      type: mongoose.Schema.Types.ObjectId,
+      required: true,
+      ref: "Tour",
     },
-  ],
-});
+    bookingId: {
+      type: mongoose.Schema.Types.ObjectId,
+      required: true,
+      ref: "Booking",
+    },
+
+    reviewText: {
+      type: String,
+      required: true,
+    },
+    rating: {
+      type: Number,
+      // required: true,
+      min: 0,
+      max: 5,
+      default: 0,
+    },
+  },
+  { timestamps: true }
+);
+
+const ReviewTour = mongoose.model("ReviewTour", reviewSchema);
+
+module.exports = ReviewTour;

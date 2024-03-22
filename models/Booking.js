@@ -11,6 +11,14 @@ const bookingSchema = new mongoose.Schema({
     required: true,
     ref: "Tour",
   },
+
+  reviews: [
+    {
+      type: mongoose.Schema.Types.ObjectId,
+      ref: "ReviewTour",
+    },
+  ],
+
   numberOfChildren: {
     type: Number,
     required: true,

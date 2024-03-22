@@ -13,7 +13,7 @@ const BookingController = {
       additionalInformation,
     } = req.body;
     const user = req.user;
-    console.log("Booking created", req.body);
+    //console.log("Booking created", req.body);
 
     try {
       const tourDetails = await Tour.findById(tourId);
@@ -24,7 +24,7 @@ const BookingController = {
 
       const totalParticipants =
         parseInt(numberOfAdults) + parseInt(numberOfChildren);
-      console.log("so luong: ", totalParticipants);
+      //console.log("so luong: ", totalParticipants);
       if (totalParticipants <= 0) {
         return res
           .status(400)

@@ -233,7 +233,7 @@ exports.searchToursAdvanced = async (req, res) => {
 
     if (maxParticipants) {
       // Tìm tours với số lượng người tham gia tối đa không vượt quá giá trị được chỉ định
-      searchConditions.maxParticipants = { $lte: Number(maxParticipants) };
+      searchConditions.maxParticipants = { $gte: Number(maxParticipants) };
     }
 
     const tours = await Tour.find(searchConditions);

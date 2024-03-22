@@ -117,13 +117,11 @@ exports.getTourTypeById = async (req, res) => {
     }
     res.json({ success: true, tourType });
   } catch (error) {
-    res
-      .status(500)
-      .json({
-        success: false,
-        message: "Error retrieving tour type",
-        error: error.message,
-      });
+    res.status(500).json({
+      success: false,
+      message: "Error retrieving tour type",
+      error: error.message,
+    });
   }
 };
 
