@@ -12,6 +12,11 @@ const reviewSchema = new mongoose.Schema(
       required: true,
       ref: "Booking",
     },
+    userId: {
+      type: mongoose.Schema.Types.ObjectId,
+      required: true,
+      ref: "User",
+    },
 
     reviewText: {
       type: String,
@@ -23,6 +28,10 @@ const reviewSchema = new mongoose.Schema(
       min: 0,
       max: 5,
       default: 0,
+    },
+    createdAt: {
+      type: Date,
+      default: Date.now,
     },
   },
   { timestamps: true }

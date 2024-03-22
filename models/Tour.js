@@ -20,6 +20,18 @@ const tourSchema = new mongoose.Schema(
     image: [{ type: String, required: true }],
     regions: { type: String, required: true },
     price: { type: Number, required: true },
+    // Giá cho trẻ em từ 2 đến 12 tuổi
+    priceForChildren: {
+      type: Number,
+    },
+    // Giá cho bé dưới 2 tuổi
+    priceForInfants: {
+      type: Number,
+    },
+    // Phụ thu khác
+    additionalFees: {
+      type: Number,
+    },
     startDate: {
       type: Date,
       required: true,

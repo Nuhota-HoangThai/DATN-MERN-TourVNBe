@@ -4,19 +4,24 @@ const Tour = require("../models/Tour");
 exports.addTour = async (req, res) => {
   try {
     const images = req.files.map((file) => file.path);
+
     const tour = new Tour({
+      image: images,
       tourType: req.body.tourType,
       nameTour: req.body.nameTour,
-      image: images,
       regions: req.body.regions,
       price: req.body.price,
-      description: req.body.description,
+      priceForChildren: req.body.priceForChildren,
+      priceForInfants: req.body.priceForInfants,
       maxParticipants: req.body.maxParticipants,
       startDate: req.body.startDate,
       endDate: req.body.endDate,
       startingGate: req.body.startingGate,
       convergeTime: req.body.convergeTime,
+      description: req.body.description,
+      additionalFees: req.body.additionalFees,
     });
+
     await tour.save();
     res.json({
       success: true,
@@ -61,6 +66,8 @@ exports.updateTour = async (req, res) => {
     nameTour: req.body.nameTour,
     maxParticipants: req.body.maxParticipants,
     price: req.body.price,
+    priceForChildren: req.body.priceForChildren,
+    priceForInfants: req.body.priceForInfants,
     regions: req.body.regions,
     description: req.body.description,
     startDate: req.body.startDate,
@@ -68,6 +75,7 @@ exports.updateTour = async (req, res) => {
     convergeTime: req.body.convergeTime,
     startingGate: req.body.startingGate,
     tourType: req.body.tourType,
+    additionalFees: req.body.additionalFees,
   };
 
   // If there is an image file to be uploaded, update the image field
@@ -104,8 +112,6 @@ exports.updateTour = async (req, res) => {
     });
   }
 };
-
-// Search a tour
 
 // Get all tours
 exports.getAllTours = async (req, res) => {

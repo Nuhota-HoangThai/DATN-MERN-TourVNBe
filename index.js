@@ -12,7 +12,6 @@ const bookingRoutes = require("./routes/BookingRoute");
 const cartRoutes = require("./routes/CartRoute");
 const tourTypeRoutes = require("./routes/TourTypeRoute");
 const reviewRoutes = require("./routes/ReviewTourRoute");
-// ...
 
 dotenv.config();
 const app = express();

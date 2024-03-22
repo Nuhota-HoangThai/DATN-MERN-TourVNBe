@@ -9,11 +9,14 @@ const BookingController = {
       numberOfAdults,
       numberOfChildren,
       bookingDate,
+      adultPrice,
+      childPrice,
+      infantPrice,
+      surcharge,
       totalAmount,
       additionalInformation,
     } = req.body;
     const user = req.user;
-    //console.log("Booking created", req.body);
 
     try {
       const tourDetails = await Tour.findById(tourId);
@@ -24,13 +27,11 @@ const BookingController = {
 
       const totalParticipants =
         parseInt(numberOfAdults) + parseInt(numberOfChildren);
-      //console.log("so luong: ", totalParticipants);
       if (totalParticipants <= 0) {
         return res
           .status(400)
           .json({ message: "At least one participant is required" });
       }
-      //console.log("tour: ", tourDetails);
       // Kiểm tra xem số lượng người đăng ký có vượt quá số lượng chỗ còn lại hay không
       if (tourDetails.maxParticipants < totalParticipants) {
         return res
@@ -45,6 +46,12 @@ const BookingController = {
         bookingDate,
         numberOfChildren: numberOfChildren,
         numberOfAdults: numberOfAdults,
+        /////
+        adultPrice,
+        childPrice,
+        infantPrice,
+        surcharge,
+        /////
         totalAmount,
         additionalInformation,
       });

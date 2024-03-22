@@ -46,6 +46,29 @@ const bookingSchema = new mongoose.Schema({
     default: "unpaid",
   },
 
+  ///////
+  // Prices
+  adultPrice: {
+    type: Number,
+    //required: true,
+  },
+  childPrice: {
+    // Assuming this is for children aged 2-12
+    type: Number,
+    //required: true,
+  },
+  infantPrice: {
+    // For children under 2 years
+    type: Number,
+    //required: true,
+  },
+  surcharge: {
+    // Additional charge
+    type: Number,
+    default: 0, // Assuming the surcharge might not apply in all cases
+  },
+  //////
+
   totalAmount: {
     type: Number,
     required: true,

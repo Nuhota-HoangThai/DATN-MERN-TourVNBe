@@ -4,7 +4,7 @@ const router = express.Router();
 const ReviewController = require("../controllers/ReviewController");
 const { verifyToken } = require("../middleware/verifyToken");
 
-router.get("/:tourId", verifyToken, ReviewController.getReviews);
+router.get("/:tourId", ReviewController.getReviews);
 
 router.post("/:tourId", verifyToken, ReviewController.createReview);
 
