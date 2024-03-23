@@ -8,6 +8,7 @@ const BookingController = {
       tourId,
       numberOfAdults,
       numberOfChildren,
+      numberOfInfants,
       bookingDate,
       adultPrice,
       childPrice,
@@ -26,7 +27,9 @@ const BookingController = {
       }
 
       const totalParticipants =
-        parseInt(numberOfAdults) + parseInt(numberOfChildren);
+        parseInt(numberOfAdults) +
+        parseInt(numberOfChildren) +
+        parseInt(numberOfInfants);
       if (totalParticipants <= 0) {
         return res
           .status(400)
@@ -46,6 +49,7 @@ const BookingController = {
         bookingDate,
         numberOfChildren: numberOfChildren,
         numberOfAdults: numberOfAdults,
+        numberOfInfants: numberOfInfants,
         /////
         adultPrice,
         childPrice,

@@ -8,6 +8,7 @@ exports.addTour = async (req, res) => {
     const tour = new Tour({
       image: images,
       tourType: req.body.tourType,
+      accessTour: req.body.accessTour,
       nameTour: req.body.nameTour,
       regions: req.body.regions,
       price: req.body.price,
@@ -20,6 +21,7 @@ exports.addTour = async (req, res) => {
       convergeTime: req.body.convergeTime,
       description: req.body.description,
       additionalFees: req.body.additionalFees,
+      AccessTour: req.body.accessTour,
     });
 
     await tour.save();
@@ -74,7 +76,9 @@ exports.updateTour = async (req, res) => {
     endDate: req.body.endDate,
     convergeTime: req.body.convergeTime,
     startingGate: req.body.startingGate,
+
     tourType: req.body.tourType,
+    AccessTour: req.body.accessTour,
     additionalFees: req.body.additionalFees,
   };
 

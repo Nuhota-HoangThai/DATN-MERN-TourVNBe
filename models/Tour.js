@@ -8,11 +8,11 @@ const tourSchema = new mongoose.Schema(
       required: true,
     },
 
-    reviews: {
-      type: mongoose.Schema.Types.ObjectId,
-      ref: "ReviewTour",
-      required: true,
-    },
+    // reviews: {
+    //   type: mongoose.Schema.Types.ObjectId,
+    //   ref: "ReviewTour",
+    //   required: true,
+    // },
 
     reviews: [{ type: mongoose.Schema.Types.ObjectId, ref: "Review" }],
 
@@ -49,6 +49,11 @@ const tourSchema = new mongoose.Schema(
     maxParticipants: {
       type: Number,
       required: true,
+    },
+    AccessTour: {
+      type: String,
+      enum: ["allAge", "adultsOnly"],
+      default: "allAge",
     },
     tourGuide: { type: String },
     promotion: {

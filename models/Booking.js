@@ -29,6 +29,11 @@ const bookingSchema = new mongoose.Schema({
     required: true,
     default: 0,
   },
+  numberOfInfants: {
+    type: Number,
+    required: true,
+    default: 0,
+  },
   bookingDate: {
     type: Date,
     default: Date.now,
