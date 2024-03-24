@@ -99,6 +99,7 @@ exports.updateUser = async (req, res) => {
     phone: req.body.phone,
     email: req.body.email,
     address: req.body.address,
+    cccd: req.body.cccd,
     role: req.body.role,
   };
 
@@ -207,6 +208,7 @@ exports.addUser = async (req, res) => {
       email,
       password: hashedPassword,
       phone,
+      cccd,
       cartData: cart,
       role,
       address,
