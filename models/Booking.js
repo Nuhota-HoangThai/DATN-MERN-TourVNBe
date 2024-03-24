@@ -81,7 +81,7 @@ const bookingSchema = new mongoose.Schema({
   surcharge: {
     // Additional charge
     type: Number,
-    default: 0, // Assuming the surcharge might not apply in all cases
+    // Assuming the surcharge might not apply in all cases
   },
   //////
 

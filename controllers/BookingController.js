@@ -13,10 +13,10 @@ const BookingController = {
       //
       numberOfInfants,
       bookingDate,
-      adultPrice,
-      childPrice,
-      youngChildrenPrice,
-      infantPrice,
+      priceOfAdults,
+      priceForChildren,
+      priceForInfants,
+      priceForYoungChildren,
       surcharge,
       totalAmount,
       additionalInformation,
@@ -57,10 +57,10 @@ const BookingController = {
         numberOfYoungChildren: numberOfYoungChildren,
         numberOfInfants: numberOfInfants,
         /////
-        adultPrice,
-        childPrice,
-        youngChildrenPrice,
-        infantPrice,
+        adultPrice: priceOfAdults,
+        childPrice: priceForChildren,
+        youngChildrenPrice: priceForYoungChildren,
+        infantPrice: priceForInfants,
 
         surcharge,
         /////
