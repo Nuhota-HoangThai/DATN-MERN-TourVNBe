@@ -8,10 +8,14 @@ const BookingController = {
       tourId,
       numberOfAdults,
       numberOfChildren,
+      //
+      numberOfYoungChildren,
+      //
       numberOfInfants,
       bookingDate,
       adultPrice,
       childPrice,
+      youngChildrenPrice,
       infantPrice,
       surcharge,
       totalAmount,
@@ -29,6 +33,7 @@ const BookingController = {
       const totalParticipants =
         parseInt(numberOfAdults) +
         parseInt(numberOfChildren) +
+        parseInt(numberOfYoungChildren) +
         parseInt(numberOfInfants);
       if (totalParticipants <= 0) {
         return res
@@ -49,11 +54,14 @@ const BookingController = {
         bookingDate,
         numberOfChildren: numberOfChildren,
         numberOfAdults: numberOfAdults,
+        numberOfYoungChildren: numberOfYoungChildren,
         numberOfInfants: numberOfInfants,
         /////
         adultPrice,
         childPrice,
+        youngChildrenPrice,
         infantPrice,
+
         surcharge,
         /////
         totalAmount,
@@ -111,6 +119,29 @@ const BookingController = {
     }
   },
 
+  // lấy chi tiêt 1 đơn hàng'
+  getBookingDetails: async (req, res) => {
+    const { id } = req.params; // Lấy ID từ tham số truyền vào
+
+    try {
+      const bookingDetails = await Booking.findById(id)
+        .populate("user")
+        .populate("tour"); // Sử dụng populate để lấy thông tin chi tiết về user và tour
+
+      if (!bookingDetails) {
+        return res.status(404).json({ message: "Booking not found" });
+      }
+
+      res.json(bookingDetails);
+    } catch (error) {
+      console.error(error);
+      res.status(500).json({
+        message: "Error retrieving booking details",
+        error: error.message,
+      });
+    }
+  },
+
   // List all orders
   listBookings: async (req, res) => {
     try {
@@ -123,8 +154,8 @@ const BookingController = {
 
   // Confirm order status
   confirmBookingStatus: async (req, res) => {
-    const { status } = req.body; // Get the new status from the request body
-    const bookingId = req.params.id; // Get the book ID from the request parameters
+    const { status } = req.body;
+    const bookingId = req.params.id;
 
     if (!["pending", "confirmed", "cancelled", "completed"].includes(status)) {
       return res.status(400).json({ message: "Invalid status value" });

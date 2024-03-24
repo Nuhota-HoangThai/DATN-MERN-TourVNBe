@@ -29,6 +29,11 @@ const bookingSchema = new mongoose.Schema({
     required: true,
     default: 0,
   },
+  numberOfYoungChildren: {
+    type: Number,
+    required: true,
+    default: 0,
+  },
   numberOfInfants: {
     type: Number,
     required: true,
@@ -58,12 +63,18 @@ const bookingSchema = new mongoose.Schema({
     //required: true,
   },
   childPrice: {
-    // Assuming this is for children aged 2-12
+    // Assuming this is for children aged 6-16
     type: Number,
     //required: true,
   },
+
+  // 3-6 ages
+  youngChildrenPrice: {
+    type: Number,
+  },
+
   infantPrice: {
-    // For children under 2 years
+    // For children under 3 years
     type: Number,
     //required: true,
   },

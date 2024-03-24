@@ -8,11 +8,13 @@ exports.addTour = async (req, res) => {
     const tour = new Tour({
       image: images,
       tourType: req.body.tourType,
-      accessTour: req.body.accessTour,
+      tourDirectory: req.body.tourDirectory,
+
       nameTour: req.body.nameTour,
       regions: req.body.regions,
       price: req.body.price,
       priceForChildren: req.body.priceForChildren,
+      priceForYoungChildren: req.body.priceForYoungChildren,
       priceForInfants: req.body.priceForInfants,
       maxParticipants: req.body.maxParticipants,
       startDate: req.body.startDate,
@@ -21,7 +23,6 @@ exports.addTour = async (req, res) => {
       convergeTime: req.body.convergeTime,
       description: req.body.description,
       additionalFees: req.body.additionalFees,
-      AccessTour: req.body.accessTour,
     });
 
     await tour.save();
@@ -69,6 +70,7 @@ exports.updateTour = async (req, res) => {
     maxParticipants: req.body.maxParticipants,
     price: req.body.price,
     priceForChildren: req.body.priceForChildren,
+    priceForYoungChildren: req.body.priceForYoungChildren,
     priceForInfants: req.body.priceForInfants,
     regions: req.body.regions,
     description: req.body.description,
@@ -78,7 +80,7 @@ exports.updateTour = async (req, res) => {
     startingGate: req.body.startingGate,
 
     tourType: req.body.tourType,
-    AccessTour: req.body.accessTour,
+    tourDirectory: req.body.tourDirectory,
     additionalFees: req.body.additionalFees,
   };
 
@@ -120,7 +122,9 @@ exports.updateTour = async (req, res) => {
 // Get all tours
 exports.getAllTours = async (req, res) => {
   try {
-    let tours = await Tour.find({}).populate("tourType", "typeName");
+    let tours = await Tour.find({})
+      .populate("tourType", "typeName")
+      .populate("tourDirectory", "directoryName");
     res.json(tours);
   } catch (error) {
     console.error("Error fetching tours:", error);

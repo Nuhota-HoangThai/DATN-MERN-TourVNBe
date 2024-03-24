@@ -8,6 +8,12 @@ const tourSchema = new mongoose.Schema(
       required: true,
     },
 
+    tourDirectory: {
+      type: mongoose.Schema.Types.ObjectId,
+      ref: "TourDirectory",
+      required: true,
+    },
+
     // reviews: {
     //   type: mongoose.Schema.Types.ObjectId,
     //   ref: "ReviewTour",
@@ -20,11 +26,17 @@ const tourSchema = new mongoose.Schema(
     image: [{ type: String, required: true }],
     regions: { type: String, required: true },
     price: { type: Number, required: true },
-    // Giá cho trẻ em từ 2 đến 12 tuổi
+    // Giá cho trẻ em từ 6 đến 16 tuổi
     priceForChildren: {
       type: Number,
     },
-    // Giá cho bé dưới 2 tuổi
+
+    // Giá cho trẻ em từ 3-6 tuổi
+    priceForYoungChildren: {
+      type: Number,
+    },
+
+    // Giá cho bé dưới 3 tuổi
     priceForInfants: {
       type: Number,
     },
