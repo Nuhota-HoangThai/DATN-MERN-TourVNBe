@@ -14,6 +14,11 @@ const tourSchema = new mongoose.Schema(
       required: true,
     },
 
+    tourPromotion: {
+      type: mongoose.Schema.Types.ObjectId,
+      ref: "TourPromotion",
+      //required: true,
+    },
     // reviews: {
     //   type: mongoose.Schema.Types.ObjectId,
     //   ref: "ReviewTour",

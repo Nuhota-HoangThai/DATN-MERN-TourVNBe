@@ -2,7 +2,7 @@ const express = require("express");
 const router = express.Router();
 const userController = require("../controllers/UserController");
 
-const { verifyTokenAdmin } = require("../middleware/verifyTokenAdmin");
+const { verifyTokenCus } = require("../middleware/verifyTokenCus");
 const { verifyToken } = require("../middleware/verifyToken");
 
 const multer = require("multer");
@@ -26,18 +26,26 @@ router.post("/signup", userController.signup);
 router.post("/login", userController.login);
 
 // add user
-router.post("/addUser", userController.addUser);
+router.post("/addUser", verifyTokenCus(["admin"]), userController.addUser);
 
-router.get("/get_all_users", verifyTokenAdmin, userController.getAllUsers);
+router.get(
+  "/get_all_users",
+  verifyTokenCus(["admin"]),
+  userController.getAllUsers
+);
 
 router.put(
   "/update_user/:id",
   upload.single("image"),
-
+  verifyToken,
   userController.updateUser
 );
 
-router.delete("/removeUser/:id", userController.removeUser);
+router.delete(
+  "/removeUser/:id",
+  verifyTokenCus(["admin"]),
+  userController.removeUser
+);
 
 router.get("/getUserById/:id", verifyToken, userController.getUserById);
 

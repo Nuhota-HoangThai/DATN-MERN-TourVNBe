@@ -30,7 +30,7 @@ exports.createTourType = async (req, res) => {
 exports.updateTourType = async (req, res) => {
   const { id } = req.params;
   const { typeName, description } = req.body;
-
+  // console.table(req.body);
   try {
     const updatedTourType = await TourType.findByIdAndUpdate(
       id,

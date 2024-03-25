@@ -181,7 +181,7 @@ exports.getUserById = async (req, res) => {
 
 // add user
 exports.addUser = async (req, res) => {
-  const { name, email, password, phone, role, address } = req.body;
+  const { name, email, password, phone, role, address, cccd } = req.body;
 
   try {
     // Kiểm tra xem người dùng đã tồn tại chưa

@@ -1,10 +1,6 @@
 const mongoose = require("mongoose");
 
 const userSchema = new mongoose.Schema({
-  guide: {
-    type: mongoose.Schema.Types.ObjectId,
-    ref: "TourGuide",
-  },
   image: { type: String },
   name: { type: String },
   cccd: { type: Number },

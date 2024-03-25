@@ -5,6 +5,8 @@ exports.addTour = async (req, res) => {
   try {
     const images = req.files.map((file) => file.path);
 
+    // console.table(req.body);
+
     const tour = new Tour({
       image: images,
       tourType: req.body.tourType,
@@ -26,12 +28,12 @@ exports.addTour = async (req, res) => {
     });
 
     await tour.save();
-    res.json({
+    return res.status(200).json({
       success: true,
       name: req.body.name,
     });
   } catch (error) {
-    res.status(404).json({ error: error });
+    return res.status(500).json({ error: error });
   }
 };
 

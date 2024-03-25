@@ -2,7 +2,7 @@ const express = require("express");
 const router = express.Router();
 const tourController = require("../controllers/TourController");
 
-const { verifyTokenAdmin } = require("../middleware/verifyTokenAdmin");
+const { verifyTokenCus } = require("../middleware/verifyTokenCus");
 
 const multer = require("multer");
 const path = require("path");
@@ -22,15 +22,23 @@ const upload = multer({ storage: storage });
 router.post(
   "/addTour",
   upload.array("image", 5),
-  verifyTokenAdmin,
+  verifyTokenCus(["admin", "staff"]),
   tourController.addTour
 );
 
 // Remove a tour
-router.delete("/removeTour/:id", verifyTokenAdmin, tourController.removeTour);
+router.delete(
+  "/removeTour/:id",
+  verifyTokenCus(["admin", "staff"]),
+  tourController.removeTour
+);
 
 // Get all tours
-router.get("/getAllTours", tourController.getAllTours);
+router.get(
+  "/getAllTours",
+  //verifyTokenCus(["admin", "staff"]),
+  tourController.getAllTours
+);
 
 // Get new collection tours
 router.get("/getNewCollection", tourController.getNewCollection);
@@ -48,13 +56,21 @@ router.get("/getPopularInNorth", tourController.getPopularInNorth);
 router.put(
   "/update_tour/:id",
   upload.array("image", 5),
-
+  verifyTokenCus(["admin", "staff"]),
   tourController.updateTour
 );
 
-router.get("/getTourById/:tourId", tourController.getTourById);
+router.get(
+  "/getTourById/:tourId",
+  // verifyTokenCus(["admin", "staff"]),
+  tourController.getTourById
+);
 
-router.get("/getTourType/:tourTypeId", tourController.getToursByTourTypeId);
+router.get(
+  "/getTourType/:tourTypeId",
+  //verifyTokenCus(["admin", "staff"]),
+  tourController.getToursByTourTypeId
+);
 
 router.get("/search", tourController.searchToursAdvanced);
 

@@ -13,6 +13,7 @@ const cartRoutes = require("./routes/CartRoute");
 const tourTypeRoutes = require("./routes/TourTypeRoute");
 const reviewRoutes = require("./routes/ReviewTourRoute");
 const tourDirectoryRoutes = require("./routes/TourDirectoryRoute");
+const tourPromotionRoutes = require("./routes/TourPromotionRoute");
 
 dotenv.config();
 const app = express();
@@ -33,6 +34,7 @@ app.use("/api/booking", bookingRoutes);
 app.use("/api/tourType", tourTypeRoutes);
 app.use("/api/tourDirectory", tourDirectoryRoutes);
 app.use("/api/review", reviewRoutes);
+app.use("/api/tourPromotion", tourPromotionRoutes);
 
 // Connect to Database
 connectDB();
