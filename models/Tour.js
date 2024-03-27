@@ -19,11 +19,6 @@ const tourSchema = new mongoose.Schema(
       ref: "Promotion",
       required: false,
     },
-    // reviews: {
-    //   type: mongoose.Schema.Types.ObjectId,
-    //   ref: "ReviewTour",
-    //   required: true,
-    // },
 
     reviews: [{ type: mongoose.Schema.Types.ObjectId, ref: "Review" }],
 
@@ -67,6 +62,11 @@ const tourSchema = new mongoose.Schema(
       type: Number,
       required: true,
     },
+    // lưu gia goc truoc khi thanh gia khuyen mai
+    originalPrice: { type: Number },
+    originalPriceForChildren: { type: Number },
+    originalPriceForYoungChildren: { type: Number },
+    originalPriceForInfants: { type: Number },
   },
   {
     timestamps: true,

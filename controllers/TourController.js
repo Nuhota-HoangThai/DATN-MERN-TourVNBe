@@ -1,4 +1,5 @@
 const Tour = require("../models/Tour");
+const Promotion = require("../models/TourPromotion");
 
 // Add a new tour
 exports.addTour = async (req, res) => {
@@ -11,6 +12,7 @@ exports.addTour = async (req, res) => {
       image: images,
       tourType: req.body.tourType,
       tourDirectory: req.body.tourDirectory,
+      //promotion: req.body.promotion,
 
       nameTour: req.body.nameTour,
       regions: req.body.regions,
@@ -65,41 +67,79 @@ exports.removeTour = async (req, res) => {
   }
 };
 
+//
 exports.updateTour = async (req, res) => {
   const { id } = req.params;
   let update = {
+    tourType: req.body.tourType,
+    tourDirectory: req.body.tourDirectory,
     nameTour: req.body.nameTour,
     maxParticipants: req.body.maxParticipants,
-    price: req.body.price,
-    priceForChildren: req.body.priceForChildren,
-    priceForYoungChildren: req.body.priceForYoungChildren,
-    priceForInfants: req.body.priceForInfants,
     regions: req.body.regions,
     description: req.body.description,
     startDate: req.body.startDate,
     endDate: req.body.endDate,
     convergeTime: req.body.convergeTime,
     startingGate: req.body.startingGate,
-
-    tourType: req.body.tourType,
-    tourDirectory: req.body.tourDirectory,
+    price: req.body.price,
+    priceForChildren: req.body.priceForChildren,
+    priceForYoungChildren: req.body.priceForYoungChildren,
+    priceForInfants: req.body.priceForInfants,
     additionalFees: req.body.additionalFees,
+    promotion: req.body.promotion, // assuming this is the promotion ID
   };
 
-  // If there is an image file to be uploaded, update the image field
   if (req.files && req.files.length > 0) {
-    // Array to contain the paths of all uploaded images
     const imagesPaths = req.files.map((file) => file.path);
-
-    // Update the image field in the update object
     update.image = imagesPaths;
   }
 
   try {
+    // Check if a promotion is applied and fetch it
+    if (update.promotion) {
+      const promotion = await Promotion.findById(update.promotion);
+      if (!promotion) {
+        return res
+          .status(404)
+          .json({ success: false, message: "Promotion not found" });
+      }
+
+      const tourBeforeUpdate = await Tour.findById(id);
+
+      // Lưu giá gốc nếu chưa có
+      if (!tourBeforeUpdate.originalPrice) {
+        update.originalPrice = tourBeforeUpdate.price;
+        update.originalPriceForChildren = tourBeforeUpdate.priceForChildren;
+        update.originalPriceForYoungChildren =
+          tourBeforeUpdate.priceForYoungChildren;
+        update.originalPriceForInfants = tourBeforeUpdate.priceForInfants;
+      }
+
+      const applyDiscount = (price, discountPercentage) => {
+        const discount = (price * discountPercentage) / 100;
+        return price - discount;
+      };
+
+      // Apply the discount to applicable price fields
+      update.price = applyDiscount(update.price, promotion.discountPercentage);
+      update.priceForChildren = applyDiscount(
+        update.priceForChildren,
+        promotion.discountPercentage
+      );
+      update.priceForYoungChildren = applyDiscount(
+        update.priceForYoungChildren,
+        promotion.discountPercentage
+      );
+      update.priceForInfants = applyDiscount(
+        update.priceForInfants,
+        promotion.discountPercentage
+      );
+    }
+
     const updatedTour = await Tour.findByIdAndUpdate(id, update, {
       new: true,
       runValidators: true,
-    });
+    }).populate("promotion"); // Assuming you want to return the promotion details with the tour
 
     if (!updatedTour) {
       return res
@@ -121,12 +161,12 @@ exports.updateTour = async (req, res) => {
   }
 };
 
-// Get all tours
 exports.getAllTours = async (req, res) => {
   try {
     let tours = await Tour.find({})
       .populate("tourType", "typeName")
-      .populate("tourDirectory", "directoryName");
+      .populate("tourDirectory", "directoryName")
+      .populate("promotion", "namePromotion");
     res.json(tours);
   } catch (error) {
     console.error("Error fetching tours:", error);
