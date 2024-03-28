@@ -12,7 +12,7 @@ router.post(
 );
 router.get(
   "/getAllPromotion",
-  verifyTokenCus(["admin", "staff"]),
+  //verifyTokenCus(["admin", "staff"]),
   promotionController.getAllPromotions
 );
 router.get(

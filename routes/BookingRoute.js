@@ -35,4 +35,10 @@ router.get(
   BookingController.getBookingDetails
 );
 
+router.post(
+  "/payment_vnpay_url",
+  verifyToken,
+  BookingController.addOrderByVNPay
+);
+
 module.exports = router;

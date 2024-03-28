@@ -72,6 +72,8 @@ router.get(
   tourController.getToursByTourTypeId
 );
 
+router.get("/promotion/:promotionId", tourController.getToursByPromotionId);
+
 router.get("/search", tourController.searchToursAdvanced);
 
 module.exports = router;

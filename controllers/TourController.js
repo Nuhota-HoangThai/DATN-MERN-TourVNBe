@@ -312,4 +312,34 @@ exports.searchToursAdvanced = async (req, res) => {
   }
 };
 
+// Lấy tất cả các tour có cùng khuyến mãi
+exports.getToursByPromotionId = async (req, res) => {
+  try {
+    const { promotionId } = req.params;
+
+    // Find tours with the matching promotion ID
+    const tours = await Tour.find({ promotion: promotionId })
+      .populate("tourType", "typeName")
+      .populate("tourDirectory", "directoryName")
+      .populate("promotion", "namePromotion discountPercentage");
+    if (!tours || tours.length === 0) {
+      return res.status(404).json({
+        success: false,
+        message: "No tours found for the specified promotion",
+      });
+    }
+
+    res.json({
+      success: true,
+      tours: tours,
+    });
+  } catch (error) {
+    console.error("Error retrieving tours by promotion:", error);
+    res.status(500).json({
+      success: false,
+      message: "Error retrieving tours by promotion",
+      error: error.message,
+    });
+  }
+};
 module.exports = exports;

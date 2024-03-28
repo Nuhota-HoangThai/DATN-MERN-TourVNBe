@@ -55,7 +55,12 @@ const bookingSchema = new mongoose.Schema({
     enum: ["paid", "unpaid"],
     default: "unpaid",
   },
-
+  paymentMethod: {
+    type: String,
+    required: true,
+    enum: ["VNPay", "COD", "Unpaid"], // Thêm phương thức thanh toán VNPay và COD
+    default: "Unpaid",
+  },
   ///////
   // Prices
   adultPrice: {
