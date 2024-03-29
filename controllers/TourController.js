@@ -86,7 +86,7 @@ exports.updateTour = async (req, res) => {
     priceForYoungChildren: req.body.priceForYoungChildren,
     priceForInfants: req.body.priceForInfants,
     additionalFees: req.body.additionalFees,
-    promotion: req.body.promotion, // assuming this is the promotion ID
+    promotion: req.body.promotion,
   };
 
   if (req.files && req.files.length > 0) {
@@ -166,7 +166,7 @@ exports.getAllTours = async (req, res) => {
     let tours = await Tour.find({})
       .populate("tourType", "typeName")
       .populate("tourDirectory", "directoryName")
-      .populate("promotion", "namePromotion");
+      .populate("promotion", "namePromotion discountPercentage");
     res.json(tours);
   } catch (error) {
     console.error("Error fetching tours:", error);
@@ -179,28 +179,40 @@ exports.getAllTours = async (req, res) => {
 
 // Get new collection tours
 exports.getNewCollection = async (req, res) => {
-  let tours = await Tour.find({});
+  let tours = await Tour.find({})
+    .populate("tourType", "typeName")
+    .populate("tourDirectory", "directoryName")
+    .populate("promotion", "namePromotion discountPercentage");
   let newCollection = tours.slice(1).slice(-8);
   res.send(newCollection);
 };
 
 // Get popular tours in the central region
 exports.getPopularInCentral = async (req, res) => {
-  let tours = await Tour.find({ regions: "mt" });
+  let tours = await Tour.find({ regions: "mt" })
+    .populate("tourType", "typeName")
+    .populate("tourDirectory", "directoryName")
+    .populate("promotion", "namePromotion discountPercentage");
   let popular_in_central = tours.slice(0, 6);
   res.send(popular_in_central);
 };
 
 //Get popular tours in the North
 exports.getPopularInNorth = async (req, res) => {
-  let tours = await Tour.find({ regions: "mb" });
+  let tours = await Tour.find({ regions: "mb" })
+    .populate("tourType", "typeName")
+    .populate("tourDirectory", "directoryName")
+    .populate("promotion", "namePromotion discountPercentage");
   let popular_in_north = tours.slice(0, 6);
   res.send(popular_in_north);
 };
 
 //Get popular tours in the Southern
 exports.getPopularInSouthern = async (req, res) => {
-  let tours = await Tour.find({ regions: "mn" });
+  let tours = await Tour.find({ regions: "mn" })
+    .populate("tourType", "typeName")
+    .populate("tourDirectory", "directoryName")
+    .populate("promotion", "namePromotion discountPercentage");
   let popular_in_southern = tours.slice(0, 6);
   res.send(popular_in_southern);
 };
@@ -215,14 +227,18 @@ exports.getTourById = async (req, res) => {
         .json({ success: false, message: "Invalid or missing tour ID" });
     }
 
-    //console.log(tourId);
-    const tour = await Tour.findById(tourId);
+    const tour = await Tour.findById(tourId)
+      .populate("tourType", "typeName")
+      .populate("tourDirectory", "directoryName")
+      .populate("promotion", "namePromotion discountPercentage");
+
     if (!tour) {
       return res
         .status(404)
         .json({ success: false, message: "Tour not found" });
     }
 
+    // Return the found tour if it exists
     res.json({ success: true, tour: tour });
   } catch (error) {
     console.error("Error finding tour:", error);
@@ -239,7 +255,10 @@ exports.getToursByTourTypeId = async (req, res) => {
   try {
     const { tourTypeId } = req.params;
 
-    const tours = await Tour.find({ tourType: tourTypeId });
+    const tours = await Tour.find({ tourType: tourTypeId })
+      .populate("tourType", "typeName")
+      .populate("tourDirectory", "directoryName")
+      .populate("promotion", "namePromotion discountPercentage");
 
     if (!tours || tours.length === 0) {
       return res.status(404).json({
@@ -292,7 +311,10 @@ exports.searchToursAdvanced = async (req, res) => {
       searchConditions.maxParticipants = { $gte: Number(maxParticipants) };
     }
 
-    const tours = await Tour.find(searchConditions);
+    const tours = await Tour.find(searchConditions)
+      .populate("tourType", "typeName")
+      .populate("tourDirectory", "directoryName")
+      .populate("promotion", "namePromotion discountPercentage");
 
     if (!tours.length) {
       return res.status(404).json({
