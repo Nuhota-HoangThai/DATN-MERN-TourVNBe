@@ -207,18 +207,35 @@ const BookingController = {
     try {
       console.log(req.body);
 
-      const { totalAmount, surcharge } = req.body;
+      const {
+        tourId,
+        numberOfAdults,
+        numberOfChildren,
+        //
+        numberOfYoungChildren,
+        //
+        numberOfInfants,
+        bookingDate,
+        priceOfAdults,
+        priceForChildren,
+        priceForInfants,
+        priceForYoungChildren,
+        surcharge,
+        totalAmount,
+        additionalInformation,
+      } = req.body;
+
       var ipAddr =
         req.headers["x-forwarded-for"] ||
         req.connection.remoteAddress ||
         req.socket.remoteAddress ||
         req.connection.socket.remoteAddress;
 
-      var tmnCode = "JL536TD9";
-      var secretKey = "LJAZLFTCGAROXGXEXWWRCCTOPUAOIUDZ";
+      var tmnCode = "5I5PNIK3";
+      var secretKey = "QUXPZIAVAUZHVGUPFGFHGNWVBECPRFEJ";
       var vnpUrl = "https://sandbox.vnpayment.vn/paymentv2/vpcpay.html";
       var returnUrl =
-        "http://localhost:5173/order/payment_vnpay_return?totalAmount=" +
+        "http://localhost:5174/booking/payment_vnpay_return?totalAmount=" +
         totalAmount +
         "&surcharge=" +
         surcharge;
