@@ -20,7 +20,12 @@ const tourSchema = new mongoose.Schema(
       required: false,
     },
 
-    reviews: [{ type: mongoose.Schema.Types.ObjectId, ref: "Review" }],
+    reviews: {
+      type: mongoose.Schema.Types.ObjectId,
+      ref: "ReviewTour",
+      required: false,
+    },
+    reviews: [{ type: mongoose.Schema.Types.ObjectId, ref: "ReviewTour" }],
 
     nameTour: { type: String, required: true },
     image: [{ type: String, required: true }],

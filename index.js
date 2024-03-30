@@ -14,6 +14,7 @@ const tourTypeRoutes = require("./routes/TourTypeRoute");
 const reviewRoutes = require("./routes/ReviewTourRoute");
 const tourDirectoryRoutes = require("./routes/TourDirectoryRoute");
 const tourPromotionRoutes = require("./routes/TourPromotionRoute");
+const statisticalRoutes = require("./routes/StatisticalRoute");
 
 dotenv.config();
 const app = express();
@@ -35,6 +36,7 @@ app.use("/api/tourType", tourTypeRoutes);
 app.use("/api/tourDirectory", tourDirectoryRoutes);
 app.use("/api/review", reviewRoutes);
 app.use("/api/tourPromotion", tourPromotionRoutes);
+app.use("/api/statistical", statisticalRoutes);
 
 // Connect to Database
 connectDB();

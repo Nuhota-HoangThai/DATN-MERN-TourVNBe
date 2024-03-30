@@ -21,7 +21,7 @@ const upload = multer({ storage: storage });
 // Add a new tour
 router.post(
   "/addTour",
-  upload.array("image", 5),
+  upload.array("image", 20),
   verifyTokenCus(["admin", "staff"]),
   tourController.addTour
 );
@@ -55,7 +55,7 @@ router.get("/getPopularInNorth", tourController.getPopularInNorth);
 //Cập nhật tour
 router.put(
   "/update_tour/:id",
-  upload.array("image", 5),
+  upload.array("image", 20),
   verifyTokenCus(["admin", "staff"]),
   tourController.updateTour
 );

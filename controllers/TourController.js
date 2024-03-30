@@ -139,7 +139,10 @@ exports.updateTour = async (req, res) => {
     const updatedTour = await Tour.findByIdAndUpdate(id, update, {
       new: true,
       runValidators: true,
-    }).populate("promotion"); // Assuming you want to return the promotion details with the tour
+    })
+      .populate("tourType", "typeName")
+      .populate("tourDirectory", "directoryName")
+      .populate("promotion", "namePromotion discountPercentage");
 
     if (!updatedTour) {
       return res
@@ -280,41 +283,92 @@ exports.getToursByTourTypeId = async (req, res) => {
   }
 };
 
+// exports.searchToursAdvanced = async (req, res) => {
+//   try {
+//     const { nameTour, startDate, price, maxParticipants } = req.query;
+
+//     // Tạo điều kiện tìm kiếm ban đầu là một đối tượng rỗng
+//     let searchConditions = {};
+
+//     // if (regions) {
+//     //   searchConditions.regions = regions;
+//     // }
+
+//     if (nameTour) {
+//       searchConditions.nameTour = { $regex: nameTour, $options: "i" }; // Tìm kiếm không phân biệt hoa thường
+//     }
+
+//     if (startDate) {
+//       // Chỉ tìm các tour có ngày bắt đầu sau ngày được chỉ định
+//       searchConditions.startDate = { $gte: new Date(startDate) };
+//     }
+
+//     if (price) {
+//       // Giả sử price là một chuỗi có dạng "min-max"
+//       const [minPrice, maxPrice] = price.split("-").map(Number);
+//       searchConditions.price = { $gte: minPrice, $lte: maxPrice || Infinity };
+//     }
+
+//     if (maxParticipants) {
+//       // Tìm tours với số lượng người tham gia tối đa không vượt quá giá trị được chỉ định
+//       searchConditions.maxParticipants = { $gte: Number(maxParticipants) };
+//     }
+
+//     const tours = await Tour.find(searchConditions);
+//     // .populate("tourType", "typeName")
+//     // .populate("tourDirectory", "directoryName")
+//     // .populate("promotion", "namePromotion discountPercentage");
+
+//     if (!tours.length) {
+//       return res.status(404).json({
+//         success: false,
+//         message: "No tours found matching the search criteria.",
+//       });
+//     }
+
+//     res.json({ success: true, tours });
+//   } catch (error) {
+//     console.error("Error searching for tours:", error);
+//     res.status(500).json({
+//       success: false,
+//       message: "Error searching for tours",
+//       error: error.message,
+//     });
+//   }
+// };
+
+// Lấy tất cả các tour có cùng khuyến mãi
+
 exports.searchToursAdvanced = async (req, res) => {
   try {
-    const { regions, nameTour, startDate, price, maxParticipants } = req.query;
+    const { nameTour, startDate, priceMin, priceMax, maxParticipants } =
+      req.query;
 
-    // Tạo điều kiện tìm kiếm ban đầu là một đối tượng rỗng
     let searchConditions = {};
 
-    if (regions) {
-      searchConditions.regions = regions;
-    }
-
     if (nameTour) {
-      searchConditions.nameTour = { $regex: nameTour, $options: "i" }; // Tìm kiếm không phân biệt hoa thường
+      searchConditions.nameTour = { $regex: nameTour, $options: "i" };
     }
 
     if (startDate) {
-      // Chỉ tìm các tour có ngày bắt đầu sau ngày được chỉ định
       searchConditions.startDate = { $gte: new Date(startDate) };
     }
 
-    if (price) {
-      // Giả sử price là một chuỗi có dạng "min-max"
-      const [minPrice, maxPrice] = price.split("-").map(Number);
-      searchConditions.price = { $gte: minPrice, $lte: maxPrice || Infinity };
+    if (priceMin || priceMax) {
+      searchConditions.price = {};
+      if (priceMin) {
+        searchConditions.price.$gte = Number(priceMin);
+      }
+      if (priceMax) {
+        searchConditions.price.$lte = Number(priceMax);
+      }
     }
 
     if (maxParticipants) {
-      // Tìm tours với số lượng người tham gia tối đa không vượt quá giá trị được chỉ định
       searchConditions.maxParticipants = { $gte: Number(maxParticipants) };
     }
 
-    const tours = await Tour.find(searchConditions)
-      .populate("tourType", "typeName")
-      .populate("tourDirectory", "directoryName")
-      .populate("promotion", "namePromotion discountPercentage");
+    const tours = await Tour.find(searchConditions);
 
     if (!tours.length) {
       return res.status(404).json({
@@ -334,7 +388,6 @@ exports.searchToursAdvanced = async (req, res) => {
   }
 };
 
-// Lấy tất cả các tour có cùng khuyến mãi
 exports.getToursByPromotionId = async (req, res) => {
   try {
     const { promotionId } = req.params;
