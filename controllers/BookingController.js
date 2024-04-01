@@ -218,6 +218,7 @@ const BookingController = {
       surcharge,
       totalAmount,
       additionalInformation,
+      paymentStatus,
     } = req.body;
 
     const user = req.user;
@@ -261,9 +262,10 @@ const BookingController = {
         surcharge,
         totalAmount,
         additionalInformation,
+        paymentStatus,
       });
-
-      const savedBooking = await newBooking.save();
+      newBooking.paymentStatus = "paid";
+      await newBooking.save();
       tourDetails.maxParticipants -= totalParticipants;
       await tourDetails.save();
 
