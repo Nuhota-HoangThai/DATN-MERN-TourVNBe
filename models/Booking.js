@@ -58,19 +58,18 @@ const bookingSchema = new mongoose.Schema({
   paymentMethod: {
     type: String,
     required: true,
-    enum: ["VNPay", "COD", "Unpaid"], // Thêm phương thức thanh toán VNPay và COD
+    enum: ["VNPay", "COD", "Unpaid"],
     default: "Unpaid",
   },
-  ///////
+
   // Prices
   adultPrice: {
     type: Number,
-    //required: true,
   },
+
+  // Assuming this is for children aged 6-16
   childPrice: {
-    // Assuming this is for children aged 6-16
     type: Number,
-    //required: true,
   },
 
   // 3-6 ages
@@ -78,17 +77,14 @@ const bookingSchema = new mongoose.Schema({
     type: Number,
   },
 
+  // For children under 3 years
   infantPrice: {
-    // For children under 3 years
     type: Number,
-    //required: true,
   },
   surcharge: {
     // Additional charge
     type: Number,
-    // Assuming the surcharge might not apply in all cases
   },
-  //////
 
   totalAmount: {
     type: Number,

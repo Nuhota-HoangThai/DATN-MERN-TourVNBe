@@ -204,26 +204,68 @@ const BookingController = {
   },
 
   addOrderByVNPay: async (req, res) => {
+    const {
+      tourId,
+      numberOfAdults,
+      numberOfChildren,
+      numberOfYoungChildren,
+      numberOfInfants,
+      bookingDate,
+      priceOfAdults,
+      priceForChildren,
+      priceForInfants,
+      priceForYoungChildren,
+      surcharge,
+      totalAmount,
+      additionalInformation,
+    } = req.body;
+
+    const user = req.user;
     try {
       console.log(req.body);
+      const tourDetails = await Tour.findById(tourId);
+      if (!tourDetails) {
+        return res.status(404).json({ message: "Tour not found" });
+      }
 
-      const {
-        tourId,
-        numberOfAdults,
-        numberOfChildren,
-        //
-        numberOfYoungChildren,
-        //
-        numberOfInfants,
+      const totalParticipants =
+        parseInt(numberOfAdults) +
+        parseInt(numberOfChildren) +
+        parseInt(numberOfYoungChildren) +
+        parseInt(numberOfInfants);
+
+      if (totalParticipants <= 0) {
+        return res
+          .status(400)
+          .json({ message: "At least one participant is required" });
+      }
+
+      if (tourDetails.maxParticipants < totalParticipants) {
+        return res
+          .status(400)
+          .json({ message: "Not enough spots available on the tour" });
+      }
+
+      const newBooking = new Booking({
+        user: user.id,
+        tour: tourId,
         bookingDate,
-        priceOfAdults,
-        priceForChildren,
-        priceForInfants,
-        priceForYoungChildren,
+        numberOfChildren,
+        numberOfAdults,
+        numberOfYoungChildren,
+        numberOfInfants,
+        adultPrice: priceOfAdults,
+        childPrice: priceForChildren,
+        youngChildrenPrice: priceForYoungChildren,
+        infantPrice: priceForInfants,
         surcharge,
         totalAmount,
         additionalInformation,
-      } = req.body;
+      });
+
+      const savedBooking = await newBooking.save();
+      tourDetails.maxParticipants -= totalParticipants;
+      await tourDetails.save();
 
       var ipAddr =
         req.headers["x-forwarded-for"] ||
@@ -234,65 +276,51 @@ const BookingController = {
       var tmnCode = "5I5PNIK3";
       var secretKey = "QUXPZIAVAUZHVGUPFGFHGNWVBECPRFEJ";
       var vnpUrl = "https://sandbox.vnpayment.vn/paymentv2/vpcpay.html";
-      var returnUrl =
-        "http://localhost:5174/booking/payment_vnpay_return?totalAmount=" +
-        totalAmount +
-        "&surcharge=" +
-        surcharge;
+      var returnUrl = `http://localhost:5174/booking/payment_vnpay_return?totalAmount=${totalAmount}&surcharge=${surcharge}`;
 
       const date = new Date();
-
       const createDate = moment(date).format("YYYYMMDDHHmmss");
       var bookingId = moment(date).format("DDHHmmss");
-      // var amount = price;
       var bankCode = "NCB";
-
-      //var orderInfo = 'Thanh toan don hang';
       var orderType = "billpayment";
       var locale = "vn";
-      if (locale === null || locale === "") {
-        locale = "vn";
-      }
       var currCode = "VND";
-      var vnp_Params = {};
-      vnp_Params["vnp_Version"] = "2.1.0";
-      vnp_Params["vnp_Command"] = "pay";
-      vnp_Params["vnp_TmnCode"] = tmnCode;
-      vnp_Params["vnp_Locale"] = "vn";
-      vnp_Params["vnp_CurrCode"] = currCode;
-      vnp_Params["vnp_TxnRef"] = bookingId; //
-      vnp_Params["vnp_OrderInfo"] = "Thanh toan cho ma GD: " + bookingId;
-      vnp_Params["vnp_OrderType"] = orderType;
-      vnp_Params["vnp_Amount"] = totalAmount * 100;
-      vnp_Params["vnp_ReturnUrl"] = returnUrl;
-      vnp_Params["vnp_IpAddr"] = ipAddr;
-      vnp_Params["vnp_CreateDate"] = createDate;
-      if (bankCode !== null && bankCode !== "") {
+      var vnp_Params = {
+        vnp_Version: "2.1.0",
+        vnp_Command: "pay",
+        vnp_TmnCode: tmnCode,
+        vnp_Locale: locale,
+        vnp_CurrCode: currCode,
+        vnp_TxnRef: bookingId,
+        vnp_OrderInfo: `Thanh toan cho ma GD: ${bookingId}`,
+        vnp_OrderType: orderType,
+        vnp_Amount: totalAmount * 100,
+        vnp_ReturnUrl: returnUrl,
+        vnp_IpAddr: ipAddr,
+        vnp_CreateDate: createDate,
+      };
+
+      if (bankCode) {
         vnp_Params["vnp_BankCode"] = bankCode;
       }
 
-      ////////////////////////////
       vnp_Params = sortObject(vnp_Params);
-
       const signData = qs.stringify(vnp_Params, { encode: false });
       const hmac = crypto.createHmac("sha512", secretKey);
       const signed = hmac.update(Buffer.from(signData, "utf-8")).digest("hex");
-
       vnp_Params.vnp_SecureHash = signed;
       vnpUrl += `?${qs.stringify(vnp_Params, { encode: false })}`;
-      //res.redirect(vnpUrl);
 
-      ////////////////////////////////
-
-      res.send({
+      // Chỉ gửi một response ở đây
+      return res.json({
         code: "00",
+        message: "Booking saved and payment URL generated successfully",
         vnpUrl,
+        bookingId,
       });
     } catch (error) {
       console.log(error);
-      res.status(500).json({
-        message: error.message,
-      });
+      return res.status(500).json({ message: error.message });
     }
   },
 };
