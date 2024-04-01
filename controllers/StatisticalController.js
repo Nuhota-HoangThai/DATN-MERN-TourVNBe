@@ -9,7 +9,8 @@ exports.totalTours = async (req, res) => {
   try {
     const { startDate, endDate } = req.query;
     const total = await Tour.countDocuments({
-      createdAt: { $gte: new Date(startDate), $lte: new Date(endDate) },
+      ...(startDate && { createdAt: { $gte: new Date(startDate) } }),
+      ...(endDate && { createdAt: { $lte: new Date(endDate) } }),
     });
     res.json({ totalTours: total });
   } catch (error) {
@@ -23,7 +24,8 @@ exports.toursSold = async (req, res) => {
     const { startDate, endDate } = req.query;
     const sold = await Booking.countDocuments({
       status: { $ne: "cancelled" },
-      bookingDate: { $gte: new Date(startDate), $lte: new Date(endDate) },
+      ...(startDate && { bookingDate: { $gte: new Date(startDate) } }),
+      ...(endDate && { bookingDate: { $lte: new Date(endDate) } }),
     });
     res.json({ toursSold: sold });
   } catch (error) {
@@ -36,7 +38,8 @@ exports.totalReviews = async (req, res) => {
   try {
     const { startDate, endDate } = req.query;
     const total = await ReviewTour.countDocuments({
-      createdAt: { $gte: new Date(startDate), $lte: new Date(endDate) },
+      ...(startDate && { createdAt: { $gte: new Date(startDate) } }),
+      ...(endDate && { createdAt: { $lte: new Date(endDate) } }),
     });
     res.json({ totalReviews: total });
   } catch (error) {
@@ -50,7 +53,8 @@ exports.newCustomers = async (req, res) => {
   try {
     const { startDate, endDate } = req.query;
     const total = await User.countDocuments({
-      date: { $gte: new Date(startDate), $lte: new Date(endDate) },
+      ...(startDate && { date: { $gte: new Date(startDate) } }),
+      ...(endDate && { date: { $lte: new Date(endDate) } }),
     });
     res.json({ newCustomers: total });
   } catch (error) {

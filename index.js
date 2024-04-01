@@ -26,6 +26,7 @@ app.use(express.json());
 app.use(bodyParser.json());
 
 app.use("/api/upload/images", express.static("upload/images"));
+app.use("/api/upload/videos", express.static("upload/videos"));
 
 // Use Tour and User routes
 app.use("/api/tour", tourRoutes);

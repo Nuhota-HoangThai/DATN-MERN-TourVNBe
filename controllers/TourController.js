@@ -4,15 +4,19 @@ const Promotion = require("../models/TourPromotion");
 // Add a new tour
 exports.addTour = async (req, res) => {
   try {
-    const images = req.files.map((file) => file.path);
-
-    // console.table(req.body);
+    const images = req.files.image
+      ? req.files.image.map((file) => file.path)
+      : [];
+    const videos = req.files.video
+      ? req.files.video.map((file) => file.path)
+      : [];
 
     const tour = new Tour({
       image: images,
+      video: videos,
+
       tourType: req.body.tourType,
       tourDirectory: req.body.tourDirectory,
-      //promotion: req.body.promotion,
 
       nameTour: req.body.nameTour,
       regions: req.body.regions,
@@ -32,7 +36,7 @@ exports.addTour = async (req, res) => {
     await tour.save();
     return res.status(200).json({
       success: true,
-      name: req.body.name,
+      nameTour: req.body.nameTour,
     });
   } catch (error) {
     return res.status(500).json({ error: error });

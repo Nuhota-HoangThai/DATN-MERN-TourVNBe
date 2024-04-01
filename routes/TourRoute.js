@@ -7,21 +7,56 @@ const { verifyTokenCus } = require("../middleware/verifyTokenCus");
 const multer = require("multer");
 const path = require("path");
 
-// Cấu hình multer như đã mô tả ở trên
+// Cấu hình chung cho việc lưu trữ
 const storage = multer.diskStorage({
   destination: function (req, file, cb) {
-    cb(null, "upload/images/");
+    // Kiểm tra loại file để quyết định thư mục lưu trữ
+    if (file.mimetype.startsWith("image/")) {
+      cb(null, "upload/images/");
+    } else if (file.mimetype.startsWith("video/")) {
+      cb(null, "upload/videos/");
+    } else {
+      // Loại file không được hỗ trợ
+      cb(new Error("Invalid file type"), false);
+    }
   },
   filename: function (req, file, cb) {
+    // Tạo tên file duy nhất
     cb(null, Date.now() + path.extname(file.originalname));
   },
 });
-const upload = multer({ storage: storage });
+
+// Tùy chọn fileFilter để chỉ chấp nhận hình ảnh và video
+const fileFilter = function (req, file, cb) {
+  if (
+    file.mimetype.startsWith("image/") ||
+    file.mimetype.startsWith("video/")
+  ) {
+    cb(null, true);
+  } else {
+    // Loại file không được chấp nhận
+    cb(
+      new Error("Invalid file type, only images and videos are allowed!"),
+      false
+    );
+  }
+};
+
+const upload = multer({ storage: storage, fileFilter: fileFilter });
+
+// Middleware để kiểm tra ít nhất một hình ảnh được upload
+const checkImagesUploaded = (req, res, next) => {
+  if (!req.files["image"] || req.files["image"].length === 0) {
+    return res.status(400).send("At least one image is required.");
+  }
+  next();
+};
 
 // Add a new tour
 router.post(
   "/addTour",
-  upload.array("image", 20),
+  upload.fields([{ name: "image", maxCount: 20 }, { name: "video" }]),
+  checkImagesUploaded,
   verifyTokenCus(["admin", "staff"]),
   tourController.addTour
 );

@@ -29,6 +29,7 @@ const tourSchema = new mongoose.Schema(
 
     nameTour: { type: String, required: true },
     image: [{ type: String, required: true }],
+    video: [{ type: String }],
     regions: { type: String, required: true },
     price: { type: Number, required: true },
     // Giá cho trẻ em từ 6 đến 16 tuổi
