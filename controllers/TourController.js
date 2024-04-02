@@ -71,7 +71,6 @@ exports.removeTour = async (req, res) => {
   }
 };
 
-//
 exports.updateTour = async (req, res) => {
   const { id } = req.params;
   let update = {
@@ -99,7 +98,6 @@ exports.updateTour = async (req, res) => {
   }
 
   try {
-    // Check if a promotion is applied and fetch it
     if (update.promotion) {
       const promotion = await Promotion.findById(update.promotion);
       if (!promotion) {
@@ -107,37 +105,6 @@ exports.updateTour = async (req, res) => {
           .status(404)
           .json({ success: false, message: "Promotion not found" });
       }
-
-      const tourBeforeUpdate = await Tour.findById(id);
-
-      // Lưu giá gốc nếu chưa có
-      if (!tourBeforeUpdate.originalPrice) {
-        update.originalPrice = tourBeforeUpdate.price;
-        update.originalPriceForChildren = tourBeforeUpdate.priceForChildren;
-        update.originalPriceForYoungChildren =
-          tourBeforeUpdate.priceForYoungChildren;
-        update.originalPriceForInfants = tourBeforeUpdate.priceForInfants;
-      }
-
-      const applyDiscount = (price, discountPercentage) => {
-        const discount = (price * discountPercentage) / 100;
-        return price - discount;
-      };
-
-      // Apply the discount to applicable price fields
-      update.price = applyDiscount(update.price, promotion.discountPercentage);
-      update.priceForChildren = applyDiscount(
-        update.priceForChildren,
-        promotion.discountPercentage
-      );
-      update.priceForYoungChildren = applyDiscount(
-        update.priceForYoungChildren,
-        promotion.discountPercentage
-      );
-      update.priceForInfants = applyDiscount(
-        update.priceForInfants,
-        promotion.discountPercentage
-      );
     }
 
     const updatedTour = await Tour.findByIdAndUpdate(id, update, {
@@ -173,7 +140,68 @@ exports.getAllTours = async (req, res) => {
     let tours = await Tour.find({})
       .populate("tourType", "typeName")
       .populate("tourDirectory", "directoryName")
-      .populate("promotion", "namePromotion discountPercentage");
+      .populate(
+        "promotion",
+        "namePromotion discountPercentage startDatePromotion endDatePromotion"
+      );
+
+    const now = new Date();
+
+    for (let tour of tours) {
+      let tourData = tour.toObject();
+      let needUpdate = false;
+
+      // Kiểm tra và lưu giá gốc nếu chưa có
+      if (tourData.originalPrice === undefined) {
+        tourData.originalPrice = tourData.price;
+        tourData.originalPriceForChildren = tourData.priceForChildren;
+        tourData.originalPriceForYoungChildren = tourData.priceForYoungChildren;
+        tourData.originalPriceForInfants = tourData.priceForInfants;
+        needUpdate = true;
+      }
+
+      // Áp dụng khuyến mãi
+      if (
+        tourData.promotion &&
+        now >= tourData.promotion.startDatePromotion &&
+        now <= tourData.promotion.endDatePromotion
+      ) {
+        const discountPercentage = tourData.promotion.discountPercentage;
+
+        const applyDiscount = (price, discountPercentage) =>
+          price - (price * discountPercentage) / 100;
+
+        tourData.price = applyDiscount(tourData.price, discountPercentage);
+        tourData.priceForChildren = applyDiscount(
+          tourData.priceForChildren,
+          discountPercentage
+        );
+        tourData.priceForYoungChildren = applyDiscount(
+          tourData.priceForYoungChildren,
+          discountPercentage
+        );
+        tourData.priceForInfants = applyDiscount(
+          tourData.priceForInfants,
+          discountPercentage
+        );
+        needUpdate = true;
+      }
+
+      // Cập nhật tour nếu cần
+      if (needUpdate) {
+        await Tour.findByIdAndUpdate(tour._id, tourData);
+      }
+    }
+
+    // Lấy lại danh sách tour đã cập nhật để phản hồi
+    tours = await Tour.find({})
+      .populate("tourType", "typeName")
+      .populate("tourDirectory", "directoryName")
+      .populate(
+        "promotion",
+        "namePromotion discountPercentage startDatePromotion endDatePromotion"
+      );
+
     res.json(tours);
   } catch (error) {
     console.error("Error fetching tours:", error);
@@ -183,6 +211,120 @@ exports.getAllTours = async (req, res) => {
     });
   }
 };
+
+// exports.updateTour = async (req, res) => {
+//   const { id } = req.params;
+//   let update = {
+//     tourType: req.body.tourType,
+//     tourDirectory: req.body.tourDirectory,
+//     nameTour: req.body.nameTour,
+//     maxParticipants: req.body.maxParticipants,
+//     regions: req.body.regions,
+//     description: req.body.description,
+//     startDate: req.body.startDate,
+//     endDate: req.body.endDate,
+//     convergeTime: req.body.convergeTime,
+//     startingGate: req.body.startingGate,
+//     price: req.body.price,
+//     priceForChildren: req.body.priceForChildren,
+//     priceForYoungChildren: req.body.priceForYoungChildren,
+//     priceForInfants: req.body.priceForInfants,
+//     additionalFees: req.body.additionalFees,
+//     promotion: req.body.promotion,
+//   };
+
+//   if (req.files && req.files.length > 0) {
+//     const imagesPaths = req.files.map((file) => file.path);
+//     update.image = imagesPaths;
+//   }
+
+//   try {
+//     // Check if a promotion is applied and fetch it
+//     if (update.promotion) {
+//       const promotion = await Promotion.findById(update.promotion);
+//       if (!promotion) {
+//         return res
+//           .status(404)
+//           .json({ success: false, message: "Promotion not found" });
+//       }
+
+//       // Tìm tour trước khi cập nhật
+//       const tourBeforeUpdate = await Tour.findById(id);
+
+//       // Lưu giá gốc nếu chưa có
+//       if (!tourBeforeUpdate.originalPrice) {
+//         update.originalPrice = tourBeforeUpdate.price;
+//         update.originalPriceForChildren = tourBeforeUpdate.priceForChildren;
+//         update.originalPriceForYoungChildren =
+//           tourBeforeUpdate.priceForYoungChildren;
+//         update.originalPriceForInfants = tourBeforeUpdate.priceForInfants;
+//       }
+
+//       const applyDiscount = (price, discountPercentage) => {
+//         const discount = (price * discountPercentage) / 100;
+//         return price - discount;
+//       };
+
+//       // Apply the discount to applicable price fields
+//       update.price = applyDiscount(update.price, promotion.discountPercentage);
+//       update.priceForChildren = applyDiscount(
+//         update.priceForChildren,
+//         promotion.discountPercentage
+//       );
+//       update.priceForYoungChildren = applyDiscount(
+//         update.priceForYoungChildren,
+//         promotion.discountPercentage
+//       );
+//       update.priceForInfants = applyDiscount(
+//         update.priceForInfants,
+//         promotion.discountPercentage
+//       );
+//     }
+
+//     const updatedTour = await Tour.findByIdAndUpdate(id, update, {
+//       new: true,
+//       runValidators: true,
+//     })
+//       .populate("tourType", "typeName")
+//       .populate("tourDirectory", "directoryName")
+//       .populate("promotion", "namePromotion discountPercentage");
+
+//     if (!updatedTour) {
+//       return res
+//         .status(404)
+//         .json({ success: false, message: "Tour not found" });
+//     }
+
+//     res.json({
+//       success: true,
+//       message: "Tour updated successfully",
+//       tour: updatedTour,
+//     });
+//   } catch (error) {
+//     res.status(500).json({
+//       success: false,
+//       message: "Error updating the tour",
+//       error: error.message,
+//     });
+//   }
+// };
+
+// exports.getAllTours = async (req, res) => {
+//   try {
+//     let tours = await Tour.find({})
+//       .populate("tourType", "typeName")
+//       .populate("tourDirectory", "directoryName")
+//       .populate("promotion", "namePromotion discountPercentage");
+
+//     res.json(tours);
+//   } catch (error) {
+//     console.error("Error fetching tours:", error);
+//     res.status(500).json({
+//       message: "Error fetching the tours",
+//       error: error.message,
+//     });
+//   }
+// };
 
 // Get new collection tours
 exports.getNewCollection = async (req, res) => {
@@ -367,4 +509,5 @@ exports.getToursByPromotionId = async (req, res) => {
     });
   }
 };
+
 module.exports = exports;

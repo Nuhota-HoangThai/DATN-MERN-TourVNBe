@@ -12,16 +12,6 @@ exports.createPromotion = async (req, res) => {
   }
 };
 
-// Lấy danh sách tất cả khuyến mãi
-exports.getAllPromotions = async (req, res) => {
-  try {
-    const promotions = await Promotion.find({});
-    res.status(200).send(promotions);
-  } catch (error) {
-    res.status(500).send(error);
-  }
-};
-
 // Lấy thông tin một khuyến mãi theo ID
 exports.getPromotionById = async (req, res) => {
   try {
@@ -29,7 +19,40 @@ exports.getPromotionById = async (req, res) => {
     if (!promotion) {
       return res.status(404).send();
     }
+
+    // Kiểm tra xem ngày hiện tại có nằm trong khoảng khuyến mãi không
+    const now = new Date();
+    if (
+      now < promotion.startDatePromotion ||
+      now > promotion.endDatePromotion
+    ) {
+      promotion.descriptionPromotion = "Khuyến mãi này hiện không áp dụng.";
+    }
+
     res.status(200).send(promotion);
+  } catch (error) {
+    res.status(500).send(error);
+  }
+};
+
+// Lấy danh sách tất cả khuyến mãi
+exports.getAllPromotions = async (req, res) => {
+  try {
+    const promotions = await Promotion.find({});
+
+    // Duyệt qua từng khuyến mãi để kiểm tra thời hạn áp dụng
+    const updatedPromotions = promotions.map((promotion) => {
+      const now = new Date();
+      if (
+        now < promotion.startDatePromotion ||
+        now > promotion.endDatePromotion
+      ) {
+        promotion.descriptionPromotion = "Khuyến mãi này hiện không áp dụng.";
+      }
+      return promotion;
+    });
+
+    res.status(200).send(updatedPromotions);
   } catch (error) {
     res.status(500).send(error);
   }
