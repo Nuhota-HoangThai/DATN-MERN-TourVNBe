@@ -66,8 +66,8 @@ const billSchema = new mongoose.Schema({
   paymentMethodBill: {
     type: String,
     required: true,
-    enum: ["VNPay", "COD", "Unpaid"],
-    default: "Unpaid",
+    enum: ["VNPay", "COD"],
+    default: "COD",
   },
 
   // Prices

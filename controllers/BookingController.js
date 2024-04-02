@@ -25,10 +25,12 @@ const BookingController = {
       surcharge,
       totalAmount,
       additionalInformation,
+      paymentMethod,
     } = req.body;
     const user = req.user;
 
     try {
+      console.log(req.body);
       const tourDetails = await Tour.findById(tourId);
 
       if (!tourDetails) {
@@ -68,11 +70,11 @@ const BookingController = {
         infantPrice: priceForInfants,
 
         surcharge,
-        /////
+        paymentMethod,
         totalAmount,
         additionalInformation,
       });
-
+      newBooking.paymentMethod = "Unpaid";
       const savedBooking = await newBooking.save();
 
       // Cập nhật số lượng chỗ còn lại trên tour
@@ -219,11 +221,12 @@ const BookingController = {
       totalAmount,
       additionalInformation,
       paymentStatus,
+      paymentMethod,
     } = req.body;
 
     const user = req.user;
     try {
-      console.log(req.body);
+      // console.log(req.body);
       const tourDetails = await Tour.findById(tourId);
       if (!tourDetails) {
         return res.status(404).json({ message: "Tour not found" });
@@ -263,8 +266,10 @@ const BookingController = {
         totalAmount,
         additionalInformation,
         paymentStatus,
+        paymentMethod,
       });
       newBooking.paymentStatus = "paid";
+      newBooking.paymentMethod = "VNPay";
       await newBooking.save();
       tourDetails.maxParticipants -= totalParticipants;
       await tourDetails.save();
