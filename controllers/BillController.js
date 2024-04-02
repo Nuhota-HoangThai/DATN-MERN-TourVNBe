@@ -72,6 +72,7 @@ const BillController = {
       res.status(500).json({ message: error.message });
     }
   },
+
   getBillDetails: async (req, res) => {
     try {
       const { id } = req.params;

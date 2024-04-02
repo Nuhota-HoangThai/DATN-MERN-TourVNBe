@@ -68,16 +68,35 @@ exports.revenueByDay = async (req, res) => {
     const revenueByDay = await Booking.aggregate([
       {
         $match: {
-          // Bạn có thể thêm điều kiện để lọc các booking tương ứng, ví dụ: status: { $ne: "cancelled" }
+          status: { $ne: "cancelled" },
         },
       },
       {
         $group: {
-          _id: { $dateToString: { format: "%Y-%m-%d", date: "$bookingDate" } },
+          _id: {
+            day: {
+              $dayOfMonth: {
+                date: "$bookingDate",
+                timezone: "Asia/Ho_Chi_Minh",
+              },
+            },
+            month: {
+              $month: {
+                date: "$bookingDate",
+                timezone: "Asia/Ho_Chi_Minh",
+              },
+            },
+            year: {
+              $year: {
+                date: "$bookingDate",
+                timezone: "Asia/Ho_Chi_Minh",
+              },
+            },
+          },
           totalRevenue: { $sum: "$totalAmount" },
         },
       },
-      { $sort: { _id: 1 } }, // Sắp xếp theo ngày tăng dần
+      { $sort: { "_id.year": 1, "_id.month": 1, "_id.day": 1 } },
     ]);
 
     res.json(revenueByDay);
@@ -90,6 +109,11 @@ exports.revenueByDay = async (req, res) => {
 exports.revenueByMonth = async (req, res) => {
   try {
     const revenueByMonth = await Booking.aggregate([
+      {
+        $match: {
+          status: { $ne: "cancelled" },
+        },
+      },
       {
         $group: {
           _id: {
@@ -113,6 +137,11 @@ exports.revenueByYear = async (req, res) => {
   try {
     const revenueByYear = await Booking.aggregate([
       {
+        $match: {
+          status: { $ne: "cancelled" },
+        },
+      },
+      {
         $group: {
           _id: { $year: "$bookingDate" },
           totalRevenue: { $sum: "$totalAmount" },
@@ -122,6 +151,33 @@ exports.revenueByYear = async (req, res) => {
     ]);
 
     res.json(revenueByYear);
+  } catch (error) {
+    res.status(500).json({ message: error.message });
+  }
+};
+
+exports.bookingStatusStatistics = async (req, res) => {
+  try {
+    const stats = await Booking.aggregate([
+      {
+        $group: {
+          _id: "$status", // Nhóm theo trạng thái booking
+          count: { $sum: 1 }, // Đếm số lượng cho mỗi nhóm
+        },
+      },
+    ]);
+
+    // Chuyển đổi kết quả thành một đối tượng có các trường dễ đọc hơn
+    const formattedStats = stats.reduce((acc, curr) => {
+      const status = curr._id; // Trạng thái hiện tại đang xét
+      acc[status] = curr.count; // Số lượng của trạng thái đó
+      return acc;
+    }, {});
+
+    res.json({
+      message: "Booking status statistics",
+      data: formattedStats,
+    });
   } catch (error) {
     res.status(500).json({ message: error.message });
   }

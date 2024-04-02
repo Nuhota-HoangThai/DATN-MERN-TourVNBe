@@ -23,4 +23,6 @@ router.get("/monthly-revenue", StatisticalController.revenueByMonth);
 // Example: /yearly-revenue?year=2023
 router.get("/yearly-revenue", StatisticalController.revenueByYear);
 
+router.get("/booking-stats", StatisticalController.bookingStatusStatistics);
+
 module.exports = router;

@@ -1,6 +1,14 @@
 const Tour = require("../models/Tour");
 const Promotion = require("../models/TourPromotion");
 
+const cron = require("node-cron");
+
+cron.schedule("0 0 * * *", async () => {
+  // Mỗi ngày vào lúc 00:00, kiểm tra và cập nhật giá tour dựa trên khuyến mãi
+  console.log("Running a daily check for tour promotions");
+  await updateTourPricesBasedOnPromotions();
+});
+
 // Add a new tour
 exports.addTour = async (req, res) => {
   try {
@@ -211,120 +219,6 @@ exports.getAllTours = async (req, res) => {
     });
   }
 };
-
-// exports.updateTour = async (req, res) => {
-//   const { id } = req.params;
-//   let update = {
-//     tourType: req.body.tourType,
-//     tourDirectory: req.body.tourDirectory,
-//     nameTour: req.body.nameTour,
-//     maxParticipants: req.body.maxParticipants,
-//     regions: req.body.regions,
-//     description: req.body.description,
-//     startDate: req.body.startDate,
-//     endDate: req.body.endDate,
-//     convergeTime: req.body.convergeTime,
-//     startingGate: req.body.startingGate,
-//     price: req.body.price,
-//     priceForChildren: req.body.priceForChildren,
-//     priceForYoungChildren: req.body.priceForYoungChildren,
-//     priceForInfants: req.body.priceForInfants,
-//     additionalFees: req.body.additionalFees,
-//     promotion: req.body.promotion,
-//   };
-
-//   if (req.files && req.files.length > 0) {
-//     const imagesPaths = req.files.map((file) => file.path);
-//     update.image = imagesPaths;
-//   }
-
-//   try {
-//     // Check if a promotion is applied and fetch it
-//     if (update.promotion) {
-//       const promotion = await Promotion.findById(update.promotion);
-//       if (!promotion) {
-//         return res
-//           .status(404)
-//           .json({ success: false, message: "Promotion not found" });
-//       }
-
-//       // Tìm tour trước khi cập nhật
-//       const tourBeforeUpdate = await Tour.findById(id);
-
-//       // Lưu giá gốc nếu chưa có
-//       if (!tourBeforeUpdate.originalPrice) {
-//         update.originalPrice = tourBeforeUpdate.price;
-//         update.originalPriceForChildren = tourBeforeUpdate.priceForChildren;
-//         update.originalPriceForYoungChildren =
-//           tourBeforeUpdate.priceForYoungChildren;
-//         update.originalPriceForInfants = tourBeforeUpdate.priceForInfants;
-//       }
-
-//       const applyDiscount = (price, discountPercentage) => {
-//         const discount = (price * discountPercentage) / 100;
-//         return price - discount;
-//       };
-
-//       // Apply the discount to applicable price fields
-//       update.price = applyDiscount(update.price, promotion.discountPercentage);
-//       update.priceForChildren = applyDiscount(
-//         update.priceForChildren,
-//         promotion.discountPercentage
-//       );
-//       update.priceForYoungChildren = applyDiscount(
-//         update.priceForYoungChildren,
-//         promotion.discountPercentage
-//       );
-//       update.priceForInfants = applyDiscount(
-//         update.priceForInfants,
-//         promotion.discountPercentage
-//       );
-//     }
-
-//     const updatedTour = await Tour.findByIdAndUpdate(id, update, {
-//       new: true,
-//       runValidators: true,
-//     })
-//       .populate("tourType", "typeName")
-//       .populate("tourDirectory", "directoryName")
-//       .populate("promotion", "namePromotion discountPercentage");
-
-//     if (!updatedTour) {
-//       return res
-//         .status(404)
-//         .json({ success: false, message: "Tour not found" });
-//     }
-
-//     res.json({
-//       success: true,
-//       message: "Tour updated successfully",
-//       tour: updatedTour,
-//     });
-//   } catch (error) {
-//     res.status(500).json({
-//       success: false,
-//       message: "Error updating the tour",
-//       error: error.message,
-//     });
-//   }
-// };
-
-// exports.getAllTours = async (req, res) => {
-//   try {
-//     let tours = await Tour.find({})
-//       .populate("tourType", "typeName")
-//       .populate("tourDirectory", "directoryName")
-//       .populate("promotion", "namePromotion discountPercentage");
-
-//     res.json(tours);
-//   } catch (error) {
-//     console.error("Error fetching tours:", error);
-//     res.status(500).json({
-//       message: "Error fetching the tours",
-//       error: error.message,
-//     });
-//   }
-// };
 
 // Get new collection tours
 exports.getNewCollection = async (req, res) => {
