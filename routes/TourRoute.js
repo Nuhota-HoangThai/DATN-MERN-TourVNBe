@@ -69,11 +69,7 @@ router.delete(
 );
 
 // Get all tours
-router.get(
-  "/getAllTours",
-  //verifyTokenCus(["admin", "staff"]),
-  tourController.getAllTours
-);
+router.get("/getAllTours", tourController.getAllTours);
 
 // Get new collection tours
 router.get("/getNewCollection", tourController.getNewCollection);
@@ -90,22 +86,15 @@ router.get("/getPopularInNorth", tourController.getPopularInNorth);
 //Cập nhật tour
 router.put(
   "/update_tour/:id",
-  upload.array("image", 20),
+  upload.fields([{ name: "image", maxCount: 20 }, { name: "video" }]),
+
   verifyTokenCus(["admin", "staff"]),
   tourController.updateTour
 );
 
-router.get(
-  "/getTourById/:tourId",
-  // verifyTokenCus(["admin", "staff"]),
-  tourController.getTourById
-);
+router.get("/getTourById/:tourId", tourController.getTourById);
 
-router.get(
-  "/getTourType/:tourTypeId",
-  //verifyTokenCus(["admin", "staff"]),
-  tourController.getToursByTourTypeId
-);
+router.get("/getTourType/:tourTypeId", tourController.getToursByTourTypeId);
 
 router.get("/promotion/:promotionId", tourController.getToursByPromotionId);
 

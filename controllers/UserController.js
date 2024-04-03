@@ -45,7 +45,6 @@ exports.signup = async (req, res) => {
   }
 };
 
-// Đăng nhập cho Người dùng, Công ty và Admin
 exports.login = async (req, res) => {
   try {
     let user = await User.findOne({ email: req.body.email });
@@ -78,6 +77,46 @@ exports.login = async (req, res) => {
     });
   } catch (error) {
     res.status(500).send("Lỗi máy chủ nội bộ");
+  }
+};
+
+// Google login or registration
+exports.google = async (req, res) => {
+  try {
+    let user = await User.findOne({ email: req.body.email });
+    let token;
+
+    if (!user) {
+      // Nếu người dùng không tồn tại, tạo một người dùng mới
+      user = new User({
+        name: req.body.name,
+        email: req.body.email,
+        //password: hashedPassword,
+      });
+
+      await user.save();
+    }
+
+    const payload = {
+      user: {
+        id: user.id,
+        name: user.name,
+        // Bạn có thể thêm bất kỳ trường dữ liệu bổ sung nào ở đây nếu cần
+      },
+    };
+
+    token = jwt.sign(payload, process.env.JWT_SECRET, { expiresIn: "30d" });
+
+    res.json({
+      success: true,
+      token,
+      id: user._id,
+      name: user.name,
+      role: user.role,
+    });
+  } catch (error) {
+    console.error("Google authentication error:", error);
+    res.status(500).send("Internal Server Error");
   }
 };
 

@@ -25,6 +25,8 @@ router.post("/signup", userController.signup);
 // User login
 router.post("/login", userController.login);
 
+router.post("/login-google", userController.google);
+
 // add user
 router.post("/addUser", verifyTokenCus(["admin"]), userController.addUser);
 

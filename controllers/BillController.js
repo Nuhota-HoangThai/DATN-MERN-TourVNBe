@@ -1,5 +1,31 @@
+const nodemailer = require("nodemailer");
+
 const Bill = require("../models/Bill"); // Giả sử đường dẫn này là đúng
 const Booking = require("../models/Booking"); // Thêm dòng này để sử dụng model Booking
+
+// Cấu hình Nodemailer
+const transporter = nodemailer.createTransport({
+  service: "gmail",
+  auth: {
+    user: "thai2402@gmail.com", // Thay thế bằng email của bạn
+    pass: "thai2402", // Thay thế bằng mật khẩu của bạn
+  },
+});
+
+const sendEmail = async (email, subject, text) => {
+  try {
+    await transporter.sendMail({
+      from: "thai2402@gmail.com", // Thay thế bằng email của bạn
+      to: email,
+      subject: subject,
+      text: text,
+    });
+
+    console.log("Email sent successfully");
+  } catch (error) {
+    console.log("Error sending email:", error);
+  }
+};
 
 const BillController = {
   createBill: async (req, res) => {
@@ -30,7 +56,7 @@ const BillController = {
         bookingDateBill: booking.bookingDate,
         statusBill: booking.status,
         paymentStatusBill: booking.paymentStatus,
-        paymentMethodBill: booking.paymentMethod,
+        //paymentMethodBill: booking.paymentMethod,
 
         adultPriceBill: booking.adultPrice,
         childPriceBill: booking.childPrice,
@@ -41,6 +67,14 @@ const BillController = {
 
       const newBill = new Bill(newBillDetails);
       const savedBill = await newBill.save();
+
+      // Gửi email
+      await sendEmail(
+        booking.user.email, // Giả sử booking.user có trường email
+        "Hóa đơn của bạn đã được tạo",
+        `Xin chào ${booking.user.name}, hóa đơn của bạn đã được tạo thành công. Chi tiết: ${savedBill}`
+      );
+
       res.status(201).json(savedBill);
     } catch (error) {
       res.status(400).json({ message: error.message });
