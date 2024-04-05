@@ -2,9 +2,34 @@ const express = require("express");
 const router = express.Router();
 const billController = require("../controllers/BillController");
 
-router.post("/createBills", billController.createBill);
-router.get("/getAllBills", billController.getAllBills);
-router.delete("/deleteBill/:id", billController.deleteBill);
-router.get("/billDetail/:id", billController.getBillDetails);
+const { verifyTokenCus } = require("../middleware/verifyTokenCus");
+
+router.post(
+  "/createBills",
+  verifyTokenCus(["admin", "staff"]),
+  billController.createBill
+);
+
+router.get(
+  "/getAllBills",
+  verifyTokenCus(["admin", "staff"]),
+  billController.getAllBills
+);
+
+router.delete(
+  "/deleteBill/:id",
+  verifyTokenCus(["admin", "staff"]),
+  billController.deleteBill
+);
+router.get(
+  "/billDetail/:id",
+  verifyTokenCus(["admin", "staff"]),
+  billController.getBillDetails
+);
+router.post(
+  "/sendMail",
+  verifyTokenCus(["admin", "staff"]),
+  billController.sendEmail
+);
 
 module.exports = router;

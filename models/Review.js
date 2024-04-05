@@ -17,7 +17,8 @@ const reviewSchema = new mongoose.Schema(
       required: true,
       ref: "User",
     },
-
+    image: [{ type: String, required: true }],
+    video: [{ type: String }],
     reviewText: {
       type: String,
       required: true,

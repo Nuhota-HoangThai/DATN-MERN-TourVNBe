@@ -73,6 +73,12 @@ const tourSchema = new mongoose.Schema(
     originalPriceForChildren: { type: Number },
     originalPriceForYoungChildren: { type: Number },
     originalPriceForInfants: { type: Number },
+    //trường này để kiểm tra khuyến mãi
+    isPriceDiscounted: {
+      type: Boolean,
+      required: true,
+      default: false, // Mặc định giá trị là false nếu không được cung cấp
+    },
   },
   {
     timestamps: true,

@@ -93,9 +93,9 @@ const billSchema = new mongoose.Schema({
     // Additional charge
     type: Number,
   },
-  notesBill: {
-    type: String,
-  },
+  // notesBill: {
+  //   type: String,
+  // },
 });
 
 const Bill = mongoose.model("Bill", billSchema);

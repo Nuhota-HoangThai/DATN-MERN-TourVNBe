@@ -1,6 +1,14 @@
 // PromotionController.js
 const Promotion = require("../models/TourPromotion");
 
+const cron = require("node-cron");
+
+cron.schedule("0 0 * * *", async () => {
+  // Mỗi ngày vào lúc 00:00, kiểm tra và cập nhật giá tour dựa trên khuyến mãi
+  //console.log("Running a daily check for tour promotions");
+  await updateTourPricesBasedOnPromotions();
+});
+
 // Thêm một khuyến mãi mới
 exports.createPromotion = async (req, res) => {
   try {

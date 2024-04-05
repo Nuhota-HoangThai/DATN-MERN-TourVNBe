@@ -62,6 +62,4 @@ router.post(
   ReviewController.createReview
 );
 
-//router.post("/reviews", verifyToken, ReviewController.addReview);
-
 module.exports = router;

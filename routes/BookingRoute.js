@@ -13,6 +13,12 @@ router.get(
   BookingController.listBookings
 );
 
+router.get(
+  "/listBookingsLimit",
+  verifyTokenCus(["admin", "staff"]),
+  BookingController.listBookingsLimit
+);
+
 router.patch(
   "/:id/confirmStatus",
   verifyTokenCus(["admin", "staff"]),

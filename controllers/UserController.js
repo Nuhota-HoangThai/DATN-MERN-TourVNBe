@@ -91,7 +91,8 @@ exports.google = async (req, res) => {
       user = new User({
         name: req.body.name,
         email: req.body.email,
-        //password: hashedPassword,
+        role: req.body.role,
+        cartData: cart,
       });
 
       await user.save();
@@ -101,7 +102,8 @@ exports.google = async (req, res) => {
       user: {
         id: user.id,
         name: user.name,
-        // Bạn có thể thêm bất kỳ trường dữ liệu bổ sung nào ở đây nếu cần
+        token,
+        role: user.role,
       },
     };
 

@@ -1,39 +1,44 @@
-const nodemailer = require("nodemailer");
-
 const Bill = require("../models/Bill"); // Giả sử đường dẫn này là đúng
 const Booking = require("../models/Booking"); // Thêm dòng này để sử dụng model Booking
 
-// Cấu hình Nodemailer
-const transporter = nodemailer.createTransport({
-  service: "gmail",
-  auth: {
-    user: "thai2402@gmail.com", // Thay thế bằng email của bạn
-    pass: "thai2402", // Thay thế bằng mật khẩu của bạn
-  },
-});
-
-const sendEmail = async (email, subject, text) => {
-  try {
-    await transporter.sendMail({
-      from: "thai2402@gmail.com", // Thay thế bằng email của bạn
-      to: email,
-      subject: subject,
-      text: text,
-    });
-
-    console.log("Email sent successfully");
-  } catch (error) {
-    console.log("Error sending email:", error);
-  }
-};
+const { sendEmailService } = require("../service/EmailService");
 
 const BillController = {
+  sendEmail: async (req, res) => {
+    const { email, billId } = req.body;
+
+    try {
+      // Tìm thông tin bill
+      const bill = await Bill.findById(billId)
+        .populate("booking")
+        .populate("user")
+        .populate("tour");
+
+      if (!bill) {
+        return res.status(404).json({ message: "Bill not found" });
+      }
+
+      // Tạo nội dung email từ thông tin bill
+      const content = `
+        <h1>Thông Tin Hóa Đơn</h1>
+        <p><strong>Mã hóa đơn:</strong> ${bill._id}</p>
+        <p><strong>Khách hàng:</strong> ${bill.user.name}</p>
+        <p><strong>Tour:</strong> ${bill.tour.nameTour}</p>
+        <p><strong>Tổng cộng:</strong> ${bill.totalCost} đ</p>
+      `;
+
+      // Gửi email
+      const response = await sendEmailService(email, content);
+      return res.json(response);
+    } catch (error) {
+      return res.status(500).json({ message: error.message });
+    }
+  },
+
   createBill: async (req, res) => {
     try {
-      // Extract bookingId and notesBill from the request body
-      const { booking: bookingId, notesBill } = req.body;
+      const { booking: bookingId } = req.body;
 
-      // Find the Booking based on the ID
       const booking = await Booking.findById(bookingId)
         .populate("user")
         .populate("tour");
@@ -43,10 +48,10 @@ const BillController = {
 
       const newBillDetails = {
         booking: booking._id,
-        user: booking.user._id, // Ensure you're using the ID
-        tour: booking.tour._id, // Ensure you're using the ID
-        totalCost: booking.totalAmount, // Assuming totalAmount is provided in the Booking
-        notesBill: notesBill,
+        user: booking.user._id,
+        tour: booking.tour._id,
+        totalCost: booking.totalAmount,
+        //notesBill: notesBill,
 
         numberOfAdultsBill: booking.numberOfAdults,
         numberOfChildrenBill: booking.numberOfChildren,
@@ -56,7 +61,6 @@ const BillController = {
         bookingDateBill: booking.bookingDate,
         statusBill: booking.status,
         paymentStatusBill: booking.paymentStatus,
-        //paymentMethodBill: booking.paymentMethod,
 
         adultPriceBill: booking.adultPrice,
         childPriceBill: booking.childPrice,
@@ -67,13 +71,6 @@ const BillController = {
 
       const newBill = new Bill(newBillDetails);
       const savedBill = await newBill.save();
-
-      // Gửi email
-      await sendEmail(
-        booking.user.email, // Giả sử booking.user có trường email
-        "Hóa đơn của bạn đã được tạo",
-        `Xin chào ${booking.user.name}, hóa đơn của bạn đã được tạo thành công. Chi tiết: ${savedBill}`
-      );
 
       res.status(201).json(savedBill);
     } catch (error) {

@@ -2,15 +2,59 @@ const Review = require("../models/Review");
 const Tour = require("../models/Tour");
 const User = require("../models/User"); // Ensure you have the User model
 
+// exports.createReview = async (req, res) => {
+//   const { tourId } = req.params;
+//   const userId = req.user.id; // Assuming req.user.id stores the ID of the logged-in user
+//   const reviewData = { ...req.body, tourId, userId }; // Include userId in the review document
+
+//   try {
+//     const savedReview = await new Review(reviewData).save();
+//     await Tour.findByIdAndUpdate(tourId, {
+//       $push: { reviews: savedReview._id },
+//     });
+
+//     res
+//       .status(200)
+//       .json({ success: true, message: "Review submitted", data: savedReview });
+//   } catch (err) {
+//     res.status(500).json({ success: false, error: err });
+//   }
+// };
+
 exports.createReview = async (req, res) => {
   const { tourId } = req.params;
-  const userId = req.user.id; // Assuming req.user.id stores the ID of the logged-in user
-  const reviewData = { ...req.body, tourId, userId }; // Include userId in the review document
+  const userId = req.user.id; // Giả định req.user.id lưu trữ ID của người dùng đã đăng nhập
 
+  // Kiểm tra xem tourId và userId có tồn tại trong DB không
   try {
-    const savedReview = await new Review(reviewData).save();
+    const tourExists = await Tour.findById(tourId);
+    const userExists = await User.findById(userId);
 
-    // Update the tour to include the new review
+    if (!tourExists || !userExists) {
+      return res
+        .status(404)
+        .json({ success: false, message: "Tour or User not found" });
+    }
+
+    // Xử lý file uploads từ req.files (do multer cung cấp)
+    const images = req.files["image"]
+      ? req.files["image"].map((file) => file.path)
+      : [];
+    const videos = req.files["video"]
+      ? req.files["video"].map((file) => file.path)
+      : [];
+
+    // Tạo document review mới với thông tin từ request và file paths
+    const reviewData = {
+      ...req.body, // Lấy dữ liệu review từ body
+      tourId,
+      userId,
+      image: images,
+      video: videos,
+    };
+
+    const savedReview = await new Review(reviewData).save();
+    // Cập nhật thông tin review vào trong collection Tour nếu cần
     await Tour.findByIdAndUpdate(tourId, {
       $push: { reviews: savedReview._id },
     });
@@ -19,7 +63,8 @@ exports.createReview = async (req, res) => {
       .status(200)
       .json({ success: true, message: "Review submitted", data: savedReview });
   } catch (err) {
-    res.status(500).json({ success: false, error: err });
+    console.error(err);
+    res.status(500).json({ success: false, error: err.toString() });
   }
 };
 
@@ -27,7 +72,6 @@ exports.getReviews = async (req, res) => {
   const { tourId } = req.params;
 
   try {
-    // Fetch the tour along with its reviews. Assume that each review has a userId field to reference the user
     const tourWithReviews = await Tour.findById(tourId).populate({
       path: "reviews",
       model: "ReviewTour",
@@ -36,10 +80,6 @@ exports.getReviews = async (req, res) => {
         model: "User",
       },
     });
-    // .populate({
-    //   path: "reviews.userId",
-    //   model: "User",
-    // });
 
     if (!tourWithReviews) {
       return res

@@ -70,6 +70,7 @@ router.delete(
 
 // Get all tours
 router.get("/getAllTours", tourController.getAllTours);
+router.get("/getAllToursLimit", tourController.getAllToursLimit);
 
 // Get new collection tours
 router.get("/getNewCollection", tourController.getNewCollection);
@@ -87,7 +88,6 @@ router.get("/getPopularInNorth", tourController.getPopularInNorth);
 router.put(
   "/update_tour/:id",
   upload.fields([{ name: "image", maxCount: 20 }, { name: "video" }]),
-
   verifyTokenCus(["admin", "staff"]),
   tourController.updateTour
 );

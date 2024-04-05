@@ -153,7 +153,37 @@ const BookingController = {
   listBookings: async (req, res) => {
     try {
       const bookings = await Booking.find().populate("user").populate("tour");
+
       res.json(bookings);
+    } catch (error) {
+      res.status(500).json({ message: error.message });
+    }
+  },
+
+  listBookingsLimit: async (req, res) => {
+    try {
+      const page = parseInt(req.query.page) || 1; // Lấy số trang từ query, mặc định là 1 nếu không được cung cấp
+      const limit = parseInt(req.query.limit) || 8; // Giới hạn số lượng sản phẩm mỗi trang, mặc định là 8
+      const skip = (page - 1) * limit;
+
+      // Tính tổng số Booking để có thể tính tổng số trang
+      const totalBookings = await Booking.countDocuments();
+      const totalPages = Math.ceil(totalBookings / limit);
+
+      const bookings = await Booking.find()
+        .populate("user")
+        .populate("tour")
+        .sort({ bookingDate: -1 }) // Giả sử mỗi tour có trường `createdAt`, sắp xếp giảm dần để sản phẩm mới nhất đứng đầu
+        .skip(skip)
+        .limit(limit);
+
+      res.json({
+        bookings,
+        page,
+        limit,
+        totalPages,
+        totalBookings,
+      });
     } catch (error) {
       res.status(500).json({ message: error.message });
     }

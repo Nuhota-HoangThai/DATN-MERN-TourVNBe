@@ -10,6 +10,7 @@ const verifyToken = async (req, res, next) => {
       message: "Bạn chưa đăng nhập",
     });
   }
+  //console.log(token);
   try {
     const data = jwt.verify(token.split(" ")[1], process.env.JWT_SECRET);
     req.user = data.user;
