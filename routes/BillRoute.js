@@ -16,6 +16,12 @@ router.get(
   billController.getAllBills
 );
 
+router.get(
+  "/getAllBillsLimit",
+  verifyTokenCus(["admin", "staff"]),
+  billController.getAllBillsLimit
+);
+
 router.delete(
   "/deleteBill/:id",
   verifyTokenCus(["admin", "staff"]),

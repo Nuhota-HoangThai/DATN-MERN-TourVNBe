@@ -319,10 +319,7 @@ exports.getAllToursLimit = async (req, res) => {
 
 // Get new collection tours
 exports.getNewCollection = async (req, res) => {
-  let tours = await Tour.find({})
-    .populate("tourType", "typeName")
-    .populate("tourDirectory", "directoryName")
-    .populate("promotion", "namePromotion discountPercentage");
+  let tours = await Tour.find({});
   let newCollection = tours.slice(1).slice(-8);
   res.send(newCollection);
 };

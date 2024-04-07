@@ -7,6 +7,15 @@ require("dotenv").config();
 // User registration
 exports.signup = async (req, res) => {
   try {
+    const { password, confirmPassword } = req.body;
+    // Check if passwords match
+    if (password !== confirmPassword) {
+      return res.status(400).json({
+        success: false,
+        error: "Passwords do not match",
+      });
+    }
+
     let check = await User.findOne({ email: req.body.email });
     if (check) {
       return res.status(400).json({
@@ -65,7 +74,7 @@ exports.login = async (req, res) => {
       },
     };
 
-    const token = jwt.sign(data, process.env.JWT_SECRET);
+    const token = jwt.sign(data, process.env.JWT_SECRET, { expiresIn: "30d" });
 
     // Phản hồi bổ sung thông tin về vai trò của người dùng
     res.json({
@@ -125,8 +134,116 @@ exports.google = async (req, res) => {
 // Get all users
 exports.getAllUsers = async (req, res) => {
   try {
-    const users = await User.find({}); // Exclude passwords from the result
+    const users = await User.find({});
     res.send(users);
+  } catch (error) {
+    res.status(500).send("Internal Server Error");
+  }
+};
+
+exports.getAllUsersLimitAdmin = async (req, res) => {
+  try {
+    const page = parseInt(req.query.page) || 1; // Lấy số trang từ query, mặc định là 1 nếu không được cung cấp
+    const limit = parseInt(req.query.limit) || 6; // Giới hạn số lượng sản phẩm mỗi trang, mặc định là 8
+    const skip = (page - 1) * limit;
+
+    const roleQuery = { role: "admin" };
+
+    // Tính tổng số sản phẩm để có thể tính tổng số trang
+    const totalUser = await User.countDocuments(roleQuery);
+    const totalPages = Math.ceil(totalUser / limit);
+
+    const users = await User.find(roleQuery)
+      .sort({ date: -1 }) // Giả sử mỗi tour có trường `createdAt`, sắp xếp giảm dần để sản phẩm mới nhất đứng đầu
+      .skip(skip)
+      .limit(limit);
+    res.send({ users, page, limit, totalPages, totalUser });
+  } catch (error) {
+    res.status(500).send("Internal Server Error");
+  }
+};
+
+exports.getAllUsersLimitAdmin = async (req, res) => {
+  try {
+    const page = parseInt(req.query.page) || 1; // Lấy số trang từ query, mặc định là 1 nếu không được cung cấp
+    const limit = parseInt(req.query.limit) || 6; // Giới hạn số lượng sản phẩm mỗi trang, mặc định là 8
+    const skip = (page - 1) * limit;
+
+    const roleQuery = { role: "admin" };
+
+    // Tính tổng số sản phẩm để có thể tính tổng số trang
+    const totalUser = await User.countDocuments(roleQuery);
+    const totalPages = Math.ceil(totalUser / limit);
+
+    const users = await User.find(roleQuery)
+      .sort({ date: -1 }) // Giả sử mỗi tour có trường `createdAt`, sắp xếp giảm dần để sản phẩm mới nhất đứng đầu
+      .skip(skip)
+      .limit(limit);
+    res.send({ users, page, limit, totalPages, totalUser });
+  } catch (error) {
+    res.status(500).send("Internal Server Error");
+  }
+};
+
+exports.getAllUsersLimitStaff = async (req, res) => {
+  try {
+    const page = parseInt(req.query.page) || 1; // Lấy số trang từ query, mặc định là 1 nếu không được cung cấp
+    const limit = parseInt(req.query.limit) || 6; // Giới hạn số lượng sản phẩm mỗi trang, mặc định là 8
+    const skip = (page - 1) * limit;
+
+    const roleQuery = { role: "staff" };
+
+    // Tính tổng số sản phẩm để có thể tính tổng số trang
+    const totalUser = await User.countDocuments(roleQuery);
+    const totalPages = Math.ceil(totalUser / limit);
+
+    const users = await User.find(roleQuery)
+      .sort({ date: -1 }) // Giả sử mỗi tour có trường `createdAt`, sắp xếp giảm dần để sản phẩm mới nhất đứng đầu
+      .skip(skip)
+      .limit(limit);
+    res.send({ users, page, limit, totalPages, totalUser });
+  } catch (error) {
+    res.status(500).send("Internal Server Error");
+  }
+};
+exports.getAllUsersLimitGuide = async (req, res) => {
+  try {
+    const page = parseInt(req.query.page) || 1; // Lấy số trang từ query, mặc định là 1 nếu không được cung cấp
+    const limit = parseInt(req.query.limit) || 6; // Giới hạn số lượng sản phẩm mỗi trang, mặc định là 8
+    const skip = (page - 1) * limit;
+
+    const roleQuery = { role: "guide" };
+
+    // Tính tổng số sản phẩm để có thể tính tổng số trang
+    const totalUser = await User.countDocuments(roleQuery);
+    const totalPages = Math.ceil(totalUser / limit);
+
+    const users = await User.find(roleQuery)
+      .sort({ date: -1 }) // Giả sử mỗi tour có trường `createdAt`, sắp xếp giảm dần để sản phẩm mới nhất đứng đầu
+      .skip(skip)
+      .limit(limit);
+    res.send({ users, page, limit, totalPages, totalUser });
+  } catch (error) {
+    res.status(500).send("Internal Server Error");
+  }
+};
+exports.getAllUsersLimitCustomer = async (req, res) => {
+  try {
+    const page = parseInt(req.query.page) || 1; // Lấy số trang từ query, mặc định là 1 nếu không được cung cấp
+    const limit = parseInt(req.query.limit) || 6; // Giới hạn số lượng sản phẩm mỗi trang, mặc định là 8
+    const skip = (page - 1) * limit;
+
+    const roleQuery = { role: "customer" };
+
+    // Tính tổng số sản phẩm để có thể tính tổng số trang
+    const totalUser = await User.countDocuments(roleQuery);
+    const totalPages = Math.ceil(totalUser / limit);
+
+    const users = await User.find(roleQuery)
+      .sort({ date: -1 }) // Giả sử mỗi tour có trường `createdAt`, sắp xếp giảm dần để sản phẩm mới nhất đứng đầu
+      .skip(skip)
+      .limit(limit);
+    res.send({ users, page, limit, totalPages, totalUser });
   } catch (error) {
     res.status(500).send("Internal Server Error");
   }
@@ -220,11 +337,20 @@ exports.getUserById = async (req, res) => {
   }
 };
 
-// add user
+// add user danh cho admin
 exports.addUser = async (req, res) => {
-  const { name, email, password, phone, role, address, cccd } = req.body;
+  const { name, email, password, confirmPassword, phone, role, address, cccd } =
+    req.body;
 
   try {
+    // Check if passwords match
+    if (password !== confirmPassword) {
+      return res.status(400).json({
+        success: false,
+        error: "Passwords do not match",
+      });
+    }
+
     // Kiểm tra xem người dùng đã tồn tại chưa
     const existingUser = await User.findOne({ email });
     if (existingUser) {

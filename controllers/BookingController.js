@@ -163,7 +163,7 @@ const BookingController = {
   listBookingsLimit: async (req, res) => {
     try {
       const page = parseInt(req.query.page) || 1; // Lấy số trang từ query, mặc định là 1 nếu không được cung cấp
-      const limit = parseInt(req.query.limit) || 8; // Giới hạn số lượng sản phẩm mỗi trang, mặc định là 8
+      const limit = parseInt(req.query.limit) || 10; // Giới hạn số lượng sản phẩm mỗi trang, mặc định là 8
       const skip = (page - 1) * limit;
 
       // Tính tổng số Booking để có thể tính tổng số trang

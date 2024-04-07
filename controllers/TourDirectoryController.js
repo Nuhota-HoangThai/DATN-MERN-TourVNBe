@@ -105,6 +105,38 @@ exports.getAllTourDirectories = async (req, res) => {
   }
 };
 
+exports.getAllTourDirectoriesLimit = async (req, res) => {
+  try {
+    const page = parseInt(req.query.page) || 1; // Lấy số trang từ query, mặc định là 1 nếu không được cung cấp
+    const limit = parseInt(req.query.limit) || 5; // Giới hạn số lượng sản phẩm mỗi trang, mặc định là 8
+    const skip = (page - 1) * limit;
+
+    // Tính tổng số sản phẩm để có thể tính tổng số trang
+    const totalToursDirec = await TourDirectory.countDocuments();
+    const totalPages = Math.ceil(totalToursDirec / limit);
+
+    const tourDirectories = await TourDirectory.find({})
+      .skip(skip)
+      .limit(limit)
+      .sort({ createdAt: -1 });
+
+    res.json({
+      success: true,
+      tourDirectories,
+      page,
+      limit,
+      totalPages,
+      totalToursDirec,
+    });
+  } catch (error) {
+    res.status(500).json({
+      success: false,
+      message: "Error retrieving tour directories",
+      error: error.message,
+    });
+  }
+};
+
 // Lấy danh mục tour theo id
 exports.getTourDirectoryById = async (req, res) => {
   try {

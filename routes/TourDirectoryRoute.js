@@ -18,6 +18,12 @@ router.get(
   tourDirectoryController.getAllTourDirectories
 );
 
+router.get(
+  "/getAllTourDirectoriesLimit",
+  verifyTokenCus(["admin", "staff"]),
+  tourDirectoryController.getAllTourDirectoriesLimit
+);
+
 // Cập nhật thông tin của một danh mục tour
 router.put(
   "/updateDirectory/:id",

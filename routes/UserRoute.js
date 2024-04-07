@@ -36,6 +36,30 @@ router.get(
   userController.getAllUsers
 );
 
+router.get(
+  "/get_all_usersLimitAdmin",
+  verifyTokenCus(["admin"]),
+  userController.getAllUsersLimitAdmin
+);
+
+router.get(
+  "/get_all_usersLimitStaff",
+  verifyTokenCus(["admin"]),
+  userController.getAllUsersLimitStaff
+);
+
+router.get(
+  "/get_all_usersLimitGuide",
+  verifyTokenCus(["admin"]),
+  userController.getAllUsersLimitGuide
+);
+
+router.get(
+  "/get_all_usersLimitCustomer",
+  verifyTokenCus(["admin"]),
+  userController.getAllUsersLimitCustomer
+);
+
 router.put(
   "/update_user/:id",
   upload.single("image"),

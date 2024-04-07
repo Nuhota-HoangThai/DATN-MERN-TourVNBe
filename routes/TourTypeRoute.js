@@ -16,6 +16,12 @@ router.get(
   tourTypeController.getAllTourTypes
 );
 
+router.get(
+  "/getAllTourTypeLimit",
+  verifyTokenCus(["admin", "staff"]),
+  tourTypeController.getAllTourTypesLimit
+);
+
 router.put(
   "/updateType/:id",
   verifyTokenCus(["admin", "staff"]),

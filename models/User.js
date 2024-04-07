@@ -6,6 +6,7 @@ const userSchema = new mongoose.Schema({
   cccd: { type: Number },
   email: { type: String, unique: true },
   password: { type: String },
+  confirmPassword: { type: String },
   phone: { type: Number },
   address: { type: String },
   cartData: { type: Object },
