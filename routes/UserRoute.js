@@ -49,6 +49,12 @@ router.get(
 );
 
 router.get(
+  "/get_all_usersGuide",
+  verifyTokenCus(["admin"]),
+  userController.getAllUsersGuide
+);
+
+router.get(
   "/get_all_usersLimitGuide",
   verifyTokenCus(["admin"]),
   userController.getAllUsersLimitGuide

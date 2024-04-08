@@ -34,8 +34,11 @@ exports.signup = async (req, res) => {
     const user = new User({
       name: req.body.name,
       email: req.body.email,
+      cccd: req.body.cccd,
+      sex: req.body.sex,
       password: hashedPassword,
       phone: req.body.phone,
+      dob: req.body.dob,
       cartData: cart,
       //role: req.body.role,
     });
@@ -206,6 +209,18 @@ exports.getAllUsersLimitStaff = async (req, res) => {
     res.status(500).send("Internal Server Error");
   }
 };
+
+// lấy ds guide
+exports.getAllUsersGuide = async (req, res) => {
+  try {
+    // Thêm điều kiện role: 'guide' vào phương thức find
+    const users = await User.find({ role: "guide" });
+    res.send(users);
+  } catch (error) {
+    res.status(500).send("Internal Server Error");
+  }
+};
+
 exports.getAllUsersLimitGuide = async (req, res) => {
   try {
     const page = parseInt(req.query.page) || 1; // Lấy số trang từ query, mặc định là 1 nếu không được cung cấp
@@ -227,6 +242,7 @@ exports.getAllUsersLimitGuide = async (req, res) => {
     res.status(500).send("Internal Server Error");
   }
 };
+
 exports.getAllUsersLimitCustomer = async (req, res) => {
   try {
     const page = parseInt(req.query.page) || 1; // Lấy số trang từ query, mặc định là 1 nếu không được cung cấp
@@ -259,6 +275,9 @@ exports.updateUser = async (req, res) => {
     address: req.body.address,
     cccd: req.body.cccd,
     role: req.body.role,
+    wage: req.body.wage,
+    dob: req.body.dob,
+    sex: req.body.sex,
   };
 
   if (req.file) {
@@ -339,8 +358,18 @@ exports.getUserById = async (req, res) => {
 
 // add user danh cho admin
 exports.addUser = async (req, res) => {
-  const { name, email, password, confirmPassword, phone, role, address, cccd } =
-    req.body;
+  const {
+    name,
+    email,
+    password,
+    confirmPassword,
+    phone,
+    role,
+    sex,
+    dob,
+    address,
+    cccd,
+  } = req.body;
 
   try {
     // Check if passwords match
@@ -379,6 +408,8 @@ exports.addUser = async (req, res) => {
       cartData: cart,
       role,
       address,
+      dob,
+      sex,
     });
 
     // Lưu người dùng vào cơ sở dữ liệu

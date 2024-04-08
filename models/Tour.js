@@ -5,13 +5,13 @@ const tourSchema = new mongoose.Schema(
     tourType: {
       type: mongoose.Schema.Types.ObjectId,
       ref: "TourType",
-      required: true,
+      required: false,
     },
 
     tourDirectory: {
       type: mongoose.Schema.Types.ObjectId,
       ref: "TourDirectory",
-      required: true,
+      required: false,
     },
 
     promotion: {
@@ -26,6 +26,11 @@ const tourSchema = new mongoose.Schema(
       required: false,
     },
     reviews: [{ type: mongoose.Schema.Types.ObjectId, ref: "ReviewTour" }],
+
+    userGuide: {
+      type: mongoose.Schema.Types.ObjectId,
+      ref: "User",
+    },
 
     nameTour: { type: String, required: true },
     image: [{ type: String, required: true }],

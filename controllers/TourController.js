@@ -17,6 +17,7 @@ exports.addTour = async (req, res) => {
 
       tourType: req.body.tourType,
       tourDirectory: req.body.tourDirectory,
+      userGuide: req.body.userGuide,
 
       nameTour: req.body.nameTour,
       regions: req.body.regions,
@@ -74,6 +75,7 @@ exports.removeTour = async (req, res) => {
 exports.updateTour = async (req, res) => {
   const { id } = req.params;
   let update = {
+    userGuide: req.body.userGuide,
     tourType: req.body.tourType,
     tourDirectory: req.body.tourDirectory,
     nameTour: req.body.nameTour,
@@ -117,10 +119,13 @@ exports.updateTour = async (req, res) => {
       new: true,
       runValidators: true,
     })
+      .populate("userGuide", "name phone address")
       .populate("tourType", "typeName")
       .populate("tourDirectory", "directoryName")
-      .populate("promotion", "namePromotion discountPercentage");
-
+      .populate(
+        "promotion",
+        "namePromotion discountPercentage startDatePromotion endDatePromotion"
+      );
     if (!updatedTour) {
       return res
         .status(404)
@@ -144,6 +149,7 @@ exports.updateTour = async (req, res) => {
 exports.getAllTours = async (req, res) => {
   try {
     let tours = await Tour.find({})
+      .populate("userGuide", "name phone address")
       .populate("tourType", "typeName")
       .populate("tourDirectory", "directoryName")
       .populate(
@@ -201,6 +207,7 @@ exports.getAllTours = async (req, res) => {
 
     // Lấy lại danh sách tour đã cập nhật để phản hồi
     tours = await Tour.find({})
+      .populate("userGuide", "name phone address")
       .populate("tourType", "typeName")
       .populate("tourDirectory", "directoryName")
       .populate(
@@ -319,7 +326,14 @@ exports.getAllToursLimit = async (req, res) => {
 
 // Get new collection tours
 exports.getNewCollection = async (req, res) => {
-  let tours = await Tour.find({});
+  let tours = await Tour.find({})
+    .populate("userGuide", "name phone address")
+    .populate("tourType", "typeName")
+    .populate("tourDirectory", "directoryName")
+    .populate(
+      "promotion",
+      "namePromotion discountPercentage startDatePromotion endDatePromotion"
+    );
   let newCollection = tours.slice(1).slice(-8);
   res.send(newCollection);
 };
@@ -327,6 +341,7 @@ exports.getNewCollection = async (req, res) => {
 // Get popular tours in the central region
 exports.getPopularInCentral = async (req, res) => {
   let tours = await Tour.find({ regions: "mt" })
+    .populate("userGuide", "name phone address")
     .populate("tourType", "typeName")
     .populate("tourDirectory", "directoryName")
     .populate("promotion", "namePromotion discountPercentage");
@@ -337,6 +352,7 @@ exports.getPopularInCentral = async (req, res) => {
 //Get popular tours in the North
 exports.getPopularInNorth = async (req, res) => {
   let tours = await Tour.find({ regions: "mb" })
+    .populate("userGuide", "name phone address")
     .populate("tourType", "typeName")
     .populate("tourDirectory", "directoryName")
     .populate("promotion", "namePromotion discountPercentage");
@@ -347,6 +363,7 @@ exports.getPopularInNorth = async (req, res) => {
 //Get popular tours in the Southern
 exports.getPopularInSouthern = async (req, res) => {
   let tours = await Tour.find({ regions: "mn" })
+    .populate("userGuide", "name phone address")
     .populate("tourType", "typeName")
     .populate("tourDirectory", "directoryName")
     .populate("promotion", "namePromotion discountPercentage");
@@ -365,6 +382,7 @@ exports.getTourById = async (req, res) => {
     }
 
     const tour = await Tour.findById(tourId)
+      .populate("userGuide", "name phone address")
       .populate("tourType", "typeName")
       .populate("tourDirectory", "directoryName")
       .populate("promotion", "namePromotion discountPercentage");
@@ -392,6 +410,7 @@ exports.getToursByTourTypeId = async (req, res) => {
     const { tourTypeId } = req.params;
 
     const tours = await Tour.find({ tourType: tourTypeId })
+      .populate("userGuide", "name phone address")
       .populate("tourType", "typeName")
       .populate("tourDirectory", "directoryName")
       .populate("promotion", "namePromotion discountPercentage");
@@ -473,6 +492,7 @@ exports.getToursByPromotionId = async (req, res) => {
 
     // Find tours with the matching promotion ID
     const tours = await Tour.find({ promotion: promotionId })
+      .populate("userGuide", "name phone address")
       .populate("tourType", "typeName")
       .populate("tourDirectory", "directoryName")
       .populate("promotion", "namePromotion discountPercentage");
