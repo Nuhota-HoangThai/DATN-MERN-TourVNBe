@@ -25,6 +25,7 @@ const BillController = {
         <p><strong>Khách hàng:</strong> ${bill.user.name}</p>
         <p><strong>Tour:</strong> ${bill.tour.nameTour}</p>
         <p><strong>Tổng cộng:</strong> ${bill.totalCost} đ</p>
+        <h1>Quý khách hàng xem chi tiết hóa đơn bằng cách vào website tại thanh tìm kiếm chọn tra cứu hóa đơn, nhập mã hóa đơn và tìm kiếm</h1>
       `;
 
       // Gửi email
@@ -90,6 +91,7 @@ const BillController = {
       res.status(500).json({ message: error.message });
     }
   },
+
   getAllBillsLimit: async (req, res) => {
     try {
       const page = parseInt(req.query.page) || 1; // Lấy số trang từ query, mặc định là 1 nếu không được cung cấp
@@ -149,6 +151,30 @@ const BillController = {
 
       res.json(bill);
     } catch (error) {
+      res.status(500).json({ message: error.message });
+    }
+  },
+
+  searchBillById: async (req, res) => {
+    try {
+      // Lấy mã hóa đơn từ tham số của request
+      const { billId } = req.params;
+
+      // Tìm hóa đơn dựa trên mã được cung cấp
+      const bill = await Bill.findById(billId)
+        .populate("booking")
+        .populate("user")
+        .populate("tour");
+
+      if (!bill) {
+        // Nếu không tìm thấy hóa đơn, trả về thông báo lỗi
+        return res.status(404).json({ message: "Bill not found" });
+      }
+
+      // Nếu tìm thấy hóa đơn, trả về hóa đơn đó
+      res.json(bill);
+    } catch (error) {
+      // Trong trường hợp có lỗi xảy ra, trả về thông báo lỗi
       res.status(500).json({ message: error.message });
     }
   },

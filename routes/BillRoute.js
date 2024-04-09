@@ -38,4 +38,6 @@ router.post(
   billController.sendEmail
 );
 
+router.get("/search/:billId", billController.searchBillById);
+
 module.exports = router;
