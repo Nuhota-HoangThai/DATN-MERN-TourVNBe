@@ -66,6 +66,8 @@ const tourSchema = new mongoose.Schema(
     timeTravel: { type: String },
     convergeTime: { type: Date },
     startingGate: { type: String },
+    //Lịch trình
+    schedule: { type: String },
     description: {
       type: String,
     },

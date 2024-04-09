@@ -3,6 +3,7 @@ const mongoose = require("mongoose");
 const promotionSchema = new mongoose.Schema({
   namePromotion: { type: String, required: true },
   discountPercentage: { type: Number, required: true },
+  image: { type: String, required: true },
 
   descriptionPromotion: { type: String },
   startDatePromotion: { type: Date, required: true },

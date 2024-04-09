@@ -3,10 +3,12 @@ const router = express.Router();
 const tourDirectoryController = require("../controllers/TourDirectoryController");
 
 const { verifyTokenCus } = require("../middleware/verifyTokenCus");
+const { upload } = require("../config/uploadImage");
 
 // Tạo một danh mục tour mới
 router.post(
   "/createTourDirectory",
+  upload.single("image"),
   verifyTokenCus(["admin", "staff"]),
   tourDirectoryController.createTourDirectory
 );
@@ -14,13 +16,11 @@ router.post(
 // Lấy tất cả các danh mục tour
 router.get(
   "/getAllTourDirectories",
-  verifyTokenCus(["admin", "staff"]),
   tourDirectoryController.getAllTourDirectories
 );
 
 router.get(
   "/getAllTourDirectoriesLimit",
-  verifyTokenCus(["admin", "staff"]),
   tourDirectoryController.getAllTourDirectoriesLimit
 );
 

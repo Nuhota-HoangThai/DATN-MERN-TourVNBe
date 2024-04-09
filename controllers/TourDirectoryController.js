@@ -3,20 +3,25 @@ const TourDirectory = require("../models/TourDirectory");
 // Tạo một danh mục tour mới
 exports.createTourDirectory = async (req, res) => {
   try {
-    const { directoryName, directoryDescription } = req.body;
+    if (req.file) {
+      const imagePath = req.file.path; // Lấy đường dẫn hình ảnh
 
-    const tourDirectory = new TourDirectory({
-      directoryName,
-      directoryDescription,
-    });
+      // Tạo một đối tượng mới với dữ liệu từ req.body và thêm đường dẫn hình ảnh
+      const newTourDirectory = {
+        ...req.body,
+        image: imagePath, // Thêm đường dẫn hình ảnh vào dữ liệu khuyến mãi
+      };
 
-    await tourDirectory.save();
-
-    res.json({
-      success: true,
-      message: "Đã tạo thành công danh mục chuyến tham quan",
-      tourDirectory,
-    });
+      const tourDirectory = new TourDirectory(newTourDirectory);
+      await tourDirectory.save();
+      res.json({
+        success: true,
+        message: "Đã tạo thành công danh mục chuyến tham quan",
+        tourDirectory,
+      });
+    } else {
+      res.status(400).send("An image is required.");
+    }
   } catch (error) {
     res.status(500).json({
       success: false,

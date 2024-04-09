@@ -2,19 +2,43 @@
 const Promotion = require("../models/TourPromotion");
 
 const cron = require("node-cron");
+const moment = require("moment-timezone");
 
-cron.schedule("0 0 * * *", async () => {
-  // Mỗi ngày vào lúc 00:00, kiểm tra và cập nhật giá tour dựa trên khuyến mãi
-  //console.log("Running a daily check for tour promotions");
-  await updateTourPricesBasedOnPromotions();
-});
+const timezone = "Asia/Ho_Chi_Minh";
+
+cron.schedule(
+  "0 0 * * *",
+  async () => {
+    // Mỗi ngày vào lúc 00:00, kiểm tra và cập nhật giá tour dựa trên khuyến mãi
+    //console.log("Running a daily check for tour promotions");
+    await updateTourPricesBasedOnPromotions();
+  },
+  {
+    scheduled: true,
+    timezone: timezone,
+  }
+);
 
 // Thêm một khuyến mãi mới
 exports.createPromotion = async (req, res) => {
   try {
-    const newPromotion = new Promotion(req.body);
-    await newPromotion.save();
-    res.status(201).send(newPromotion);
+    // Kiểm tra xem có file hình ảnh nào được tải lên hay không
+    if (req.file) {
+      const imagePath = req.file.path; // Lấy đường dẫn hình ảnh
+
+      // Tạo một đối tượng mới với dữ liệu từ req.body và thêm đường dẫn hình ảnh
+      const newPromotionData = {
+        ...req.body,
+        image: imagePath, // Thêm đường dẫn hình ảnh vào dữ liệu khuyến mãi
+      };
+
+      const newPromotion = new Promotion(newPromotionData);
+      await newPromotion.save(); // Lưu đối tượng vào cơ sở dữ liệu
+
+      res.status(201).send(newPromotion);
+    } else {
+      res.status(400).send("An image is required.");
+    }
   } catch (error) {
     res.status(400).send(error);
   }

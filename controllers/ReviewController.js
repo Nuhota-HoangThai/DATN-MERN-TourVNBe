@@ -2,25 +2,6 @@ const Review = require("../models/Review");
 const Tour = require("../models/Tour");
 const User = require("../models/User"); // Ensure you have the User model
 
-// exports.createReview = async (req, res) => {
-//   const { tourId } = req.params;
-//   const userId = req.user.id; // Assuming req.user.id stores the ID of the logged-in user
-//   const reviewData = { ...req.body, tourId, userId }; // Include userId in the review document
-
-//   try {
-//     const savedReview = await new Review(reviewData).save();
-//     await Tour.findByIdAndUpdate(tourId, {
-//       $push: { reviews: savedReview._id },
-//     });
-
-//     res
-//       .status(200)
-//       .json({ success: true, message: "Review submitted", data: savedReview });
-//   } catch (err) {
-//     res.status(500).json({ success: false, error: err });
-//   }
-// };
-
 exports.createReview = async (req, res) => {
   const { tourId } = req.params;
   const userId = req.user.id; // Giả định req.user.id lưu trữ ID của người dùng đã đăng nhập
@@ -96,3 +77,22 @@ exports.getReviews = async (req, res) => {
 };
 
 module.exports = exports;
+
+// exports.createReview = async (req, res) => {
+//   const { tourId } = req.params;
+//   const userId = req.user.id; // Assuming req.user.id stores the ID of the logged-in user
+//   const reviewData = { ...req.body, tourId, userId }; // Include userId in the review document
+
+//   try {
+//     const savedReview = await new Review(reviewData).save();
+//     await Tour.findByIdAndUpdate(tourId, {
+//       $push: { reviews: savedReview._id },
+//     });
+
+//     res
+//       .status(200)
+//       .json({ success: true, message: "Review submitted", data: savedReview });
+//   } catch (err) {
+//     res.status(500).json({ success: false, error: err });
+//   }
+// };

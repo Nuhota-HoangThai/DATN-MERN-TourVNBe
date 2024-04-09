@@ -4,9 +4,12 @@ const router = express.Router();
 const promotionController = require("../controllers/TourPromotionController");
 const { verifyTokenCus } = require("../middleware/verifyTokenCus");
 
+const { upload } = require("../config/uploadImage");
+
 // Cấu hình các route
 router.post(
   "/createPromotion",
+  upload.single("image"),
   verifyTokenCus(["admin", "staff"]),
   promotionController.createPromotion
 );
