@@ -11,14 +11,14 @@ router.post(
   "/addTour",
   upload.fields([{ name: "image", maxCount: 20 }, { name: "video" }]),
   checkImagesUploaded,
-  verifyTokenCus(["admin", "staff"]),
+  verifyTokenCus(["admin"]),
   tourController.addTour
 );
 
 // Remove a tour
 router.delete(
   "/removeTour/:id",
-  verifyTokenCus(["admin", "staff"]),
+  verifyTokenCus(["admin"]),
   tourController.removeTour
 );
 
@@ -42,7 +42,7 @@ router.get("/getPopularInNorth", tourController.getPopularInNorth);
 router.put(
   "/update_tour/:id",
   upload.fields([{ name: "image", maxCount: 20 }, { name: "video" }]),
-  verifyTokenCus(["admin", "staff"]),
+  verifyTokenCus(["admin"]),
   tourController.updateTour
 );
 

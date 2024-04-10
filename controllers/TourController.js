@@ -76,9 +76,9 @@ exports.removeTour = async (req, res) => {
 exports.updateTour = async (req, res) => {
   const { id } = req.params;
   let update = {
-    userGuide: req.body.userGuide,
-    tourType: req.body.tourType,
-    tourDirectory: req.body.tourDirectory,
+    //userGuide: req.body.userGuide,
+    //tourType: req.body.tourType,
+    //tourDirectory: req.body.tourDirectory,
     nameTour: req.body.nameTour,
     maxParticipants: req.body.maxParticipants,
     regions: req.body.regions,
@@ -92,7 +92,7 @@ exports.updateTour = async (req, res) => {
     priceForYoungChildren: req.body.priceForYoungChildren,
     priceForInfants: req.body.priceForInfants,
     additionalFees: req.body.additionalFees,
-    promotion: req.body.promotion,
+    //promotion: req.body.promotion,
     schedule: req.body.schedule,
   };
 

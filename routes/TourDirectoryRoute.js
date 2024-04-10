@@ -9,7 +9,7 @@ const { upload } = require("../config/uploadImage");
 router.post(
   "/createTourDirectory",
   upload.single("image"),
-  verifyTokenCus(["admin", "staff"]),
+  verifyTokenCus(["admin"]),
   tourDirectoryController.createTourDirectory
 );
 
@@ -27,21 +27,20 @@ router.get(
 // Cập nhật thông tin của một danh mục tour
 router.put(
   "/updateDirectory/:id",
-  verifyTokenCus(["admin", "staff"]),
+  verifyTokenCus(["admin"]),
   tourDirectoryController.updateTourDirectory
 );
 
 // Xóa một danh mục tour
 router.delete(
   "/deleteDirectory/:id",
-  verifyTokenCus(["admin", "staff"]),
+  verifyTokenCus(["admin"]),
   tourDirectoryController.deleteTourDirectory
 );
 
 // Lấy danh mục tour theo id
 router.get(
   "/getTourDirectory/:id",
-  //verifyTokenCus(["admin", "staff"]),
   tourDirectoryController.getTourDirectoryById
 );
 

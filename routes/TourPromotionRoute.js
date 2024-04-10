@@ -10,27 +10,23 @@ const { upload } = require("../config/uploadImage");
 router.post(
   "/createPromotion",
   upload.single("image"),
-  verifyTokenCus(["admin", "staff"]),
+  verifyTokenCus(["admin"]),
   promotionController.createPromotion
 );
-router.get(
-  "/getAllPromotion",
-  //verifyTokenCus(["admin", "staff"]),
-  promotionController.getAllPromotions
-);
+router.get("/getAllPromotion", promotionController.getAllPromotions);
 router.get(
   "/getPromotionById/:id",
-  verifyTokenCus(["admin", "staff"]),
+  verifyTokenCus(["admin"]),
   promotionController.getPromotionById
 );
 router.put(
   "/updatePromotion/:id",
-  verifyTokenCus(["admin", "staff"]),
+  verifyTokenCus(["admin"]),
   promotionController.updatePromotion
 );
 router.delete(
   "/deletePromotion/:id",
-  verifyTokenCus(["admin", "staff"]),
+  verifyTokenCus(["admin"]),
   promotionController.deletePromotion
 );
 

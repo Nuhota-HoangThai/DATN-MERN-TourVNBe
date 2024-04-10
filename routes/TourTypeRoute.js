@@ -6,38 +6,34 @@ const { verifyTokenCus } = require("../middleware/verifyTokenCus");
 
 router.post(
   "/createTourType",
-  verifyTokenCus(["admin", "staff"]),
+  verifyTokenCus(["admin"]),
   tourTypeController.createTourType
 );
 
 router.get(
   "/getAllTourType",
-  verifyTokenCus(["admin", "staff"]),
+  verifyTokenCus(["admin"]),
   tourTypeController.getAllTourTypes
 );
 
 router.get(
   "/getAllTourTypeLimit",
-  verifyTokenCus(["admin", "staff"]),
+  verifyTokenCus(["admin"]),
   tourTypeController.getAllTourTypesLimit
 );
 
 router.put(
   "/updateType/:id",
-  verifyTokenCus(["admin", "staff"]),
+  verifyTokenCus(["admin"]),
   tourTypeController.updateTourType
 );
 
 router.delete(
   "/deleteType/:id",
-  verifyTokenCus(["admin", "staff"]),
+  verifyTokenCus(["admin"]),
   tourTypeController.deleteTourType
 );
 
-router.get(
-  "/getTourType/:id",
-  // verifyTokenCus(["admin", "staff"]),
-  tourTypeController.getTourTypeById
-);
+router.get("/getTourType/:id", tourTypeController.getTourTypeById);
 
 module.exports = router;
