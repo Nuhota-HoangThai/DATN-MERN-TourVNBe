@@ -8,7 +8,6 @@ const { verifyToken } = require("../middleware/verifyToken");
 const multer = require("multer");
 const path = require("path");
 
-// Cấu hình multer như đã mô tả ở trên
 const storage = multer.diskStorage({
   destination: function (req, file, cb) {
     cb(null, "upload/images/");

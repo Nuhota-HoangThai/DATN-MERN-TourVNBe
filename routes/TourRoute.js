@@ -54,6 +54,18 @@ router.get(
   tourController.getToursByTourDirectoryId
 );
 
+router.get(
+  "/getTourGuide/:userGuideId",
+  verifyTokenCus(["admin", "guide"]),
+  tourController.getToursByGuide
+);
+
+router.get(
+  "/getAllTourGuide",
+  verifyTokenCus(["admin"]),
+  tourController.getAllToursGuide
+);
+
 router.get("/promotion/:promotionId", tourController.getToursByPromotionId);
 
 router.get("/search", tourController.searchToursAdvanced);

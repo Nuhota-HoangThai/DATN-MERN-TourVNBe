@@ -4,7 +4,6 @@ const reviewSchema = new mongoose.Schema(
   {
     tourId: {
       type: mongoose.Schema.Types.ObjectId,
-      required: true,
       ref: "Tour",
     },
     bookingId: {

@@ -76,9 +76,6 @@ exports.removeTour = async (req, res) => {
 exports.updateTour = async (req, res) => {
   const { id } = req.params;
   let update = {
-    //userGuide: req.body.userGuide,
-    //tourType: req.body.tourType,
-    //tourDirectory: req.body.tourDirectory,
     nameTour: req.body.nameTour,
     maxParticipants: req.body.maxParticipants,
     regions: req.body.regions,
@@ -92,28 +89,40 @@ exports.updateTour = async (req, res) => {
     priceForYoungChildren: req.body.priceForYoungChildren,
     priceForInfants: req.body.priceForInfants,
     additionalFees: req.body.additionalFees,
-    //promotion: req.body.promotion,
     schedule: req.body.schedule,
   };
 
-  // Cập nhật cho hình ảnh
-  if (req.files.image && req.files.image.length > 0) {
-    const imagesPaths = req.files.image.map((file) => file.path);
-    update.image = imagesPaths;
+  if (req.body.userGuide) {
+    update.userGuide = req.body.userGuide;
   }
 
-  // Cập nhật cho video
-  if (req.files.video && req.files.video.length > 0) {
-    const videosPaths = req.files.video.map((file) => file.path);
-    update.video = videosPaths;
+  if (req.files.image && req.files.image.length > 0) {
+    update.image = req.files.image.map((file) => file.path);
   }
+
+  if (req.files.video && req.files.video.length > 0) {
+    update.video = req.files.video.map((file) => file.path);
+  }
+
   try {
-    if (update.promotion) {
-      const promotion = await Promotion.findById(update.promotion);
-      if (!promotion) {
-        return res
-          .status(404)
-          .json({ success: false, message: "Promotion not found" });
+    // Check if guide is available
+    if (update.userGuide) {
+      const overlappingTours = await Tour.find({
+        userGuide: update.userGuide,
+        _id: { $ne: id },
+        $or: [
+          {
+            startDate: { $lte: new Date(update.endDate) },
+            endDate: { $gte: new Date(update.startDate) },
+          },
+        ],
+      });
+
+      if (overlappingTours.length > 0) {
+        return res.status(400).json({
+          success: false,
+          message: "Guide is not available in the given date range.",
+        });
       }
     }
 
@@ -128,6 +137,7 @@ exports.updateTour = async (req, res) => {
         "promotion",
         "namePromotion discountPercentage startDatePromotion endDatePromotion"
       );
+
     if (!updatedTour) {
       return res
         .status(404)
@@ -147,6 +157,81 @@ exports.updateTour = async (req, res) => {
     });
   }
 };
+
+// exports.updateTour = async (req, res) => {
+//   const { id } = req.params;
+//   let update = {
+//     //userGuide: req.body.userGuide,
+//     //tourType: req.body.tourType,
+//     //tourDirectory: req.body.tourDirectory,
+//     nameTour: req.body.nameTour,
+//     maxParticipants: req.body.maxParticipants,
+//     regions: req.body.regions,
+//     description: req.body.description,
+//     startDate: req.body.startDate,
+//     endDate: req.body.endDate,
+//     convergeTime: req.body.convergeTime,
+//     startingGate: req.body.startingGate,
+//     price: req.body.price,
+//     priceForChildren: req.body.priceForChildren,
+//     priceForYoungChildren: req.body.priceForYoungChildren,
+//     priceForInfants: req.body.priceForInfants,
+//     additionalFees: req.body.additionalFees,
+//     //promotion: req.body.promotion,
+//     schedule: req.body.schedule,
+//   };
+
+//   // Cập nhật cho hình ảnh
+//   if (req.files.image && req.files.image.length > 0) {
+//     const imagesPaths = req.files.image.map((file) => file.path);
+//     update.image = imagesPaths;
+//   }
+
+//   // Cập nhật cho video
+//   if (req.files.video && req.files.video.length > 0) {
+//     const videosPaths = req.files.video.map((file) => file.path);
+//     update.video = videosPaths;
+//   }
+//   try {
+//     if (update.promotion) {
+//       const promotion = await Promotion.findById(update.promotion);
+//       if (!promotion) {
+//         return res
+//           .status(404)
+//           .json({ success: false, message: "Promotion not found" });
+//       }
+//     }
+
+//     const updatedTour = await Tour.findByIdAndUpdate(id, update, {
+//       new: true,
+//       runValidators: true,
+//     })
+//       .populate("userGuide", "name phone address")
+//       .populate("tourType", "typeName")
+//       .populate("tourDirectory", "directoryName")
+//       .populate(
+//         "promotion",
+//         "namePromotion discountPercentage startDatePromotion endDatePromotion"
+//       );
+//     if (!updatedTour) {
+//       return res
+//         .status(404)
+//         .json({ success: false, message: "Tour not found" });
+//     }
+
+//     res.json({
+//       success: true,
+//       message: "Tour updated successfully",
+//       tour: updatedTour,
+//     });
+//   } catch (error) {
+//     res.status(500).json({
+//       success: false,
+//       message: "Error updating the tour",
+//       error: error.message,
+//     });
+//   }
+// };
 
 exports.getAllTours = async (req, res) => {
   try {
@@ -478,6 +563,37 @@ exports.getToursByTourDirectoryId = async (req, res) => {
   }
 };
 
+// Lấy các tour cá nhân hướng dẫn viên đang được phân công
+exports.getToursByGuide = async (req, res) => {
+  try {
+    const { userGuideId } = req.params;
+
+    const tours = await Tour.find({ userGuide: userGuideId })
+      .populate("userGuide", "name phone address")
+      .populate("tourType", "typeName")
+      .populate("tourDirectory", "directoryName")
+      .populate("promotion", "namePromotion discountPercentage");
+
+    if (!tours || tours.length === 0) {
+      return res.status(404).json({
+        success: false,
+        message: "No tours found for the specified guide",
+      });
+    }
+
+    res.json({
+      success: true,
+      tours: tours,
+    });
+  } catch (error) {
+    res.status(500).json({
+      success: false,
+      message: "Error retrieving tours by guide",
+      error: error.message,
+    });
+  }
+};
+
 exports.searchToursAdvanced = async (req, res) => {
   try {
     const { nameTour, startDate, priceMin, priceMax, maxParticipants } =
@@ -553,6 +669,92 @@ exports.getToursByPromotionId = async (req, res) => {
     res.status(500).json({
       success: false,
       message: "Error retrieving tours by promotion",
+      error: error.message,
+    });
+  }
+};
+
+// lấy tất cả các tour có hướng dẫn viên
+exports.getAllToursGuide = async (req, res) => {
+  try {
+    // Chỉ lấy những tours có hướng dẫn viên
+    let tours = await Tour.find({ userGuide: { $ne: null } })
+      .populate("userGuide", "name phone address")
+      .populate("tourType", "typeName")
+      .populate("tourDirectory", "directoryName")
+      .populate(
+        "promotion",
+        "namePromotion discountPercentage startDatePromotion endDatePromotion"
+      );
+
+    const now = new Date();
+
+    for (let tour of tours) {
+      let tourData = tour.toObject();
+      let needUpdate = false;
+
+      // Kiểm tra và áp dụng khuyến mãi nếu có
+      if (
+        tourData.promotion &&
+        now >= new Date(tourData.promotion.startDatePromotion) &&
+        now <= new Date(tourData.promotion.endDatePromotion)
+      ) {
+        const discountPercentage = tourData.promotion.discountPercentage / 100;
+        const applyDiscount = (price, discountPercentage) => {
+          return price * (1 - discountPercentage);
+        };
+
+        // Áp dụng giảm giá cho các loại giá vé
+        tourData.price = applyDiscount(
+          tourData.originalPrice || tourData.price,
+          discountPercentage
+        );
+        tourData.priceForChildren = applyDiscount(
+          tourData.originalPriceForChildren || tourData.priceForChildren,
+          discountPercentage
+        );
+        tourData.priceForYoungChildren = applyDiscount(
+          tourData.originalPriceForYoungChildren ||
+            tourData.priceForYoungChildren,
+          discountPercentage
+        );
+        tourData.priceForInfants = applyDiscount(
+          tourData.originalPriceForInfants || tourData.priceForInfants,
+          discountPercentage
+        );
+        needUpdate = true;
+      }
+
+      // Cập nhật tour nếu có thay đổi giá
+      if (needUpdate) {
+        await Tour.findByIdAndUpdate(tour._id, {
+          $set: {
+            price: tourData.price,
+            priceForChildren: tourData.priceForChildren,
+            priceForYoungChildren: tourData.priceForYoungChildren,
+            priceForInfants: tourData.priceForInfants,
+          },
+        });
+      }
+    }
+
+    // Lấy lại danh sách tours đã cập nhật để phản hồi
+    tours = await Tour.find({ userGuide: { $ne: null } })
+      .populate("userGuide", "name phone address")
+      .populate("tourType", "typeName")
+      .populate("tourDirectory", "directoryName")
+      .populate(
+        "promotion",
+        "namePromotion discountPercentage startDatePromotion endDatePromotion"
+      );
+
+    res.json({
+      tours: tours,
+    });
+  } catch (error) {
+    console.error("Error fetching tours:", error);
+    res.status(500).json({
+      message: "Error fetching the tours",
       error: error.message,
     });
   }
