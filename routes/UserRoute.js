@@ -82,6 +82,7 @@ router.get("/getUserById/:id", verifyToken, userController.getUserById);
 
 router.post("/forgot-password", userController.forgotPassword);
 
-router.post("/login/reset-password/:userId", userController.newPassword);
+// router.post("/login/reset-password/:userId", userController.newPassword);
+router.post("/login/reset-password/:token", userController.newPassword);
 
 module.exports = router;
