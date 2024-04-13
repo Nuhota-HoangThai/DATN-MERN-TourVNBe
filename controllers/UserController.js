@@ -4,6 +4,8 @@ const bcrypt = require("bcrypt");
 const jwt = require("jsonwebtoken");
 require("dotenv").config();
 
+const { sendEmailPassword } = require("../service/EmailPasswordService");
+
 // User registration
 exports.signup = async (req, res) => {
   try {
@@ -437,6 +439,59 @@ exports.addUser = async (req, res) => {
       success: false,
       message: "Internal server error. Please try again later.",
     });
+  }
+};
+
+// quên mật khẩu khi người dùng quên mật khẩu thì gửi mail dẫn đến đường link trang tạo mật khẩu
+exports.forgotPassword = async (req, res) => {
+  const { email } = req.body;
+  try {
+    const user = await User.findOne({ email });
+    if (!user) {
+      return res.status(404).send("Không tìm thấy email");
+    }
+
+    // Using userId directly in the link
+    const userId = user._id;
+    const link = `http://localhost:5174/login/reset-password/${userId}`;
+    const emailContent = `Xin chào, bạn đã yêu cầu đặt lại mật khẩu cho tài khoản của mình. Vui lòng nhấn vào link sau để đặt lại mật khẩu: <a href="${link}">${link}</a>`;
+
+    await sendEmailPassword(user.email, emailContent);
+
+    //res.send("Link đặt lại mật khẩu đã được gửi vào email của bạn.");
+
+    res.status(200).json({ message: "Mail đã được gửi" });
+  } catch (error) {
+    console.error(error);
+    res.status(500).send("Internal Server Error");
+  }
+};
+
+/// Tạo matas khẩu mới
+
+exports.newPassword = async (req, res) => {
+  const { userId } = req.params;
+  const { password, confirmPassword } = req.body;
+  if (password !== confirmPassword) {
+    return res.status(400).send("Mật khẩu xác nhận không khớp.");
+  }
+
+  try {
+    const user = await User.findById(userId);
+
+    if (!user) {
+      return res.status(404).send("Không tìm thấy người dùng.");
+    }
+
+    // Mã hóa mật khẩu mới và cập nhật trong database
+    const hashedPassword = await bcrypt.hash(password, 10);
+    user.password = hashedPassword;
+    await user.save(); // Lưu người dùng đã cập nhật
+
+    res.send("Mật khẩu đã được đặt lại thành công.");
+  } catch (error) {
+    console.error(error);
+    res.status(500).send("Internal Server Error");
   }
 };
 
