@@ -90,6 +90,42 @@ exports.getAllPromotions = async (req, res) => {
   }
 };
 
+exports.getAllPromotionsLimit = async (req, res) => {
+  try {
+    const page = parseInt(req.query.page) || 1; // Lấy số trang từ query, mặc định là 1 nếu không được cung cấp
+    const limit = parseInt(req.query.limit) || 6; // Giới hạn số lượng sản phẩm mỗi trang, mặc định là 8
+    const skip = (page - 1) * limit;
+
+    // Tính tổng số sản phẩm để có thể tính tổng số trang
+    const totalToursPromotion = await Promotion.countDocuments();
+    const totalPages = Math.ceil(totalToursPromotion / limit);
+
+    const promotions = await Promotion.find({}).skip(skip).limit(limit);
+
+    // Duyệt qua từng khuyến mãi để kiểm tra thời hạn áp dụng
+    const updatedPromotions = promotions.map((promotion) => {
+      const now = new Date();
+      if (
+        now < promotion.startDatePromotion ||
+        now > promotion.endDatePromotion
+      ) {
+        promotion.descriptionPromotion = "Khuyến mãi này hiện không áp dụng.";
+      }
+      return promotion;
+    });
+
+    res.json({
+      updatedPromotions,
+      page,
+      limit,
+      totalPages,
+      totalToursPromotion,
+    });
+  } catch (error) {
+    res.status(500).send(error);
+  }
+};
+
 // Cập nhật khuyến mãi theo ID
 exports.updatePromotion = async (req, res) => {
   try {

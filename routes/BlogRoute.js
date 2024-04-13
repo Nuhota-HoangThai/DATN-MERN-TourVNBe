@@ -5,7 +5,7 @@ const { verifyTokenCus } = require("../middleware/verifyTokenCus");
 const router = express.Router();
 
 // lấy tất cả bài viết
-router.get("/getAll", blogController.getAllBlogs);
+router.get("/getAll", blogController.getAllBlogsLimitAdmin);
 router.get("/getAllLimit", blogController.getAllBlogsLimit);
 
 // tạo mới một bài viết

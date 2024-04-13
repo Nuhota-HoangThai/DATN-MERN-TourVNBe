@@ -17,29 +17,36 @@ exports.createBlog = async (req, res) => {
 };
 
 // Lấy danh sách tất cả bài viết với hỗ trợ phân trang
-exports.getAllBlogs = async (req, res) => {
+exports.getAllBlogsLimitAdmin = async (req, res) => {
   try {
-    const page = req.query.page * 1 || 1; // Convert to number, default is 1
-    const limit = req.query.limit * 1 || 10; // Convert to number, default is 10
+    const page = parseInt(req.query.page) || 1; // Lấy số trang từ query, mặc định là 1 nếu không được cung cấp
+    const limit = parseInt(req.query.limit) || 5; // Giới hạn số lượng bài viết mỗi trang, mặc định là 10
     const skip = (page - 1) * limit;
 
+    // Tính tổng số bài viết để có thể tính tổng số trang
+    const totalBlogs = await Blog.countDocuments();
+    const totalPages = Math.ceil(totalBlogs / limit);
+
     const blogs = await Blog.find().skip(skip).limit(limit);
-    const total = await Blog.countDocuments();
 
     res.status(200).json({
       status: "success",
-      results: blogs.length,
-      total,
+      currentPage: page,
+      limit,
+      totalPages,
+      totalBlogs,
       data: blogs,
     });
   } catch (err) {
-    res.status(404).json({
+    res.status(500).json({
       status: "fail",
-      message: err.message,
+      message: "Error fetching the blogs",
+      error: err.message,
     });
   }
 };
 
+// ham nay chay phia khach hang
 exports.getAllBlogsLimit = async (req, res) => {
   try {
     const page = parseInt(req.query.page) || 1; // Lấy số trang từ query, mặc định là 1 nếu không được cung cấp

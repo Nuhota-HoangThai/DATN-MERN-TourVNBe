@@ -14,6 +14,13 @@ router.post(
   promotionController.createPromotion
 );
 router.get("/getAllPromotion", promotionController.getAllPromotions);
+
+router.get(
+  "/getAllPromotionLimit",
+  verifyTokenCus(["admin"]),
+  promotionController.getAllPromotionsLimit
+);
+
 router.get(
   "/getPromotionById/:id",
   verifyTokenCus(["admin"]),
