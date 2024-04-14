@@ -1,4 +1,3 @@
-// PromotionController.js
 const Promotion = require("../models/TourPromotion");
 
 const cron = require("node-cron");

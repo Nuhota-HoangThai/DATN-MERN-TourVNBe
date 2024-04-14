@@ -17,6 +17,8 @@ const BookingController = {
       numberOfYoungChildren,
       //
       numberOfInfants,
+      singleRoomNumber,
+
       bookingDate,
       priceOfAdults,
       priceForChildren,
@@ -63,6 +65,8 @@ const BookingController = {
         numberOfAdults: numberOfAdults,
         numberOfYoungChildren: numberOfYoungChildren,
         numberOfInfants: numberOfInfants,
+        singleRoomNumber: singleRoomNumber,
+
         /////
         adultPrice: priceOfAdults,
         childPrice: priceForChildren,
@@ -242,6 +246,7 @@ const BookingController = {
       numberOfChildren,
       numberOfYoungChildren,
       numberOfInfants,
+      singleRoomNumber,
       bookingDate,
       priceOfAdults,
       priceForChildren,
@@ -288,6 +293,7 @@ const BookingController = {
         numberOfAdults,
         numberOfYoungChildren,
         numberOfInfants,
+        singleRoomNumber,
         adultPrice: priceOfAdults,
         childPrice: priceForChildren,
         youngChildrenPrice: priceForYoungChildren,

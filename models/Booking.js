@@ -39,6 +39,12 @@ const bookingSchema = new mongoose.Schema({
     required: true,
     default: 0,
   },
+
+  singleRoomNumber: {
+    type: Number,
+    default: 0,
+  },
+
   bookingDate: {
     type: Date,
     default: Date.now,

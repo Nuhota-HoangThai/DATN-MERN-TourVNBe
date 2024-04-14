@@ -168,6 +168,111 @@ exports.updateTour = async (req, res) => {
   }
 };
 
+exports.getAllTours = async (req, res) => {
+  try {
+    let tours = await Tour.find({})
+      .populate("userGuide", "name phone address")
+      .populate("tourType", "typeName")
+      .populate("tourDirectory", "directoryName")
+      .populate(
+        "promotion",
+        "namePromotion discountPercentage startDatePromotion endDatePromotion"
+      );
+
+    const now = new Date();
+
+    for (let tour of tours) {
+      let tourData = tour.toObject();
+      let needUpdate = false;
+
+      // Check if there is a promotion and whether it's currently valid
+      if (tourData.promotion) {
+        if (
+          now >= new Date(tourData.promotion.startDatePromotion) &&
+          now <= new Date(tourData.promotion.endDatePromotion)
+        ) {
+          // The promotion is valid
+          if (!tourData.originalPrice) {
+            // Save the original prices if they haven't been saved yet
+            tourData.originalPrice = tourData.price;
+            tourData.originalPriceForChildren = tourData.priceForChildren;
+            tourData.originalPriceForYoungChildren =
+              tourData.priceForYoungChildren;
+            tourData.originalPriceForInfants = tourData.priceForInfants;
+          }
+
+          const discountPercentage =
+            tourData.promotion.discountPercentage / 100;
+          const applyDiscount = (price, discount) => price * (1 - discount);
+
+          // Apply the discount
+          tourData.price = applyDiscount(
+            tourData.originalPrice,
+            discountPercentage
+          );
+          tourData.priceForChildren = applyDiscount(
+            tourData.originalPriceForChildren,
+            discountPercentage
+          );
+          tourData.priceForYoungChildren = applyDiscount(
+            tourData.originalPriceForYoungChildren,
+            discountPercentage
+          );
+          tourData.priceForInfants = applyDiscount(
+            tourData.originalPriceForInfants,
+            discountPercentage
+          );
+          needUpdate = true; // Flag that we need to update the tour document
+        } else {
+          // The promotion is not valid; revert prices if original prices are saved
+          if (tourData.originalPrice) {
+            tourData.price = tourData.originalPrice;
+            tourData.priceForChildren = tourData.originalPriceForChildren;
+            tourData.priceForYoungChildren =
+              tourData.originalPriceForYoungChildren;
+            tourData.priceForInfants = tourData.originalPriceForInfants;
+            needUpdate = true; // Flag that we need to update the tour document
+          }
+        }
+      }
+
+      // Update the tour if needed
+      if (needUpdate) {
+        await Tour.findByIdAndUpdate(tour._id, {
+          $set: {
+            price: tourData.price,
+            priceForChildren: tourData.priceForChildren,
+            priceForYoungChildren: tourData.priceForYoungChildren,
+            priceForInfants: tourData.priceForInfants,
+            originalPrice: tourData.originalPrice,
+            originalPriceForChildren: tourData.originalPriceForChildren,
+            originalPriceForYoungChildren:
+              tourData.originalPriceForYoungChildren,
+            originalPriceForInfants: tourData.originalPriceForInfants,
+          },
+        });
+      }
+    }
+
+    // Refetch the tours after updates
+    tours = await Tour.find({})
+      .populate("userGuide", "name phone address")
+      .populate("tourType", "typeName")
+      .populate("tourDirectory", "directoryName")
+      .populate(
+        "promotion",
+        "namePromotion discountPercentage startDatePromotion endDatePromotion"
+      );
+    res.json({ tours });
+  } catch (error) {
+    console.error("Error fetching tours:", error);
+    res.status(500).json({
+      message: "Error fetching the tours",
+      error: error.message,
+    });
+  }
+};
+
 // exports.updateTour = async (req, res) => {
 //   const { id } = req.params;
 //   let update = {
@@ -243,98 +348,98 @@ exports.updateTour = async (req, res) => {
 //   }
 // };
 
-exports.getAllTours = async (req, res) => {
-  try {
-    let tours = await Tour.find({})
-      .populate("userGuide", "name phone address")
-      .populate("tourType", "typeName")
-      .populate("tourDirectory", "directoryName")
-      .populate(
-        "promotion",
-        "namePromotion discountPercentage startDatePromotion endDatePromotion"
-      );
+// exports.getAllTours = async (req, res) => {
+//   try {
+//     let tours = await Tour.find({})
+//       .populate("userGuide", "name phone address")
+//       .populate("tourType", "typeName")
+//       .populate("tourDirectory", "directoryName")
+//       .populate(
+//         "promotion",
+//         "namePromotion discountPercentage startDatePromotion endDatePromotion"
+//       );
 
-    const now = new Date();
+//     const now = new Date();
 
-    for (let tour of tours) {
-      let tourData = tour.toObject();
-      let needUpdate = false;
+//     for (let tour of tours) {
+//       let tourData = tour.toObject();
+//       let needUpdate = false;
 
-      // Check if there is a promotion and if it's currently valid
-      if (
-        tourData.promotion &&
-        now >= new Date(tourData.promotion.startDatePromotion) &&
-        now <= new Date(tourData.promotion.endDatePromotion)
-      ) {
-        // Save the original prices before they are modified by the promotion, if not already saved
-        if (!tourData.originalPrice) {
-          tourData.originalPrice = tourData.price;
-          tourData.originalPriceForChildren = tourData.priceForChildren;
-          tourData.originalPriceForYoungChildren =
-            tourData.priceForYoungChildren;
-          tourData.originalPriceForInfants = tourData.priceForInfants;
-          needUpdate = true; // Flag that we need to update the tour document
-        }
+//       // Check if there is a promotion and if it's currently valid
+//       if (
+//         tourData.promotion &&
+//         now >= new Date(tourData.promotion.startDatePromotion) &&
+//         now <= new Date(tourData.promotion.endDatePromotion)
+//       ) {
+//         // Save the original prices before they are modified by the promotion, if not already saved
+//         if (!tourData.originalPrice) {
+//           tourData.originalPrice = tourData.price;
+//           tourData.originalPriceForChildren = tourData.priceForChildren;
+//           tourData.originalPriceForYoungChildren =
+//             tourData.priceForYoungChildren;
+//           tourData.originalPriceForInfants = tourData.priceForInfants;
+//           needUpdate = true; // Flag that we need to update the tour document
+//         }
 
-        const discountPercentage = tourData.promotion.discountPercentage / 100;
-        const applyDiscount = (price, discount) => price * (1 - discount);
+//         const discountPercentage = tourData.promotion.discountPercentage / 100;
+//         const applyDiscount = (price, discount) => price * (1 - discount);
 
-        // Apply the discount
-        tourData.price = applyDiscount(
-          tourData.originalPrice,
-          discountPercentage
-        );
-        tourData.priceForChildren = applyDiscount(
-          tourData.originalPriceForChildren,
-          discountPercentage
-        );
-        tourData.priceForYoungChildren = applyDiscount(
-          tourData.originalPriceForYoungChildren,
-          discountPercentage
-        );
-        tourData.priceForInfants = applyDiscount(
-          tourData.originalPriceForInfants,
-          discountPercentage
-        );
-        needUpdate = true; // Flag that we need to update the tour document
-      }
+//         // Apply the discount
+//         tourData.price = applyDiscount(
+//           tourData.originalPrice,
+//           discountPercentage
+//         );
+//         tourData.priceForChildren = applyDiscount(
+//           tourData.originalPriceForChildren,
+//           discountPercentage
+//         );
+//         tourData.priceForYoungChildren = applyDiscount(
+//           tourData.originalPriceForYoungChildren,
+//           discountPercentage
+//         );
+//         tourData.priceForInfants = applyDiscount(
+//           tourData.originalPriceForInfants,
+//           discountPercentage
+//         );
+//         needUpdate = true; // Flag that we need to update the tour document
+//       }
 
-      // Update the tour if needed
-      if (needUpdate) {
-        await Tour.findByIdAndUpdate(tour._id, {
-          $set: {
-            price: tourData.price,
-            priceForChildren: tourData.priceForChildren,
-            priceForYoungChildren: tourData.priceForYoungChildren,
-            priceForInfants: tourData.priceForInfants,
-            originalPrice: tourData.originalPrice,
-            originalPriceForChildren: tourData.originalPriceForChildren,
-            originalPriceForYoungChildren:
-              tourData.originalPriceForYoungChildren,
-            originalPriceForInfants: tourData.originalPriceForInfants,
-          },
-        });
-      }
-    }
+//       // Update the tour if needed
+//       if (needUpdate) {
+//         await Tour.findByIdAndUpdate(tour._id, {
+//           $set: {
+//             price: tourData.price,
+//             priceForChildren: tourData.priceForChildren,
+//             priceForYoungChildren: tourData.priceForYoungChildren,
+//             priceForInfants: tourData.priceForInfants,
+//             originalPrice: tourData.originalPrice,
+//             originalPriceForChildren: tourData.originalPriceForChildren,
+//             originalPriceForYoungChildren:
+//               tourData.originalPriceForYoungChildren,
+//             originalPriceForInfants: tourData.originalPriceForInfants,
+//           },
+//         });
+//       }
+//     }
 
-    // Refetch the tours after updates
-    tours = await Tour.find({})
-      .populate("userGuide", "name phone address")
-      .populate("tourType", "typeName")
-      .populate("tourDirectory", "directoryName")
-      .populate(
-        "promotion",
-        "namePromotion discountPercentage startDatePromotion endDatePromotion"
-      );
-    res.json({ tours });
-  } catch (error) {
-    console.error("Error fetching tours:", error);
-    res.status(500).json({
-      message: "Error fetching the tours",
-      error: error.message,
-    });
-  }
-};
+//     // Refetch the tours after updates
+//     tours = await Tour.find({})
+//       .populate("userGuide", "name phone address")
+//       .populate("tourType", "typeName")
+//       .populate("tourDirectory", "directoryName")
+//       .populate(
+//         "promotion",
+//         "namePromotion discountPercentage startDatePromotion endDatePromotion"
+//       );
+//     res.json({ tours });
+//   } catch (error) {
+//     console.error("Error fetching tours:", error);
+//     res.status(500).json({
+//       message: "Error fetching the tours",
+//       error: error.message,
+//     });
+//   }
+// };
 
 exports.getAllToursLimit = async (req, res) => {
   try {
@@ -675,6 +780,7 @@ exports.searchToursAdvanced = async (req, res) => {
   }
 };
 
+// lấy các tour có khuyến mãi
 exports.getToursByPromotionId = async (req, res) => {
   try {
     const { promotionId } = req.params;

@@ -62,7 +62,7 @@ const BillController = {
         bookingDateBill: booking.bookingDate,
         statusBill: booking.status,
         paymentStatusBill: booking.paymentStatus,
-
+        singleRoomNumberBill: booking.singleRoomNumber,
         adultPriceBill: booking.adultPrice,
         childPriceBill: booking.childPrice,
         youngChildrenPriceBill: booking.youngChildrenPrice,
