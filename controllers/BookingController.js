@@ -13,16 +13,15 @@ const BookingController = {
       tourId,
       numberOfAdults,
       numberOfChildren,
-      //
+
       numberOfYoungChildren,
-      //
-      numberOfInfants,
+
       singleRoomNumber,
 
       bookingDate,
       priceOfAdults,
       priceForChildren,
-      priceForInfants,
+
       priceForYoungChildren,
       surcharge,
       totalAmount,
@@ -42,8 +41,8 @@ const BookingController = {
       const totalParticipants =
         parseInt(numberOfAdults) +
         parseInt(numberOfChildren) +
-        parseInt(numberOfYoungChildren) +
-        parseInt(numberOfInfants);
+        parseInt(numberOfYoungChildren);
+
       if (totalParticipants <= 0) {
         return res
           .status(400)
@@ -53,10 +52,9 @@ const BookingController = {
       if (tourDetails.maxParticipants < totalParticipants) {
         return res
           .status(400)
-          .json({ message: "Not enough spots available on the tour" });
+          .json({ message: "Số lượng chỗ không đủ cho quý khách" });
       }
 
-      // Proceed to create the order if there are enough spots
       const newBooking = new Booking({
         user: user.id,
         tour: tourId,
@@ -64,15 +62,10 @@ const BookingController = {
         numberOfChildren: numberOfChildren,
         numberOfAdults: numberOfAdults,
         numberOfYoungChildren: numberOfYoungChildren,
-        numberOfInfants: numberOfInfants,
         singleRoomNumber: singleRoomNumber,
-
-        /////
         adultPrice: priceOfAdults,
         childPrice: priceForChildren,
         youngChildrenPrice: priceForYoungChildren,
-        infantPrice: priceForInfants,
-
         surcharge,
         paymentMethod,
         totalAmount,
@@ -245,12 +238,10 @@ const BookingController = {
       numberOfAdults,
       numberOfChildren,
       numberOfYoungChildren,
-      numberOfInfants,
       singleRoomNumber,
       bookingDate,
       priceOfAdults,
       priceForChildren,
-      priceForInfants,
       priceForYoungChildren,
       surcharge,
       totalAmount,
@@ -270,8 +261,7 @@ const BookingController = {
       const totalParticipants =
         parseInt(numberOfAdults) +
         parseInt(numberOfChildren) +
-        parseInt(numberOfYoungChildren) +
-        parseInt(numberOfInfants);
+        parseInt(numberOfYoungChildren);
 
       if (totalParticipants <= 0) {
         return res
@@ -292,12 +282,10 @@ const BookingController = {
         numberOfChildren,
         numberOfAdults,
         numberOfYoungChildren,
-        numberOfInfants,
         singleRoomNumber,
         adultPrice: priceOfAdults,
         childPrice: priceForChildren,
         youngChildrenPrice: priceForYoungChildren,
-        infantPrice: priceForInfants,
         surcharge,
         totalAmount,
         additionalInformation,

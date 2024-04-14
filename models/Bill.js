@@ -42,14 +42,9 @@ const billSchema = new mongoose.Schema({
     required: true,
     default: 0,
   },
-  numberOfInfantsBill: {
-    type: Number,
-    required: true,
-    default: 0,
-  },
+
   singleRoomNumberBill: {
     type: Number,
-    required: true,
     default: 0,
   },
 
@@ -86,15 +81,11 @@ const billSchema = new mongoose.Schema({
     type: Number,
   },
 
-  // 3-6 ages
+  // duoi 6 ages
   youngChildrenPriceBill: {
     type: Number,
   },
 
-  // For children under 3 years
-  infantPriceBill: {
-    type: Number,
-  },
   surchargeBill: {
     // Additional charge
     type: Number,

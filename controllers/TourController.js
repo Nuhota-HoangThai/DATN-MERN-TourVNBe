@@ -24,7 +24,7 @@ exports.addTour = async (req, res) => {
       price: req.body.price,
       priceForChildren: req.body.priceForChildren,
       priceForYoungChildren: req.body.priceForYoungChildren,
-      priceForInfants: req.body.priceForInfants,
+      transport: req.body.transport,
       maxParticipants: req.body.maxParticipants,
       startDate: req.body.startDate,
       endDate: req.body.endDate,
@@ -87,7 +87,7 @@ exports.updateTour = async (req, res) => {
     price: req.body.price,
     priceForChildren: req.body.priceForChildren,
     priceForYoungChildren: req.body.priceForYoungChildren,
-    priceForInfants: req.body.priceForInfants,
+    transport: req.body.transport,
     additionalFees: req.body.additionalFees,
     schedule: req.body.schedule,
     userGuide: req.body.userGuide,
@@ -198,7 +198,6 @@ exports.getAllTours = async (req, res) => {
             tourData.originalPriceForChildren = tourData.priceForChildren;
             tourData.originalPriceForYoungChildren =
               tourData.priceForYoungChildren;
-            tourData.originalPriceForInfants = tourData.priceForInfants;
           }
 
           const discountPercentage =
@@ -218,10 +217,7 @@ exports.getAllTours = async (req, res) => {
             tourData.originalPriceForYoungChildren,
             discountPercentage
           );
-          tourData.priceForInfants = applyDiscount(
-            tourData.originalPriceForInfants,
-            discountPercentage
-          );
+
           needUpdate = true; // Flag that we need to update the tour document
         } else {
           // The promotion is not valid; revert prices if original prices are saved
@@ -230,7 +226,7 @@ exports.getAllTours = async (req, res) => {
             tourData.priceForChildren = tourData.originalPriceForChildren;
             tourData.priceForYoungChildren =
               tourData.originalPriceForYoungChildren;
-            tourData.priceForInfants = tourData.originalPriceForInfants;
+
             needUpdate = true; // Flag that we need to update the tour document
           }
         }
@@ -248,7 +244,6 @@ exports.getAllTours = async (req, res) => {
             originalPriceForChildren: tourData.originalPriceForChildren,
             originalPriceForYoungChildren:
               tourData.originalPriceForYoungChildren,
-            originalPriceForInfants: tourData.originalPriceForInfants,
           },
         });
       }
@@ -481,7 +476,6 @@ exports.getAllToursLimit = async (req, res) => {
           tourData.originalPriceForChildren = tourData.priceForChildren;
           tourData.originalPriceForYoungChildren =
             tourData.priceForYoungChildren;
-          tourData.originalPriceForInfants = tourData.priceForInfants;
           needUpdate = true; // Flag that we need to update the tour document
         }
         const discountPercentage = tourData.promotion.discountPercentage / 100;
@@ -504,10 +498,7 @@ exports.getAllToursLimit = async (req, res) => {
             tourData.priceForYoungChildren,
           discountPercentage
         );
-        tourData.priceForInfants = applyDiscount(
-          tourData.originalPriceForInfants || tourData.priceForInfants,
-          discountPercentage
-        );
+
         needUpdate = true;
       }
 
@@ -523,7 +514,6 @@ exports.getAllToursLimit = async (req, res) => {
             originalPriceForChildren: tourData.originalPriceForChildren,
             originalPriceForYoungChildren:
               tourData.originalPriceForYoungChildren,
-            originalPriceForInfants: tourData.originalPriceForInfants,
           },
         });
       }
@@ -856,10 +846,7 @@ exports.getAllToursGuide = async (req, res) => {
             tourData.priceForYoungChildren,
           discountPercentage
         );
-        tourData.priceForInfants = applyDiscount(
-          tourData.originalPriceForInfants || tourData.priceForInfants,
-          discountPercentage
-        );
+
         needUpdate = true;
       }
 
@@ -879,7 +866,7 @@ exports.getAllToursGuide = async (req, res) => {
     // Lấy lại danh sách tours đã cập nhật để phản hồi
     tours = await Tour.find({ userGuide: { $ne: null } })
       .populate("userGuide", "name phone address")
-      .populate("tourType", "typeName")
+      // .populate("tourType", "typeName")
       .populate("tourDirectory", "directoryName")
       .populate(
         "promotion",

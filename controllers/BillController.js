@@ -57,7 +57,6 @@ const BillController = {
         numberOfAdultsBill: booking.numberOfAdults,
         numberOfChildrenBill: booking.numberOfChildren,
         numberOfYoungChildrenBill: booking.numberOfYoungChildren,
-        numberOfInfantsBill: booking.numberOfInfants,
 
         bookingDateBill: booking.bookingDate,
         statusBill: booking.status,
@@ -66,7 +65,6 @@ const BillController = {
         adultPriceBill: booking.adultPrice,
         childPriceBill: booking.childPrice,
         youngChildrenPriceBill: booking.youngChildrenPrice,
-        infantPriceBill: booking.infantPrice,
         surchargeBill: booking.surcharge,
       };
 
