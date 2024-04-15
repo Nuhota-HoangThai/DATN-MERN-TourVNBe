@@ -5,6 +5,7 @@ const crypto = require("crypto");
 const qs = require("qs");
 // const cloudinary = require("cloudinary");
 const moment = require("moment");
+const { error } = require("console");
 
 const BookingController = {
   // Create a new booking
@@ -13,11 +14,9 @@ const BookingController = {
       tourId,
       numberOfAdults,
       numberOfChildren,
-
       numberOfYoungChildren,
 
       singleRoomNumber,
-
       bookingDate,
       priceOfAdults,
       priceForChildren,
@@ -35,7 +34,7 @@ const BookingController = {
       const tourDetails = await Tour.findById(tourId);
 
       if (!tourDetails) {
-        return res.status(404).json({ message: "Tour not found" });
+        return res.status(404).json({ error: "Tour not found" });
       }
 
       const totalParticipants =
@@ -46,13 +45,13 @@ const BookingController = {
       if (totalParticipants <= 0) {
         return res
           .status(400)
-          .json({ message: "At least one participant is required" });
+          .json({ error: "Cần có ít nhất một người tham gia" });
       }
       // Kiểm tra xem số lượng người đăng ký có vượt quá số lượng chỗ còn lại hay không
       if (tourDetails.maxParticipants < totalParticipants) {
         return res
           .status(400)
-          .json({ message: "Số lượng chỗ không đủ cho quý khách" });
+          .json({ error: "Số lượng chỗ không đủ cho quý khách" });
       }
 
       const newBooking = new Booking({
@@ -89,18 +88,18 @@ const BookingController = {
       const { id } = req.params;
       const deletedBooking = await Booking.findByIdAndDelete(id);
       if (!deletedBooking) {
-        return res.status(404).json({ message: "Booking not found" });
+        return res.status(404).json({ error: "Không tìm thấy đặt chỗ" });
       }
       res.json({
         success: true,
-        message: "Booking successfully deleted",
+        message: "Xóa booking thành công.",
         deletedBooking: deletedBooking,
       });
     } catch (error) {
       console.error(error);
       res.status(500).json({
         success: false,
-        message: "Error while deleting booking",
+        error: "Lỗi khi xóa đặt chỗ",
       });
     }
   },
@@ -115,11 +114,11 @@ const BookingController = {
       if (bookings.length === 0) {
         return res
           .status(404)
-          .json({ message: "No bookings found for this user" });
+          .json({ error: "Không tìm thấy đặt chỗ nào cho người dùng này" });
       }
       res.json(bookings);
     } catch (error) {
-      res.status(500).json({ message: error.message });
+      res.status(500).json({ error });
     }
   },
 
@@ -133,14 +132,13 @@ const BookingController = {
         .populate("tour"); // Sử dụng populate để lấy thông tin chi tiết về user và tour
 
       if (!bookingDetails) {
-        return res.status(404).json({ message: "Booking not found" });
+        return res.status(404).json({ message: "Không tìm thấy đặt chỗ" });
       }
 
       res.json(bookingDetails);
     } catch (error) {
       console.error(error);
       res.status(500).json({
-        message: "Error retrieving booking details",
         error: error.message,
       });
     }

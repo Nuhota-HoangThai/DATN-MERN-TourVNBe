@@ -10,7 +10,6 @@ const { sendEmailPassword } = require("../service/EmailPasswordService");
 exports.signup = async (req, res) => {
   try {
     const { password, confirmPassword } = req.body;
-    // Check if passwords match
     if (password !== confirmPassword) {
       return res.status(400).json({
         success: false,
@@ -18,15 +17,15 @@ exports.signup = async (req, res) => {
       });
     }
 
-    let check = await User.findOne({ email: req.body.email });
-    if (check) {
+    let existingUser = await User.findOne({ email: req.body.email });
+    if (existingUser) {
       return res.status(400).json({
         success: false,
-        error: "existing user found with same email address",
+        error: "A user already exists with this email address",
       });
     }
 
-    const hashedPassword = await bcrypt.hash(req.body.password, 10);
+    const hashedPassword = await bcrypt.hash(password, 10);
 
     let cart = {};
     for (let i = 0; i < 300; i++) {
@@ -46,16 +45,11 @@ exports.signup = async (req, res) => {
     });
 
     await user.save();
-
-    const data = {
-      user: {
-        id: user.id,
-      },
-    };
+    const data = { user: { id: user.id } };
     const token = jwt.sign(data, process.env.JWT_SECRET);
     res.json({ success: true, token });
   } catch (error) {
-    res.status(500).send("Internal Server Error");
+    res.status(500).json({ success: false, error: "Internal Server Error" });
   }
 };
 
@@ -90,7 +84,7 @@ exports.login = async (req, res) => {
       role: user.role, // Trả về vai trò người dùng để ứng dụng client có thể xử lý tương ứng
     });
   } catch (error) {
-    res.status(500).send("Lỗi máy chủ nội bộ");
+    res.status(500).json({ error: "Lỗi máy chủ" });
   }
 };
 
@@ -142,7 +136,7 @@ exports.getAllUsers = async (req, res) => {
     const users = await User.find({});
     res.send(users);
   } catch (error) {
-    res.status(500).send("Internal Server Error");
+    res.status(500).json({ error: "Lỗi máy chủ" });
   }
 };
 
