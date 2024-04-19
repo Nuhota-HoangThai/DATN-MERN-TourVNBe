@@ -504,8 +504,7 @@ exports.getToursByTourDirectoryId = async (req, res) => {
 
     if (!tours || tours.length === 0) {
       return res.status(404).json({
-        success: false,
-        message: "No tours found for the specified tour type",
+        error: "Không có tour thuộc danh mục này.",
       });
     }
 
@@ -516,7 +515,7 @@ exports.getToursByTourDirectoryId = async (req, res) => {
   } catch (error) {
     res.status(500).json({
       success: false,
-      message: "Error retrieving tours by tour type",
+      message: "Lỗi truy xuất chuyến tham quan theo danh mục chuyến tham quan",
       error: error.message,
     });
   }
@@ -536,7 +535,8 @@ exports.getToursByGuide = async (req, res) => {
     if (!tours || tours.length === 0) {
       return res.status(404).json({
         success: false,
-        message: "No tours found for the specified guide",
+        error:
+          "Không tìm thấy chuyến tham quan nào cho hướng dẫn được chỉ định",
       });
     }
 
@@ -547,7 +547,7 @@ exports.getToursByGuide = async (req, res) => {
   } catch (error) {
     res.status(500).json({
       success: false,
-      message: "Error retrieving tours by guide",
+      message: "Lỗi truy xuất chuyến tham quan theo hướng dẫn",
       error: error.message,
     });
   }
@@ -616,7 +616,8 @@ exports.getToursByPromotionId = async (req, res) => {
     if (!tours || tours.length === 0) {
       return res.status(404).json({
         success: false,
-        message: "No tours found for the specified promotion",
+        error:
+          "Không tìm thấy chuyến tham quan nào cho chương trình khuyến mãi được chỉ định",
       });
     }
 

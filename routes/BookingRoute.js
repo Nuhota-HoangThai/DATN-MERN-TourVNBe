@@ -35,11 +35,7 @@ router.delete(
   BookingController.removeBooking
 );
 
-router.get(
-  "/bookings/:id",
-  verifyTokenCus(["admin", "staff"]),
-  BookingController.getBookingDetails
-);
+router.get("/bookings/:id", verifyToken, BookingController.getBookingDetails);
 
 router.post(
   "/payment_vnpay_url",

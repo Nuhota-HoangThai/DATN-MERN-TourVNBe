@@ -21,7 +21,6 @@ cron.schedule(
 // Thêm một khuyến mãi mới
 exports.createPromotion = async (req, res) => {
   try {
-    // Kiểm tra xem có file hình ảnh nào được tải lên hay không
     if (req.file) {
       const imagePath = req.file.path; // Lấy đường dẫn hình ảnh
 
@@ -36,7 +35,7 @@ exports.createPromotion = async (req, res) => {
 
       res.status(201).send(newPromotion);
     } else {
-      res.status(400).send("An image is required.");
+      res.status(400).json({ error: "Hình ảnh bắt buộc phải có." });
     }
   } catch (error) {
     res.status(400).send(error);
@@ -48,7 +47,7 @@ exports.getPromotionById = async (req, res) => {
   try {
     const promotion = await Promotion.findById(req.params.id);
     if (!promotion) {
-      return res.status(404).send();
+      return res.status(404).json({ error: "Không có khuyến mãi" });
     }
 
     // Kiểm tra xem ngày hiện tại có nằm trong khoảng khuyến mãi không

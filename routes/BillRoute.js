@@ -27,11 +27,13 @@ router.delete(
   verifyTokenCus(["admin", "staff"]),
   billController.deleteBill
 );
+
 router.get(
   "/billDetail/:id",
   verifyTokenCus(["admin", "staff"]),
   billController.getBillDetails
 );
+
 router.post(
   "/sendMail",
   verifyTokenCus(["admin", "staff"]),
