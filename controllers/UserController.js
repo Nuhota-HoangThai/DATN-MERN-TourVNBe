@@ -1,4 +1,5 @@
 const User = require("../models/User");
+const Tour = require("../models/Tour");
 
 const bcrypt = require("bcrypt");
 const jwt = require("jsonwebtoken");
@@ -162,28 +163,6 @@ exports.getAllUsersLimitAdmin = async (req, res) => {
   }
 };
 
-exports.getAllUsersLimitAdmin = async (req, res) => {
-  try {
-    const page = parseInt(req.query.page) || 1; // Lấy số trang từ query, mặc định là 1 nếu không được cung cấp
-    const limit = parseInt(req.query.limit) || 6; // Giới hạn số lượng sản phẩm mỗi trang, mặc định là 8
-    const skip = (page - 1) * limit;
-
-    const roleQuery = { role: "admin" };
-
-    // Tính tổng số sản phẩm để có thể tính tổng số trang
-    const totalUser = await User.countDocuments(roleQuery);
-    const totalPages = Math.ceil(totalUser / limit);
-
-    const users = await User.find(roleQuery)
-      .sort({ date: -1 }) // Giả sử mỗi tour có trường `createdAt`, sắp xếp giảm dần để sản phẩm mới nhất đứng đầu
-      .skip(skip)
-      .limit(limit);
-    res.send({ users, page, limit, totalPages, totalUser });
-  } catch (error) {
-    res.status(500).send("Internal Server Error");
-  }
-};
-
 exports.getAllUsersLimitStaff = async (req, res) => {
   try {
     const page = parseInt(req.query.page) || 1; // Lấy số trang từ query, mặc định là 1 nếu không được cung cấp
@@ -217,6 +196,7 @@ exports.getAllUsersGuide = async (req, res) => {
   }
 };
 
+// danh sách hien thi ở trang admin
 exports.getAllUsersLimitGuide = async (req, res) => {
   try {
     const page = parseInt(req.query.page) || 1; // Lấy số trang từ query, mặc định là 1 nếu không được cung cấp
@@ -230,6 +210,7 @@ exports.getAllUsersLimitGuide = async (req, res) => {
     const totalPages = Math.ceil(totalUser / limit);
 
     const users = await User.find(roleQuery)
+      .populate("tour", "nameTour")
       .sort({ date: -1 }) // Giả sử mỗi tour có trường `createdAt`, sắp xếp giảm dần để sản phẩm mới nhất đứng đầu
       .skip(skip)
       .limit(limit);
@@ -436,35 +417,6 @@ exports.addUser = async (req, res) => {
   }
 };
 
-// quên mật khẩu khi người dùng quên mật khẩu thì gửi mail dẫn đến đường link trang tạo mật khẩu
-// exports.forgotPassword = async (req, res) => {
-//   const { email } = req.body;
-//   try {
-//     const user = await User.findOne({ email });
-//     if (!user) {
-//       return res.status(404).send("Không tìm thấy email");
-//     }
-
-//     // Using userId directly in the link
-//     const userId = user._id;
-//     const link = `http://localhost:5174/login/reset-password/${userId}`;
-//     const emailContent = `Xin chào, bạn đã yêu cầu đặt lại mật khẩu cho tài khoản của mình. Vui lòng nhấn vào link sau để đặt lại mật khẩu: <a href="${link}">${link}</a>`;
-
-//     await sendEmailPassword(user.email, emailContent);
-
-//     //res.send("Link đặt lại mật khẩu đã được gửi vào email của bạn.");
-
-//     res
-//       .status(200)
-//       .json({
-//         message: "Đường link tạo mật khẩu mới đã được gửi vào mail của bạn.",
-//       });
-//   } catch (error) {
-//     console.error(error);
-//     res.status(500).send("Internal Server Error");
-//   }
-// };
-
 exports.forgotPassword = async (req, res) => {
   const { email } = req.body;
   try {
@@ -475,7 +427,7 @@ exports.forgotPassword = async (req, res) => {
 
     // Tạo token với thời hạn là 10 phút
     const token = jwt.sign({ userId: user._id }, process.env.JWT_SECRET, {
-      expiresIn: "1m",
+      expiresIn: "5m",
     });
 
     const link = `http://localhost:5174/login/reset-password/${token}`;
@@ -492,33 +444,6 @@ exports.forgotPassword = async (req, res) => {
   }
 };
 
-/// Tạo matas khẩu mới
-
-// exports.newPassword = async (req, res) => {
-//   const { userId } = req.params;
-//   const { password, confirmPassword } = req.body;
-//   if (password !== confirmPassword) {
-//     return res.status(400).send("Mật khẩu xác nhận không khớp.");
-//   }
-
-//   try {
-//     const user = await User.findById(userId);
-
-//     if (!user) {
-//       return res.status(404).send("Không tìm thấy người dùng.");
-//     }
-
-//     // Mã hóa mật khẩu mới và cập nhật trong database
-//     const hashedPassword = await bcrypt.hash(password, 10);
-//     user.password = hashedPassword;
-//     await user.save(); // Lưu người dùng đã cập nhật
-
-//     res.send("Mật khẩu đã được đặt lại thành công.");
-//   } catch (error) {
-//     console.error(error);
-//     res.status(500).send("Internal Server Error");
-//   }
-// };
 exports.newPassword = async (req, res) => {
   const { token } = req.params; // Lấy token từ params
   const { password, confirmPassword } = req.body;
