@@ -70,7 +70,8 @@ exports.login = async (req, res) => {
       user: {
         id: user.id,
         name: user.name,
-        role: user.role, // Thêm vai trò người dùng vào token
+        role: user.role,
+        image: user.image, // Thêm vai trò người dùng vào token
       },
     };
 
@@ -82,7 +83,8 @@ exports.login = async (req, res) => {
       token,
       id: user._id,
       name: user.name,
-      role: user.role, // Trả về vai trò người dùng để ứng dụng client có thể xử lý tương ứng
+      role: user.role,
+      image: user.image, // Trả về vai trò người dùng để ứng dụng client có thể xử lý tương ứng
     });
   } catch (error) {
     res.status(500).json({ error: "Lỗi máy chủ" });
