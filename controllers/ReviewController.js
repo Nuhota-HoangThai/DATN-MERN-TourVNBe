@@ -49,63 +49,6 @@ exports.createReview = async (req, res) => {
   }
 };
 
-// exports.createReview = async (req, res) => {
-//   const { tourId } = req.params;
-//   const userId = req.user.id; // Giả định req.user.id lưu trữ ID của người dùng đã đăng nhập
-
-//   try {
-//     const tourExists = await Tour.findById(tourId);
-//     const userExists = await User.findById(userId);
-
-//     if (!tourExists || !userExists) {
-//       return res
-//         .status(404)
-//         .json({ success: false, message: "Tour or User not found" });
-//     }
-
-//     // Kiểm tra xem người dùng đã đánh giá tour này chưa
-//     const existingReview = await Review.findOne({ tourId, userId });
-//     if (existingReview) {
-//       return res
-//         .status(400)
-//         .json({
-//           success: false,
-//           message: "You have already reviewed this tour",
-//         });
-//     }
-
-//     // Xử lý file uploads từ req.files (do multer cung cấp)
-//     const images = req.files["image"]
-//       ? req.files["image"].map((file) => file.path)
-//       : [];
-//     const videos = req.files["video"]
-//       ? req.files["video"].map((file) => file.path)
-//       : [];
-
-//     // Tạo document review mới với thông tin từ request và file paths
-//     const reviewData = {
-//       ...req.body, // Lấy dữ liệu review từ body
-//       tourId,
-//       userId,
-//       image: images,
-//       video: videos,
-//     };
-
-//     const savedReview = await new Review(reviewData).save();
-//     // Cập nhật thông tin review vào trong collection Tour nếu cần
-//     await Tour.findByIdAndUpdate(tourId, {
-//       $push: { reviews: savedReview._id },
-//     });
-
-//     res
-//       .status(200)
-//       .json({ success: true, message: "Review submitted", data: savedReview });
-//   } catch (err) {
-//     console.error(err);
-//     res.status(500).json({ success: false, error: err.toString() });
-//   }
-// };
-
 exports.getReviews = async (req, res) => {
   const { tourId } = req.params;
 
@@ -158,39 +101,6 @@ exports.getToursWithReviews = async (req, res) => {
     res.status(500).json({ success: false, error: error.message });
   }
 };
-
-// // update review của cá nhân đã tạo ra review
-// exports.updateReview = async (req, res) => {
-//   const { reviewId } = req.params;
-//   const userId = req.user.id; // Người dùng đăng nhập để cập nhật review
-
-//   try {
-//     // Tìm review cần cập nhật và  người dùng hiện tại là người đã tạo review
-//     const review = await Review.findById(reviewId);
-//     if (!review) {
-//       return res
-//         .status(404)
-//         .json({ success: false, message: "Review not found" });
-//     }
-//     if (review.userId.toString() !== userId) {
-//       return res.status(403).json({
-//         success: false,
-//         message: "Unauthorized to update this review",
-//       });
-//     }
-
-//     // Cập nhật review với dữ liệu mới
-//     const updatedReview = await Review.findByIdAndUpdate(reviewId, req.body, {
-//       new: true,
-//     });
-//     res
-//       .status(200)
-//       .json({ success: true, message: "Review updated", data: updatedReview });
-//   } catch (error) {
-//     console.error(error);
-//     res.status(500).json({ success: false, error: error.toString() });
-//   }
-// };
 
 // delete review của cá nhân đã tạo ra review
 exports.deleteReview = async (req, res) => {
@@ -304,6 +214,26 @@ exports.getUserReviews = async (req, res) => {
   } catch (err) {
     console.error(err);
     res.status(500).json({ success: false, error: err.toString() });
+  }
+};
+
+exports.getHighRatedReviews = async (req, res) => {
+  try {
+    // Truy vấn tìm tất cả review có rating lớn hơn 5
+    const highRatedReviews = await Review.find({ rating: { $gt: 5 } })
+      .populate("tourId", "nameTour")
+      .populate("userId", "name image");
+
+    if (!highRatedReviews.length) {
+      return res.status(404).json({
+        error: "Không tìm thấy đánh giá được xếp hạng cao",
+      });
+    }
+
+    res.status(200).json({ success: true, data: highRatedReviews });
+  } catch (error) {
+    console.error("Lỗi khi tìm các đánh giá được xếp hạng cao:", error);
+    res.status(500).json({ success: false, error: error.toString() });
   }
 };
 

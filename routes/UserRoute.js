@@ -23,6 +23,7 @@ router.post("/signup", userController.signup);
 
 // User login
 router.post("/login", userController.login);
+router.post("/loginAdmin", userController.loginAdmin);
 
 router.post("/login-google", userController.google);
 

@@ -54,4 +54,9 @@ router.get(
   ReviewController.getUserReviews
 );
 
+router.get(
+  "/reviews/getAllHightRate/high-rated-reviews",
+  ReviewController.getHighRatedReviews
+);
+
 module.exports = router;

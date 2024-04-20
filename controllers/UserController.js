@@ -89,6 +89,52 @@ exports.login = async (req, res) => {
   }
 };
 
+exports.loginAdmin = async (req, res) => {
+  try {
+    // Attempt to find the user by email
+    let user = await User.findOne({ email: req.body.email });
+    if (!user) {
+      return res.json({ success: false, error: "Email không tồn tại" });
+    }
+
+    // Compare submitted password with the hashed password in the database
+    const passCompare = await bcrypt.compare(req.body.password, user.password);
+    if (!passCompare) {
+      return res.json({ error: "Sai mật khẩu" });
+    }
+
+    // Check user role, prevent login if user is a customer
+    if (user.role === "customer") {
+      return res.json({
+        error: "Bạn không được phép đăng nhập vào trang này.",
+      });
+    }
+
+    // If authentication is successful, prepare the user data for the JWT
+    const data = {
+      user: {
+        id: user.id,
+        name: user.name,
+        role: user.role, // Include user role
+      },
+    };
+
+    // Sign the JWT token with the user data
+    const token = jwt.sign(data, process.env.JWT_SECRET, { expiresIn: "30d" });
+
+    // Respond with the JWT token and user information including the role
+    res.json({
+      success: true,
+      token,
+      id: user._id,
+      name: user.name,
+      role: user.role, // Return the user role for client-side handling
+    });
+  } catch (error) {
+    res.status(500).json({ error: "Lỗi máy chủ" });
+  }
+};
+
 // Google login or registration
 exports.google = async (req, res) => {
   try {
