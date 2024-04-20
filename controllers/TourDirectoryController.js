@@ -20,7 +20,7 @@ exports.createTourDirectory = async (req, res) => {
         tourDirectory,
       });
     } else {
-      res.status(400).send("An image is required.");
+      res.status(400).json({ error: "Cần ít nhất một hình ảnh" });
     }
   } catch (error) {
     res.status(500).json({
@@ -46,19 +46,19 @@ exports.updateTourDirectory = async (req, res) => {
     if (!updatedTourDirectory) {
       return res.status(404).json({
         success: false,
-        message: "Tour directory not found",
+        error: "Không tìm thấy danh mục tour.",
       });
     }
 
     res.json({
       success: true,
-      message: "Tour directory updated successfully",
+      message: "Cập nhật danh mục tour thành công.",
       tourDirectory: updatedTourDirectory,
     });
   } catch (error) {
     res.status(500).json({
       success: false,
-      message: "Error updating tour directory",
+      message: "Lỗi cập nhật danh mục tour",
       error: error.message,
     });
   }
@@ -74,19 +74,19 @@ exports.deleteTourDirectory = async (req, res) => {
     if (!deletedTourDirectory) {
       return res.status(404).json({
         success: false,
-        message: "Tour directory not found",
+        error: "Không tìm thấy danh mục tour.",
       });
     }
 
     res.json({
       success: true,
-      message: "Tour directory deleted successfully",
+      message: "Xóa danh mục tour thành công",
       tourDirectory: deletedTourDirectory,
     });
   } catch (error) {
     res.status(500).json({
       success: false,
-      message: "Error deleting tour directory",
+      message: "Lỗi xóa danh mục tour",
       error: error.message,
     });
   }
@@ -104,7 +104,7 @@ exports.getAllTourDirectories = async (req, res) => {
   } catch (error) {
     res.status(500).json({
       success: false,
-      message: "Error retrieving tour directories",
+      message: "Lỗi truy xuất danh mục tour",
       error: error.message,
     });
   }
@@ -136,7 +136,7 @@ exports.getAllTourDirectoriesLimit = async (req, res) => {
   } catch (error) {
     res.status(500).json({
       success: false,
-      message: "Error retrieving tour directories",
+      message: "Lỗi truy xuất danh mục tour",
       error: error.message,
     });
   }
@@ -150,13 +150,13 @@ exports.getTourDirectoryById = async (req, res) => {
     if (!tourDirectory) {
       return res
         .status(404)
-        .json({ success: false, message: "Tour directory not found" });
+        .json({ success: false, error: "Không tìm thấy danh mục tour." });
     }
     res.json({ success: true, tourDirectory });
   } catch (error) {
     res.status(500).json({
       success: false,
-      message: "Error retrieving tour directory",
+      message: "Lỗi khi truy xuất danh mục tour",
       error: error.message,
     });
   }

@@ -23,7 +23,7 @@ exports.toursSold = async (req, res) => {
   try {
     const { startDate, endDate } = req.query;
     const sold = await Booking.countDocuments({
-      status: { $ne: "cancelled" },
+      // status: { $ne: "cancelled" },
       ...(startDate && { bookingDate: { $gte: new Date(startDate) } }),
       ...(endDate && { bookingDate: { $lte: new Date(endDate) } }),
     });

@@ -34,7 +34,7 @@ const BookingController = {
       const tourDetails = await Tour.findById(tourId);
 
       if (!tourDetails) {
-        return res.status(404).json({ error: "Tour not found" });
+        return res.status(400).json({ error: "Không tìm thấy tour." });
       }
 
       const totalParticipants =
@@ -45,13 +45,13 @@ const BookingController = {
       if (totalParticipants <= 0) {
         return res
           .status(400)
-          .json({ error: "Cần có ít nhất một người tham gia" });
+          .json({ error: "Cần có ít nhất một người tham gia." });
       }
       // Kiểm tra xem số lượng người đăng ký có vượt quá số lượng chỗ còn lại hay không
       if (tourDetails.maxParticipants < totalParticipants) {
         return res
           .status(400)
-          .json({ error: "Số lượng chỗ không đủ cho quý khách" });
+          .json({ error: "Số lượng chỗ không đủ cho quý khách." });
       }
 
       const newBooking = new Booking({
@@ -77,9 +77,9 @@ const BookingController = {
       tourDetails.maxParticipants -= totalParticipants; // Trừ số người tham gia khỏi maxParticipants
       await tourDetails.save();
 
-      res.status(201).json(savedBooking);
+      res.status(201).json(savedBooking, { message: "Đặt tour thành công." });
     } catch (error) {
-      res.status(400).json({ message: error.message });
+      res.status(400).json({ error });
     }
   },
 
@@ -96,7 +96,7 @@ const BookingController = {
         deletedBooking: deletedBooking,
       });
     } catch (error) {
-      console.error(error);
+      //console.error(error);
       res.status(500).json({
         success: false,
         error: "Lỗi khi xóa đặt chỗ",
@@ -114,11 +114,11 @@ const BookingController = {
       if (bookings.length === 0) {
         return res
           .status(404)
-          .json({ error: "Không tìm thấy đặt chỗ nào cho người dùng này" });
+          .json({ error: "Không tìm thấy đặt chỗ của bạn." });
       }
       res.json(bookings);
     } catch (error) {
-      res.status(500).json({ error });
+      res.status(500).json({ error: "Không lấy được danh sách." });
     }
   },
 
@@ -132,12 +132,12 @@ const BookingController = {
         .populate("tour"); // Sử dụng populate để lấy thông tin chi tiết về user và tour
 
       if (!bookingDetails) {
-        return res.status(404).json({ message: "Không tìm thấy đặt chỗ" });
+        return res.status(404).json({ error: "Không tìm thấy đặt chỗ" });
       }
 
       res.json(bookingDetails);
     } catch (error) {
-      console.error(error);
+      // console.error(error);
       res.status(500).json({
         error: error.message,
       });
@@ -151,7 +151,7 @@ const BookingController = {
 
       res.json(bookings);
     } catch (error) {
-      res.status(500).json({ message: error.message });
+      res.status(500).json({ error });
     }
   },
 
@@ -230,7 +230,7 @@ const BookingController = {
       );
 
       if (!updatedBooking) {
-        return res.status(404).json({ message: "Không tìm thấy đặt tour" });
+        return res.status(404).json({ error: "Không tìm thấy đặt tour" });
       }
 
       res.json(updatedBooking);
@@ -244,13 +244,13 @@ const BookingController = {
       const booking = await Booking.findById(req.params.id);
 
       if (!booking) {
-        return res.status(404).json({ message: "Booking not found" });
+        return res.status(404).json({ error: "Không tìm thấy đặt tour" });
       }
 
       if (booking.status !== "pending") {
         return res
           .status(400)
-          .json({ message: "Only pending Bookings can be cancelled" });
+          .json({ message: "Đặt tour đang chờ xử lý mới có thể hủy" });
       }
 
       booking.status = "cancelled";
@@ -284,7 +284,7 @@ const BookingController = {
       // console.log(req.body);
       const tourDetails = await Tour.findById(tourId);
       if (!tourDetails) {
-        return res.status(404).json({ message: "Tour not found" });
+        return res.status(404).json({ error: "Không tìm thấy tour." });
       }
 
       const totalParticipants =
@@ -295,13 +295,13 @@ const BookingController = {
       if (totalParticipants <= 0) {
         return res
           .status(400)
-          .json({ message: "At least one participant is required" });
+          .json({ error: "Cần có ít nhất một người tham gia." });
       }
 
       if (tourDetails.maxParticipants < totalParticipants) {
         return res
           .status(400)
-          .json({ message: "Not enough spots available on the tour" });
+          .json({ error: "Không có đủ chỗ trong tour này." });
       }
 
       const newBooking = new Booking({
@@ -374,7 +374,7 @@ const BookingController = {
       // Chỉ gửi một response ở đây
       return res.json({
         code: "00",
-        message: "Booking saved and payment URL generated successfully",
+        message: "Đã lưu đặt phòng và tạo URL thanh toán thành công",
         vnpUrl,
         bookingId,
       });

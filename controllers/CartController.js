@@ -28,7 +28,9 @@ exports.removeFromCart = async (req, res) => {
   try {
     let userData = await User.findOne({ _id: req.user.id });
     if (!userData || !userData.cartData) {
-      return res.status(404).send("User not found or cart is empty");
+      return res
+        .status(404)
+        .json({ error: "Không tìm thấy người dùng hoặc giỏ hàng trống" });
     }
     const itemId = req.params.id;
     if (userData.cartData[itemId] > 0) {
@@ -38,10 +40,10 @@ exports.removeFromCart = async (req, res) => {
       { _id: req.user.id },
       { cartData: userData.cartData }
     );
-    res.send("Remove Success");
+    res.send("Xóa thành công");
   } catch (error) {
     console.error(error);
-    res.status(500).send("An error occurred");
+    res.status(500).send("Đã xảy ra lỗi");
   }
 };
 
@@ -51,7 +53,7 @@ exports.getCart = async (req, res) => {
     const id = req.user.id;
     const userData = await User.findById(id);
     if (!userData) {
-      return res.status(404).send("User not found");
+      return res.status(404).json({ error: "Không tìm thấy người dùng" });
     }
     res.json(userData.cartData);
   } catch (error) {

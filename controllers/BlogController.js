@@ -1,19 +1,5 @@
 const Blog = require("../models/Blog");
-// Tạo một bài viết mới
-// exports.createBlog = async (req, res) => {
-//   try {
-//     const newBlog = await Blog.create(req.body);
-//     res.status(201).json({
-//       status: "success",
-//       data: newBlog,
-//     });
-//   } catch (err) {
-//     res.status(400).json({
-//       status: "fail",
-//       message: err.message,
-//     });
-//   }
-// };
+
 exports.createBlog = async (req, res) => {
   try {
     const imagePath = req.file.path;
@@ -61,7 +47,7 @@ exports.getAllBlogsLimitAdmin = async (req, res) => {
   } catch (err) {
     res.status(500).json({
       status: "fail",
-      message: "Error fetching the blogs",
+      message: "Lỗi khi tìm nạp blog",
       error: err.message,
     });
   }
@@ -79,7 +65,7 @@ exports.getAllBlogs = async (req, res) => {
   } catch (err) {
     res.status(500).json({
       status: "fail",
-      message: "Error fetching the blogs",
+      message: "Lỗi khi tìm nạp blog",
       error: err.message,
     });
   }
@@ -92,7 +78,7 @@ exports.getBlogById = async (req, res) => {
     if (!blog) {
       return res.status(404).json({
         status: "fail",
-        message: "Blog not found",
+        error: "Không tìm thấy tin tức",
       });
     }
     res.status(200).json({
@@ -102,7 +88,7 @@ exports.getBlogById = async (req, res) => {
   } catch (err) {
     res.status(404).json({
       status: "fail",
-      message: "Blog not found",
+      error: "Không tìm thấy tin tức",
     });
   }
 };
@@ -114,7 +100,7 @@ exports.updateBlog = async (req, res) => {
     if (!blog) {
       return res.status(404).json({
         status: "fail",
-        message: "Blog not found",
+        error: "Không tìm thấy tin tức",
       });
     }
 
@@ -125,11 +111,12 @@ exports.updateBlog = async (req, res) => {
     res.status(200).json({
       status: "success",
       data: updatedBlog,
+      message: "Cập nhật tin tức thành công.",
     });
   } catch (err) {
     res.status(400).json({
       status: "fail",
-      message: err.message,
+      error: err,
     });
   }
 };
@@ -141,17 +128,18 @@ exports.deleteBlog = async (req, res) => {
     if (!blog) {
       return res.status(404).json({
         status: "fail",
-        message: "Blog not found",
+        error: "Không tìm thấy tin tức",
       });
     }
     res.status(204).json({
       status: "success",
       data: null,
+      message: "Xóa tin tức thành công.",
     });
   } catch (err) {
     res.status(404).json({
       status: "fail",
-      message: "Blog not found",
+      error: "Không tìm thấy tin tức",
     });
   }
 };

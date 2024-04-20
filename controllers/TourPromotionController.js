@@ -35,7 +35,7 @@ exports.createPromotion = async (req, res) => {
 
       res.status(201).send(newPromotion);
     } else {
-      res.status(400).json({ error: "Hình ảnh bắt buộc phải có." });
+      res.status(400).json({ error: "Cần ít nhất một hình ảnh." });
     }
   } catch (error) {
     res.status(400).send(error);

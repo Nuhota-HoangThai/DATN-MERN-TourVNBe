@@ -15,7 +15,7 @@ const BillController = {
         .populate("tour");
 
       if (!bill) {
-        return res.status(404).json({ message: "Bill not found" });
+        return res.status(404).json({ error: "Không tìm thấy hóa đơn" });
       }
 
       // Tạo nội dung email từ thông tin bill
@@ -32,7 +32,7 @@ const BillController = {
       const response = await sendEmailService(email, content);
       return res.json(response);
     } catch (error) {
-      return res.status(500).json({ message: error.message });
+      return res.status(500).json({ error: "Lỗi hóa đơn" });
     }
   },
 
@@ -44,7 +44,7 @@ const BillController = {
         .populate("user")
         .populate("tour");
       if (!booking) {
-        return res.status(404).json({ message: "Booking not found" });
+        return res.status(404).json({ error: "Không tìm thấy đặt chỗ." });
       }
 
       const newBillDetails = {
@@ -126,10 +126,10 @@ const BillController = {
       const { id } = req.params;
       const deletedBill = await Bill.findByIdAndDelete(id);
       if (!deletedBill) {
-        return res.status(404).json({ message: "Bill not found" });
+        return res.status(404).json({ error: "Không tìm thấy hóa đơn" });
       }
 
-      res.status(204).json({ message: "Bill deleted successfully" });
+      res.status(204).json({ message: "Xóa hóa đơn thành công." });
     } catch (error) {
       res.status(500).json({ message: error.message });
     }
@@ -144,7 +144,7 @@ const BillController = {
         .populate("tour");
 
       if (!bill) {
-        return res.status(404).json({ message: "Bill not found" });
+        return res.status(404).json({ error: "Không tìm thấy hóa đơn" });
       }
 
       res.json(bill);
@@ -166,7 +166,7 @@ const BillController = {
 
       if (!bill) {
         // Nếu không tìm thấy hóa đơn, trả về thông báo lỗi
-        return res.status(404).json({ message: "Bill not found" });
+        return res.status(404).json({ error: "Không tìm thấy hóa đơn" });
       }
 
       // Nếu tìm thấy hóa đơn, trả về hóa đơn đó

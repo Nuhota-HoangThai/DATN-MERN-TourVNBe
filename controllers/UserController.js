@@ -14,7 +14,7 @@ exports.signup = async (req, res) => {
     if (password !== confirmPassword) {
       return res.status(400).json({
         success: false,
-        error: "Passwords do not match",
+        error: "Mật khẩu không phù hợp",
       });
     }
 
@@ -22,7 +22,7 @@ exports.signup = async (req, res) => {
     if (existingUser) {
       return res.status(400).json({
         success: false,
-        error: "A user already exists with this email address",
+        error: "Email đã tồn tại",
       });
     }
 
@@ -50,7 +50,7 @@ exports.signup = async (req, res) => {
     const token = jwt.sign(data, process.env.JWT_SECRET);
     res.json({ success: true, token });
   } catch (error) {
-    res.status(500).json({ success: false, error: "Internal Server Error" });
+    res.status(500).json({ success: false, error: "Lỗi máy chủ nội bộ" });
   }
 };
 
@@ -172,7 +172,6 @@ exports.google = async (req, res) => {
       role: user.role,
     });
   } catch (error) {
-    console.error("Google authentication error:", error);
     res.status(500).send("Internal Server Error");
   }
 };
@@ -313,7 +312,7 @@ exports.updateUser = async (req, res) => {
       runValidators: true,
     });
     if (!updatedUser) {
-      return res.status(404).send({ error: "User not found" });
+      return res.status(404).send({ error: "Không tìm thấy người dùng" });
     }
     res.send(updatedUser);
   } catch (error) {
@@ -334,20 +333,19 @@ exports.removeUser = async (req, res) => {
     if (!deletedUser) {
       return res
         .status(404)
-        .json({ success: false, message: "User not found" });
+        .json({ success: false, error: "Không tìm thấy người dùng" });
     }
 
     // Nếu tìm thấy và xóa thành công, trả về response
     res.json({
       success: true,
-      message: "User successfully deleted",
+      message: "Xóa người dùng thành công",
       deletedUser: deletedUser,
     });
   } catch (error) {
-    console.error("Error deleting User:", error);
     res.status(500).json({
       success: false,
-      message: "Error deleting the User",
+      message: "Lỗi xóa người dùng",
       error: error.message,
     });
   }
@@ -364,16 +362,15 @@ exports.getUserById = async (req, res) => {
     if (!user) {
       return res
         .status(404)
-        .json({ success: false, message: "User not found" });
+        .json({ success: false, error: "Không tìm thấy người dùng" });
     }
 
     // Nếu user tồn tại, trả về user
     res.json({ success: true, user: user });
   } catch (error) {
-    console.error("Error finding user:", error);
     res.status(500).json({
       success: false,
-      message: "Error finding the user",
+      message: "Lỗi tìm người dùng",
       error: error.message,
     });
   }
@@ -399,7 +396,7 @@ exports.addUser = async (req, res) => {
     if (password !== confirmPassword) {
       return res.status(400).json({
         success: false,
-        error: "Passwords do not match",
+        error: "Mật khẩu không phù hợp",
       });
     }
 
@@ -408,7 +405,7 @@ exports.addUser = async (req, res) => {
     if (existingUser) {
       return res.status(400).json({
         success: false,
-        message: "A user with the same email address already exists.",
+        error: "Email đã tồn tại",
       });
     }
 
@@ -451,14 +448,13 @@ exports.addUser = async (req, res) => {
     // Phản hồi thành công cùng với token
     res.json({
       success: true,
-      message: "User added successfully.",
+      message: "Thêm người dùng thành công",
       token,
     });
   } catch (error) {
-    console.error("addUser error:", error);
     res.status(500).json({
       success: false,
-      message: "Internal server error. Please try again later.",
+      error: "Lỗi máy chủ nội bộ. Vui lòng thử lại sau.",
     });
   }
 };
@@ -468,7 +464,7 @@ exports.forgotPassword = async (req, res) => {
   try {
     const user = await User.findOne({ email });
     if (!user) {
-      return res.status(404).send("Không tìm thấy email");
+      return res.status(404).json({ error: "Không tìm thấy email" });
     }
 
     // Tạo token với thời hạn là 10 phút

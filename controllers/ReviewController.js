@@ -12,9 +12,10 @@ exports.createReview = async (req, res) => {
     const userExists = await User.findById(userId);
 
     if (!tourExists || !userExists) {
-      return res
-        .status(404)
-        .json({ success: false, message: "Tour or User not found" });
+      return res.status(404).json({
+        success: false,
+        error: "Không tìm thấy chuyến tham quan hoặc người dùng",
+      });
     }
 
     // Xử lý file uploads từ req.files (do multer cung cấp)
@@ -42,7 +43,7 @@ exports.createReview = async (req, res) => {
 
     res
       .status(200)
-      .json({ success: true, message: "Review submitted", data: savedReview });
+      .json({ success: true, message: "Đã gửi đánh giá", data: savedReview });
   } catch (err) {
     console.error(err);
     res.status(500).json({ success: false, error: err.toString() });
@@ -65,7 +66,7 @@ exports.getReviews = async (req, res) => {
     if (!tourWithReviews) {
       return res
         .status(404)
-        .json({ success: false, message: "Tour not found" });
+        .json({ success: false, error: "Không tìm thấy tour" });
     }
 
     res.status(200).json({ success: true, reviews: tourWithReviews.reviews });
@@ -90,15 +91,15 @@ exports.getToursWithReviews = async (req, res) => {
       .select("nameTour");
 
     if (!tours.length) {
-      return res
-        .status(404)
-        .json({ success: false, message: "No tours with reviews found" });
+      return res.status(404).json({
+        success: false,
+        error: "Không tìm thấy chuyến tham quan nào có đánh giá",
+      });
     }
 
     res.status(200).json({ success: true, tours });
   } catch (error) {
-    console.error("Error fetching tours with reviews:", error);
-    res.status(500).json({ success: false, error: error.message });
+    res.status(500).json({ error: "Lỗi khi tìm nạp các tour có bài đánh giá" });
   }
 };
 
@@ -112,13 +113,13 @@ exports.deleteReview = async (req, res) => {
     const review = await Review.findById(reviewId);
     if (!review) {
       return res
-        .status(404)
-        .json({ success: false, message: "Review not found" });
+        .status(400)
+        .json({ success: false, error: "Không tìm thấy đánh giá." });
     }
     if (review.userId.toString() !== userId) {
       return res.status(403).json({
         success: false,
-        message: "Unauthorized to delete this review",
+        error: "Không được phép xóa đánh giá này",
       });
     }
 
@@ -130,7 +131,9 @@ exports.deleteReview = async (req, res) => {
       $pull: { reviews: reviewId },
     });
 
-    res.status(200).json({ success: true, message: "Review deleted" });
+    res
+      .status(200)
+      .json({ success: true, message: "Xóa đánh giá thành công." });
   } catch (error) {
     console.error(error);
     res.status(500).json({ success: false, error: error.toString() });
@@ -146,7 +149,7 @@ exports.deleteReviewAdmin = async (req, res) => {
     if (!review) {
       return res
         .status(404)
-        .json({ success: false, message: "Review not found" });
+        .json({ success: false, error: "Không tìm thấy đánh giá" });
     }
 
     await Review.findByIdAndDelete(reviewId); // Changed from findByIdAndRemove
@@ -155,7 +158,7 @@ exports.deleteReviewAdmin = async (req, res) => {
       $pull: { reviews: reviewId },
     });
 
-    res.status(200).json({ success: true, message: "Review deleted" });
+    res.status(200).json({ success: true, message: "Xóa đánh giá thành công" });
   } catch (error) {
     console.error(error);
     res.status(500).json({ success: false, error: error.toString() });
@@ -174,7 +177,7 @@ exports.getReviewDetail = async (req, res) => {
     if (!review) {
       return res.status(404).json({
         success: false,
-        message: "Review not found",
+        error: "Không tìm thấy đánh giá",
       });
     }
 
@@ -205,9 +208,10 @@ exports.getUserReviews = async (req, res) => {
 
     // Trả về kết quả
     if (!reviews || reviews.length === 0) {
-      return res
-        .status(404)
-        .json({ success: false, message: "No reviews found for this user" });
+      return res.status(404).json({
+        success: false,
+        error: "Không tìm thấy đánh giá nào cho người dùng này",
+      });
     }
 
     res.status(200).json({ success: true, data: reviews });

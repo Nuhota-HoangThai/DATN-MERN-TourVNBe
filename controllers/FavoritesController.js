@@ -11,14 +11,14 @@ const favoritesController = {
       if (existingFavorite) {
         return res
           .status(409)
-          .json({ message: "Tour is already in favorites" });
+          .json({ message: "Chuyến tham quan đã được yêu thíchs" });
       }
 
       const favorite = new Favorites({ userId, tourId });
       await favorite.save();
       res.status(201).json(favorite);
     } catch (error) {
-      res.status(500).json({ message: "Failed to add to favorites", error });
+      res.status(500).json({ error: "Không thể thêm vào mục yêu thích" });
     }
   },
 
@@ -30,7 +30,7 @@ const favoritesController = {
       const favorites = await Favorites.find({ userId }).populate("tourId");
       res.status(200).json(favorites);
     } catch (error) {
-      res.status(500).json({ message: "Failed to retrieve favorites", error });
+      res.status(500).json({ error: "Không thể truy xuất mục yêu thích" });
     }
   },
 
@@ -41,13 +41,11 @@ const favoritesController = {
     try {
       const favorite = await Favorites.findOneAndDelete({ userId, tourId });
       if (!favorite) {
-        return res.status(404).json({ message: "Favorite not found" });
+        return res.status(404).json({ error: "Không tìm thấy yêu thích" });
       }
-      res.status(200).json({ message: "Removed from favorites" });
+      res.status(200).json({ message: "Đã xóa khỏi mục yêu thích" });
     } catch (error) {
-      res
-        .status(500)
-        .json({ message: "Failed to remove from favorites", error });
+      res.status(500).json({ error: "Không thể xóa khỏi mục yêu thích" });
     }
   },
 };

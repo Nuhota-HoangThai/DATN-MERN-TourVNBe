@@ -55,19 +55,19 @@ exports.removeTour = async (req, res) => {
     if (!deletedTour) {
       return res
         .status(404)
-        .json({ success: false, message: "Tour not found" });
+        .json({ success: false, error: "Không tìm thấy tour" });
     }
 
     res.json({
       success: true,
-      message: "Tour successfully deleted",
+      message: "Xóa tour thành công",
       deletedTour: deletedTour,
     });
   } catch (error) {
     console.error("Error deleting tour:", error);
     res.status(500).json({
       success: false,
-      message: "Error deleting the tour",
+      message: "Lỗi xóa chuyến tham quan",
       error: error.message,
     });
   }
@@ -123,7 +123,7 @@ exports.updateTour = async (req, res) => {
       if (overlappingTours.length > 0) {
         return res.status(400).json({
           success: false,
-          message: "Guide is not available in the given date range.",
+          error: "Hướng dẫn không có sẵn trong phạm vi ngày nhất định.",
         });
       }
     }
@@ -132,7 +132,7 @@ exports.updateTour = async (req, res) => {
       if (!promotion) {
         return res
           .status(404)
-          .json({ success: false, message: "Promotion not found" });
+          .json({ success: false, error: "Không tìm thấy khuyến mãi" });
       }
     }
 
@@ -162,7 +162,7 @@ exports.updateTour = async (req, res) => {
   } catch (error) {
     res.status(500).json({
       success: false,
-      message: "Error updating the tour",
+      message: "Lỗi cập nhật tour",
       error: error.message,
     });
   }
@@ -260,9 +260,8 @@ exports.getAllTours = async (req, res) => {
       );
     res.json({ tours });
   } catch (error) {
-    console.error("Error fetching tours:", error);
     res.status(500).json({
-      message: "Error fetching the tours",
+      message: "Lỗi khi tìm nạp các tours",
       error: error.message,
     });
   }
@@ -451,10 +450,9 @@ exports.getTourById = async (req, res) => {
 
     res.json({ success: true, tour: tour });
   } catch (error) {
-    console.error("Error finding tour:", error);
     res.status(500).json({
       success: false,
-      message: "Error finding the tour",
+      message: "Lỗi tìm chuyến tham quan",
       error: error.message,
     });
   }
@@ -485,8 +483,7 @@ exports.getToursByTourTypeId = async (req, res) => {
   } catch (error) {
     res.status(500).json({
       success: false,
-      message: "Error retrieving tours by tour type",
-      error: error.message,
+      error: "Lỗi truy xuất chuyến tham quan theo loại chuyến tham quan",
     });
   }
 };
@@ -587,17 +584,16 @@ exports.searchToursAdvanced = async (req, res) => {
     if (!tours.length) {
       return res.status(404).json({
         success: false,
-        message: "No tours found matching the search criteria.",
+        error:
+          "Không tìm thấy chuyến tham quan nào phù hợp với tiêu chí tìm kiếm.",
       });
     }
 
     res.json({ success: true, tours });
   } catch (error) {
-    console.error("Error searching for tours:", error);
     res.status(500).json({
       success: false,
-      message: "Error searching for tours",
-      error: error.message,
+      error: "Lỗi tìm kiếm tour",
     });
   }
 };
@@ -626,11 +622,9 @@ exports.getToursByPromotionId = async (req, res) => {
       tours: tours,
     });
   } catch (error) {
-    console.error("Error retrieving tours by promotion:", error);
     res.status(500).json({
       success: false,
-      message: "Error retrieving tours by promotion",
-      error: error.message,
+      error: "Lỗi truy xuất tour theo khuyến mãi",
     });
   }
 };
@@ -710,14 +704,11 @@ exports.getAllToursGuide = async (req, res) => {
       tours: tours,
     });
   } catch (error) {
-    console.error("Error fetching tours:", error);
     res.status(500).json({
-      message: "Error fetching the tours",
+      message: "Lỗi khi tìm nạp các chuyến tham quan",
       error: error.message,
     });
   }
 };
-
-//
 
 module.exports = exports;

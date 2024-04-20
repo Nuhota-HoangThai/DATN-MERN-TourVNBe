@@ -14,13 +14,13 @@ exports.createTourType = async (req, res) => {
 
     res.json({
       success: true,
-      message: "Tour type created successfully",
+      message: "Tạo loại tour thành công.",
       tourType: tourType,
     });
   } catch (error) {
     res.status(500).json({
       success: false,
-      message: "Error creating tour type",
+      message: "Lỗi khi tạo loại chuyến tham quan",
       error: error.message,
     });
   }
@@ -41,19 +41,19 @@ exports.updateTourType = async (req, res) => {
     if (!updatedTourType) {
       return res.status(404).json({
         success: false,
-        message: "Tour type not found",
+        error: "Không tìm thấy loại tour",
       });
     }
 
     res.json({
       success: true,
-      message: "Tour type updated successfully",
+      message: "Cập nhật loại tour thành công",
       tourType: updatedTourType,
     });
   } catch (error) {
     res.status(500).json({
       success: false,
-      message: "Error updating tour type",
+      message: "Lỗi cập nhật loại tour",
       error: error.message,
     });
   }
@@ -69,19 +69,19 @@ exports.deleteTourType = async (req, res) => {
     if (!deletedTourType) {
       return res.status(404).json({
         success: false,
-        message: "Tour type not found",
+        error: "Không tìm thấy loại tour",
       });
     }
 
     res.json({
       success: true,
-      message: "Tour type deleted successfully",
+      message: "Xóa loại tour thành công",
       tourType: deletedTourType,
     });
   } catch (error) {
     res.status(500).json({
       success: false,
-      message: "Error deleting tour type",
+      message: "Lỗi xóa loại tour",
       error: error.message,
     });
   }
@@ -99,7 +99,7 @@ exports.getAllTourTypes = async (req, res) => {
   } catch (error) {
     res.status(500).json({
       success: false,
-      message: "Error retrieving tour types",
+      message: "Lỗi truy xuất các loại chuyến tham quan",
       error: error.message,
     });
   }
