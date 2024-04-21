@@ -5,7 +5,6 @@ const crypto = require("crypto");
 const qs = require("qs");
 // const cloudinary = require("cloudinary");
 const moment = require("moment");
-const { error } = require("console");
 
 const BookingController = {
   // Create a new booking
@@ -30,7 +29,7 @@ const BookingController = {
     const user = req.user;
 
     try {
-      console.log(req.body);
+      // console.log(req.body);
       const tourDetails = await Tour.findById(tourId);
 
       if (!tourDetails) {
@@ -77,9 +76,13 @@ const BookingController = {
       tourDetails.maxParticipants -= totalParticipants; // Trừ số người tham gia khỏi maxParticipants
       await tourDetails.save();
 
-      res.status(201).json(savedBooking, { message: "Đặt tour thành công." });
+      res
+        .status(201)
+        .json({ booking: savedBooking, message: "Đặt tour thành công." });
     } catch (error) {
-      res.status(400).json({ error });
+      return res
+        .status(400)
+        .json({ error: "Required fields are missing or invalid." });
     }
   },
 
