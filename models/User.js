@@ -3,7 +3,7 @@ const mongoose = require("mongoose");
 const userSchema = new mongoose.Schema({
   tour: {
     type: mongoose.Schema.Types.ObjectId,
-    required: true,
+    required: false,
     ref: "Tour",
   },
 
@@ -14,7 +14,7 @@ const userSchema = new mongoose.Schema({
   sex: { type: String, required: false },
   email: { type: String, unique: true, required: true },
   password: { type: String, required: true },
-
+  confirmPassword: { type: String, required: false },
   phone: { type: Number, required: true },
   address: { type: String },
   cartData: { type: Object },

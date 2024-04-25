@@ -8,9 +8,57 @@ require("dotenv").config();
 const { sendEmailPassword } = require("../service/EmailPasswordService");
 
 // User registration
+// exports.signup = async (req, res) => {
+//   try {
+//     const { password, confirmPassword } = req.body;
+//     if (password !== confirmPassword) {
+//       return res.status(400).json({
+//         success: false,
+//         error: "Mật khẩu không phù hợp",
+//       });
+//     }
+
+//     let existingUser = await User.findOne({ email: req.body.email });
+//     if (existingUser) {
+//       return res.status(400).json({
+//         success: false,
+//         error: "Email đã tồn tại",
+//       });
+//     }
+
+//     const hashedPassword = await bcrypt.hash(password, 10);
+
+//     let cart = {};
+//     for (let i = 0; i < 300; i++) {
+//       cart[i] = 0;
+//     }
+
+//     const user = new User({
+//       name: req.body.name,
+//       email: req.body.email,
+//       cccd: req.body.cccd,
+//       sex: req.body.sex,
+//       password: hashedPassword,
+//       phone: req.body.phone,
+//       dob: req.body.dob,
+//       cartData: cart,
+//       //role: req.body.role,
+//     });
+
+//     await user.save();
+//     const data = { user: { id: user.id } };
+//     const token = jwt.sign(data, process.env.JWT_SECRET);
+//     res.json({ success: true, token });
+//   } catch (error) {
+//     res.status(500).json({ success: false, error: "Lỗi máy chủ nội bộ" });
+//   }
+// };
+
 exports.signup = async (req, res) => {
   try {
-    const { password, confirmPassword } = req.body;
+    const { password, confirmPassword, email, phone } = req.body;
+
+    // Check if passwords match
     if (password !== confirmPassword) {
       return res.status(400).json({
         success: false,
@@ -18,38 +66,50 @@ exports.signup = async (req, res) => {
       });
     }
 
-    let existingUser = await User.findOne({ email: req.body.email });
-    if (existingUser) {
+    // Check if the email has already been registered
+    let existingUserByEmail = await User.findOne({ email: email });
+    if (existingUserByEmail) {
       return res.status(400).json({
         success: false,
         error: "Email đã tồn tại",
       });
     }
 
-    const hashedPassword = await bcrypt.hash(password, 10);
-
-    let cart = {};
-    for (let i = 0; i < 300; i++) {
-      cart[i] = 0;
+    // Check if the phone number has already been registered
+    let existingUserByPhone = await User.findOne({ phone: phone });
+    if (existingUserByPhone) {
+      return res.status(400).json({
+        success: false,
+        error: "Số điện thoại đã được đăng ký",
+      });
     }
 
+    // Hash the password
+    const hashedPassword = await bcrypt.hash(password, 10);
+
+    // Create new user
     const user = new User({
       name: req.body.name,
-      email: req.body.email,
+      email: email,
       cccd: req.body.cccd,
       sex: req.body.sex,
       password: hashedPassword,
-      phone: req.body.phone,
+      phone: phone,
       dob: req.body.dob,
-      cartData: cart,
-      //role: req.body.role,
+      cartData: {},
     });
 
+    // Save the user
     await user.save();
+
+    // Create a token
     const data = { user: { id: user.id } };
     const token = jwt.sign(data, process.env.JWT_SECRET);
+
+    // Respond with success
     res.json({ success: true, token });
   } catch (error) {
+    console.error("Signup Error:", error);
     res.status(500).json({ success: false, error: "Lỗi máy chủ nội bộ" });
   }
 };
