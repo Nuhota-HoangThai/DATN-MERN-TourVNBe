@@ -187,29 +187,6 @@ const BookingController = {
     }
   },
 
-  // Confirm order status
-  // confirmBookingStatus: async (req, res) => {
-  //   const { status } = req.body;
-  //   const bookingId = req.params.id;
-
-  //   if (!["pending", "confirmed", "cancelled", "completed"].includes(status)) {
-  //     return res.status(400).json({ message: "Invalid status value" });
-  //   }
-
-  //   try {
-  //     const updatedBooking = await Booking.findByIdAndUpdate(
-  //       bookingId,
-  //       { status: status },
-  //       { new: true }
-  //     );
-  //     if (!updatedBooking) {
-  //       return res.status(404).json({ message: "Booking not found" });
-  //     }
-  //     res.json(updatedBooking);
-  //   } catch (error) {
-  //     res.status(500).json({ message: error.message });
-  //   }
-  // },
   confirmBookingStatus: async (req, res) => {
     const { status } = req.body;
     const bookingId = req.params.id;
@@ -382,7 +359,7 @@ const BookingController = {
         bookingId,
       });
     } catch (error) {
-      console.log(error);
+      //console.log(error);
       return res.status(500).json({ message: error.message });
     }
   },

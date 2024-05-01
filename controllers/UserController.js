@@ -583,4 +583,61 @@ exports.newPassword = async (req, res) => {
   }
 };
 
+// Thay đổi mật khẩu
+exports.resetPassword = async (req, res) => {
+  const { oldPassword, newPassword, confirmNewPassword } = req.body;
+  const token = req.headers.authorization.split(" ")[1]; // Ensure you are extracting the token correctly
+
+  try {
+    if (!token) {
+      return res.status(401).json({
+        success: false,
+        error: "Token không được cung cấp.",
+      });
+    }
+
+    const decoded = jwt.verify(token, process.env.JWT_SECRET);
+    let user = await User.findById(decoded.user.id);
+    if (!user) {
+      return res.status(404).json({
+        success: false,
+        error: "Người dùng không tồn tại.",
+      });
+    }
+
+    // Kiểm tra mật khẩu cũ có chính xác không
+    const isMatch = await bcrypt.compare(oldPassword, user.password);
+    if (!isMatch) {
+      return res.status(400).json({
+        success: false,
+        error: "Mật khẩu cũ không chính xác.",
+      });
+    }
+
+    // Kiểm tra mật khẩu mới và xác nhận mật khẩu có khớp không
+    if (newPassword !== confirmNewPassword) {
+      return res.status(400).json({
+        success: false,
+        error: "Mật khẩu mới và xác nhận mật khẩu không khớp.",
+      });
+    }
+
+    // Mã hóa mật khẩu mới
+    const hashedNewPassword = await bcrypt.hash(newPassword, 10);
+
+    // Cập nhật mật khẩu trong cơ sở dữ liệu
+    user.password = hashedNewPassword;
+    await user.save();
+
+    // Phản hồi thành công
+    res.json({
+      success: true,
+      message: "Mật khẩu đã được cập nhật thành công.",
+    });
+  } catch (error) {
+    console.error("Reset Password Error:", error);
+    return res.status(500).json({ error: "Lỗi máy chủ nội bộ." });
+  }
+};
+
 module.exports = exports;
