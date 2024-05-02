@@ -632,7 +632,7 @@ exports.resetPassword = async (req, res) => {
     // Phản hồi thành công
     res.json({
       success: true,
-      message: "Mật khẩu đã được cập nhật thành công.",
+      message: "Thay đổi mật khẩu thành công.",
     });
   } catch (error) {
     console.error("Reset Password Error:", error);

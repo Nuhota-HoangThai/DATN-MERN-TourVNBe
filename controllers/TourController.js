@@ -532,8 +532,7 @@ exports.getToursByGuide = async (req, res) => {
     if (!tours || tours.length === 0) {
       return res.status(404).json({
         success: false,
-        error:
-          "Không tìm thấy chuyến tham quan nào cho hướng dẫn được chỉ định",
+        error: "Bạn chưa được phân công tour nào.",
       });
     }
 

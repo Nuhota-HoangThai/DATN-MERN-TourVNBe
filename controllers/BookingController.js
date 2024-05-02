@@ -363,6 +363,29 @@ const BookingController = {
       return res.status(500).json({ message: error.message });
     }
   },
+
+  // Lấy danh sách người dùng đã đặt tour này
+  getBookingsByTour: async (req, res) => {
+    const { tourId } = req.params;
+
+    try {
+      const bookings = await Booking.find({ tour: tourId })
+        .populate("user", "name email phone")
+        .populate("tour", "nameTour")
+        .exec();
+
+      res.json({
+        success: true,
+        bookings: bookings,
+      });
+    } catch (error) {
+      res.status(500).json({
+        success: false,
+        message: "Lỗi truy xuất thông tin đặt chỗ",
+        error: error.message,
+      });
+    }
+  },
 };
 
 function sortObject(obj) {

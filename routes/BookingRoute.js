@@ -43,4 +43,10 @@ router.post(
   BookingController.addOrderByVNPay
 );
 
+router.get(
+  "/bookings/by-tour/:tourId",
+  verifyTokenCus(["admin", "guide"]),
+  BookingController.getBookingsByTour
+);
+
 module.exports = router;

@@ -54,6 +54,7 @@ router.get(
   tourController.getToursByTourDirectoryId
 );
 
+// tour các nhân của hdv
 router.get(
   "/getTourGuide/:userGuideId",
   verifyTokenCus(["admin", "guide"]),
