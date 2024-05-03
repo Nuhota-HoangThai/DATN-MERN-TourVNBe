@@ -170,6 +170,9 @@ exports.updateTour = async (req, res) => {
 
 exports.getAllTours = async (req, res) => {
   try {
+    const now = new Date(); // Get current date to compare with promotion dates
+
+    // Retrieve all tours and populate related fields
     let tours = await Tour.find({})
       .populate("userGuide", "name phone address")
       .populate("tourType", "typeName")
@@ -179,89 +182,35 @@ exports.getAllTours = async (req, res) => {
         "namePromotion discountPercentage startDatePromotion endDatePromotion"
       );
 
-    const now = new Date();
+    // Iterate over each tour to check if a promotion is applicable
+    tours = tours.map((tour) => {
+      const tourData = tour.toObject(); // Convert Mongoose document to plain object
 
-    for (let tour of tours) {
-      let tourData = tour.toObject();
-      let needUpdate = false;
+      // Check if a tour is under promotion and if the current date is within the promotion period
+      if (
+        tourData.promotion &&
+        new Date(tourData.promotion.startDatePromotion) <= now &&
+        new Date(tourData.promotion.endDatePromotion) >= now
+      ) {
+        const discountPercentage = tourData.promotion.discountPercentage / 100; // Convert percentage to decimal
+        tourData.originalPrice = tourData.price; // Save original prices before applying discounts
+        tourData.originalPriceForChildren = tourData.priceForChildren;
+        tourData.originalPriceForYoungChildren = tourData.priceForYoungChildren;
 
-      // Check if there is a promotion and whether it's currently valid
-      if (tourData.promotion) {
-        if (
-          now >= new Date(tourData.promotion.startDatePromotion) &&
-          now <= new Date(tourData.promotion.endDatePromotion)
-        ) {
-          // The promotion is valid
-          if (!tourData.originalPrice) {
-            // Save the original prices if they haven't been saved yet
-            tourData.originalPrice = tourData.price;
-            tourData.originalPriceForChildren = tourData.priceForChildren;
-            tourData.originalPriceForYoungChildren =
-              tourData.priceForYoungChildren;
-          }
-
-          const discountPercentage =
-            tourData.promotion.discountPercentage / 100;
-          const applyDiscount = (price, discount) => price * (1 - discount);
-
-          // Apply the discount
-          tourData.price = applyDiscount(
-            tourData.originalPrice,
-            discountPercentage
-          );
-          tourData.priceForChildren = applyDiscount(
-            tourData.originalPriceForChildren,
-            discountPercentage
-          );
-          tourData.priceForYoungChildren = applyDiscount(
-            tourData.originalPriceForYoungChildren,
-            discountPercentage
-          );
-
-          needUpdate = true; // Flag that we need to update the tour document
-        } else {
-          // The promotion is not valid; revert prices if original prices are saved
-          if (tourData.originalPrice) {
-            tourData.price = tourData.originalPrice;
-            tourData.priceForChildren = tourData.originalPriceForChildren;
-            tourData.priceForYoungChildren =
-              tourData.originalPriceForYoungChildren;
-
-            needUpdate = true; // Flag that we need to update the tour document
-          }
-        }
+        // Apply discount
+        tourData.price *= 1 - discountPercentage;
+        tourData.priceForChildren *= 1 - discountPercentage;
+        tourData.priceForYoungChildren *= 1 - discountPercentage;
       }
 
-      // Update the tour if needed
-      if (needUpdate) {
-        await Tour.findByIdAndUpdate(tour._id, {
-          $set: {
-            price: tourData.price,
-            priceForChildren: tourData.priceForChildren,
-            priceForYoungChildren: tourData.priceForYoungChildren,
-            priceForInfants: tourData.priceForInfants,
-            originalPrice: tourData.originalPrice,
-            originalPriceForChildren: tourData.originalPriceForChildren,
-            originalPriceForYoungChildren:
-              tourData.originalPriceForYoungChildren,
-          },
-        });
-      }
-    }
+      return tourData; // Return the modified tour object
+    });
 
-    // Refetch the tours after updates
-    tours = await Tour.find({})
-      .populate("userGuide", "name phone address")
-      .populate("tourType", "typeName")
-      .populate("tourDirectory", "directoryName")
-      .populate(
-        "promotion",
-        "namePromotion discountPercentage startDatePromotion endDatePromotion"
-      );
-    res.json({ tours });
+    res.json({ tours }); // Send all tours data in response
   } catch (error) {
+    console.error("Error fetching tours:", error);
     res.status(500).json({
-      message: "Lỗi khi tìm nạp các tours",
+      message: "Lỗi khi tìm nạp các tours", // Localized error message
       error: error.message,
     });
   }
@@ -269,14 +218,16 @@ exports.getAllTours = async (req, res) => {
 
 exports.getAllToursLimit = async (req, res) => {
   try {
-    const page = parseInt(req.query.page) || 1; // Lấy số trang từ query, mặc định là 1 nếu không được cung cấp
-    const limit = parseInt(req.query.limit) || 10; // Giới hạn số lượng sản phẩm mỗi trang, mặc định là 8
+    const page = parseInt(req.query.page) || 1; // Default to 1 if not specified
+    const limit = parseInt(req.query.limit) || 10; // Default to 10 if not specified
     const skip = (page - 1) * limit;
+    const now = new Date();
 
-    // Tính tổng số sản phẩm để có thể tính tổng số trang
+    // Get total number of tours and calculate total pages
     const totalTours = await Tour.countDocuments();
     const totalPages = Math.ceil(totalTours / limit);
 
+    // Retrieve tours with pagination and populate necessary fields
     let tours = await Tour.find({})
       .populate("userGuide", "name phone address")
       .populate("tourType", "typeName")
@@ -285,83 +236,28 @@ exports.getAllToursLimit = async (req, res) => {
         "promotion",
         "namePromotion discountPercentage startDatePromotion endDatePromotion"
       )
-      .sort({ createdAt: -1 }) // Giả sử mỗi tour có trường `createdAt`, sắp xếp giảm dần để sản phẩm mới nhất đứng đầu
+      .sort({ createdAt: -1 })
       .skip(skip)
       .limit(limit);
 
-    const now = new Date();
-
-    for (let tour of tours) {
-      let tourData = tour.toObject();
-      let needUpdate = false;
-
-      // Kiểm tra và áp dụng khuyến mãi nếu có
+    // Apply discounts to tours if within the promotion period
+    tours = tours.map((tour) => {
+      const tourData = tour.toObject();
       if (
         tourData.promotion &&
-        now >= new Date(tourData.promotion.startDatePromotion) &&
-        now <= new Date(tourData.promotion.endDatePromotion)
+        new Date(tourData.promotion.startDatePromotion) <= now &&
+        new Date(tourData.promotion.endDatePromotion) >= now
       ) {
-        // Save the original prices before they are modified by the promotion, if not already saved
-        if (!tourData.originalPrice) {
-          tourData.originalPrice = tourData.price;
-          tourData.originalPriceForChildren = tourData.priceForChildren;
-          tourData.originalPriceForYoungChildren =
-            tourData.priceForYoungChildren;
-          needUpdate = true; // Flag that we need to update the tour document
-        }
         const discountPercentage = tourData.promotion.discountPercentage / 100;
-
-        const applyDiscount = (price, discountPercentage) => {
-          return price * (1 - discountPercentage); // Giảm giá dựa trên phần trăm
-        };
-
-        // Áp dụng giảm giá cho các loại giá vé
-        tourData.price = applyDiscount(
-          tourData.originalPrice || tourData.price,
-          discountPercentage
-        );
-        tourData.priceForChildren = applyDiscount(
-          tourData.originalPriceForChildren || tourData.priceForChildren,
-          discountPercentage
-        );
-        tourData.priceForYoungChildren = applyDiscount(
-          tourData.originalPriceForYoungChildren ||
-            tourData.priceForYoungChildren,
-          discountPercentage
-        );
-
-        needUpdate = true;
+        tourData.originalPrice = tourData.price;
+        tourData.originalPriceForChildren = tourData.priceForChildren;
+        tourData.originalPriceForYoungChildren = tourData.priceForYoungChildren;
+        tourData.price *= 1 - discountPercentage;
+        tourData.priceForChildren *= 1 - discountPercentage;
+        tourData.priceForYoungChildren *= 1 - discountPercentage;
       }
-
-      // Cập nhật tour nếu có thay đổi giá
-      if (needUpdate) {
-        await Tour.findByIdAndUpdate(tour._id, {
-          $set: {
-            price: tourData.price,
-            priceForChildren: tourData.priceForChildren,
-            priceForYoungChildren: tourData.priceForYoungChildren,
-            priceForInfants: tourData.priceForInfants,
-            originalPrice: tourData.originalPrice,
-            originalPriceForChildren: tourData.originalPriceForChildren,
-            originalPriceForYoungChildren:
-              tourData.originalPriceForYoungChildren,
-          },
-        });
-      }
-    }
-
-    // Lấy lại danh sách tour đã cập nhật để phản hồi
-    tours = await Tour.find({})
-      .populate("userGuide", "name phone address")
-      .populate("tourType", "typeName")
-      .populate("tourDirectory", "directoryName")
-      .populate(
-        "promotion",
-        "namePromotion discountPercentage startDatePromotion endDatePromotion"
-      )
-      .sort({ createdAt: -1 }) // Giả sử mỗi tour có trường `createdAt`, sắp xếp giảm dần để sản phẩm mới nhất đứng đầu
-      .skip(skip)
-      .limit(limit);
+      return tourData;
+    });
 
     res.json({
       tours: tours,
@@ -381,49 +277,209 @@ exports.getAllToursLimit = async (req, res) => {
 
 // Get new collection tours
 exports.getNewCollection = async (req, res) => {
-  let tours = await Tour.find({})
-    .populate("userGuide", "name phone address")
-    .populate("tourType", "typeName")
-    .populate("tourDirectory", "directoryName")
-    .populate(
-      "promotion",
-      "namePromotion discountPercentage startDatePromotion endDatePromotion"
-    );
-  let newCollection = tours.slice(1).slice(-8);
-  res.send(newCollection);
+  try {
+    const now = new Date(); // Get the current date for comparison with promotion dates
+
+    // Retrieve all tours and populate related fields
+    let tours = await Tour.find({})
+      .populate("userGuide", "name phone address")
+      .populate("tourType", "typeName")
+      .populate("tourDirectory", "directoryName")
+      .populate(
+        "promotion",
+        "namePromotion discountPercentage startDatePromotion endDatePromotion"
+      );
+
+    // Map through each tour to check if a promotion is applicable and apply if necessary
+    let newCollection = tours
+      .map((tour) => {
+        const tourData = tour.toObject(); // Convert Mongoose document to plain object
+
+        // Check if a tour is under promotion and if the current date is within the promotion period
+        if (
+          tourData.promotion &&
+          new Date(tourData.promotion.startDatePromotion) <= now &&
+          new Date(tourData.promotion.endDatePromotion) >= now
+        ) {
+          const discountPercentage =
+            tourData.promotion.discountPercentage / 100; // Convert percentage to decimal
+          tourData.originalPrice = tourData.price; // Save original prices before applying discounts
+          tourData.originalPriceForChildren = tourData.priceForChildren;
+          tourData.originalPriceForYoungChildren =
+            tourData.priceForYoungChildren;
+
+          // Apply discount
+          tourData.price *= 1 - discountPercentage;
+          tourData.priceForChildren *= 1 - discountPercentage;
+          tourData.priceForYoungChildren *= 1 - discountPercentage;
+        }
+
+        return tourData; // Return the modified tour object
+      })
+      .slice(-8); // Select the last 8 tours for the new collection
+
+    res.send(newCollection); // Send the new collection data in response
+  } catch (error) {
+    console.error("Error fetching new collection of tours:", error);
+    res.status(500).json({
+      message: "Lỗi khi tìm nạp bộ sưu tập mới của tours",
+      error: error.message,
+    });
+  }
 };
 
 // Get popular tours in the central region
 exports.getPopularInCentral = async (req, res) => {
-  let tours = await Tour.find({ regions: "mt" })
-    .populate("userGuide", "name phone address")
-    .populate("tourType", "typeName")
-    .populate("tourDirectory", "directoryName")
-    .populate("promotion", "namePromotion discountPercentage");
-  let popular_in_central = tours.slice(0, 6);
-  res.send(popular_in_central);
+  try {
+    const now = new Date(); // Get the current date for comparison with promotion dates
+
+    let tours = await Tour.find({ regions: "mt" })
+      .populate("userGuide", "name phone address")
+      .populate("tourType", "typeName")
+      .populate("tourDirectory", "directoryName")
+      .populate(
+        "promotion",
+        "namePromotion discountPercentage startDatePromotion endDatePromotion"
+      );
+
+    let popular_in_central = tours
+      .map((tour) => {
+        const tourData = tour.toObject(); // Convert Mongoose document to plain object
+
+        // Check if a tour is under promotion and if the current date is within the promotion period
+        if (
+          tourData.promotion &&
+          new Date(tourData.promotion.startDatePromotion) <= now &&
+          new Date(tourData.promotion.endDatePromotion) >= now
+        ) {
+          const discountPercentage =
+            tourData.promotion.discountPercentage / 100; // Convert percentage to decimal
+          tourData.originalPrice = tourData.price; // Save original prices before applying discounts
+          tourData.originalPriceForChildren = tourData.priceForChildren;
+          tourData.originalPriceForYoungChildren =
+            tourData.priceForYoungChildren;
+
+          // Apply discount
+          tourData.price *= 1 - discountPercentage;
+          tourData.priceForChildren *= 1 - discountPercentage;
+          tourData.priceForYoungChildren *= 1 - discountPercentage;
+        }
+
+        return tourData; // Return the modified tour object
+      })
+      .slice(0, 6); // Select the top 6 tours for the popular collection in the central region
+
+    res.send(popular_in_central); // Send the popular collection data in response
+  } catch (error) {
+    console.error("Error fetching popular tours in central region:", error);
+    res.status(500).json({
+      message: "Lỗi khi tìm nạp tours phổ biến ở miền Trung",
+      error: error.message,
+    });
+  }
 };
 
 //Get popular tours in the North
 exports.getPopularInNorth = async (req, res) => {
-  let tours = await Tour.find({ regions: "mb" })
-    .populate("userGuide", "name phone address")
-    .populate("tourType", "typeName")
-    .populate("tourDirectory", "directoryName")
-    .populate("promotion", "namePromotion discountPercentage");
-  let popular_in_north = tours.slice(0, 6);
-  res.send(popular_in_north);
+  try {
+    const now = new Date(); // Get the current date for comparison with promotion dates
+
+    let tours = await Tour.find({ regions: "mb" })
+      .populate("userGuide", "name phone address")
+      .populate("tourType", "typeName")
+      .populate("tourDirectory", "directoryName")
+      .populate(
+        "promotion",
+        "namePromotion discountPercentage startDatePromotion endDatePromotion"
+      );
+
+    let popular_in_north = tours
+      .map((tour) => {
+        const tourData = tour.toObject(); // Convert Mongoose document to plain object
+
+        // Check if a tour is under promotion and if the current date is within the promotion period
+        // Check if a tour is under promotion and if the current date is within the promotion period
+        if (
+          tourData.promotion &&
+          new Date(tourData.promotion.startDatePromotion) <= now &&
+          new Date(tourData.promotion.endDatePromotion) >= now
+        ) {
+          const discountPercentage =
+            tourData.promotion.discountPercentage / 100; // Convert percentage to decimal
+          tourData.originalPrice = tourData.price; // Save original prices before applying discounts
+          tourData.originalPriceForChildren = tourData.priceForChildren;
+          tourData.originalPriceForYoungChildren =
+            tourData.priceForYoungChildren;
+
+          // Apply discount
+          tourData.price *= 1 - discountPercentage;
+          tourData.priceForChildren *= 1 - discountPercentage;
+          tourData.priceForYoungChildren *= 1 - discountPercentage;
+        }
+
+        return tourData; // Return the modified tour object
+      })
+      .slice(0, 6); // Select the top 6 tours for the popular collection in the northern region
+
+    res.send(popular_in_north); // Send the popular collection data in response
+  } catch (error) {
+    console.error("Error fetching popular tours in northern region:", error);
+    res.status(500).json({
+      message: "Lỗi khi tìm nạp tours phổ biến ở miền Bắc",
+      error: error.message,
+    });
+  }
 };
 
 //Get popular tours in the Southern
 exports.getPopularInSouthern = async (req, res) => {
-  let tours = await Tour.find({ regions: "mn" })
-    .populate("userGuide", "name phone address")
-    .populate("tourType", "typeName")
-    .populate("tourDirectory", "directoryName")
-    .populate("promotion", "namePromotion discountPercentage");
-  let popular_in_southern = tours.slice(0, 6);
-  res.send(popular_in_southern);
+  try {
+    const now = new Date(); // Get the current date for comparison with promotion dates
+
+    let tours = await Tour.find({ regions: "mn" })
+      .populate("userGuide", "name phone address")
+      .populate("tourType", "typeName")
+      .populate("tourDirectory", "directoryName")
+      .populate(
+        "promotion",
+        "namePromotion discountPercentage startDatePromotion endDatePromotion"
+      );
+
+    let popular_in_southern = tours
+      .map((tour) => {
+        const tourData = tour.toObject(); // Convert Mongoose document to plain object
+
+        // Check if a tour is under promotion and if the current date is within the promotion period
+        if (
+          tourData.promotion &&
+          new Date(tourData.promotion.startDatePromotion) <= now &&
+          new Date(tourData.promotion.endDatePromotion) >= now
+        ) {
+          const discountPercentage =
+            tourData.promotion.discountPercentage / 100; // Convert percentage to decimal
+          tourData.originalPrice = tourData.price; // Save original prices before applying discounts
+          tourData.originalPriceForChildren = tourData.priceForChildren;
+          tourData.originalPriceForYoungChildren =
+            tourData.priceForYoungChildren;
+
+          // Apply discount
+          tourData.price *= 1 - discountPercentage;
+          tourData.priceForChildren *= 1 - discountPercentage;
+          tourData.priceForYoungChildren *= 1 - discountPercentage;
+        }
+
+        return tourData; // Return the modified tour object
+      })
+      .slice(0, 6); // Select the top 6 tours for the popular collection in the southern region
+
+    res.send(popular_in_southern); // Send the popular collection data in response
+  } catch (error) {
+    console.error("Error fetching popular tours in southern region:", error);
+    res.status(500).json({
+      message: "Lỗi khi tìm nạp tours phổ biến ở miền Nam",
+      error: error.message,
+    });
+  }
 };
 
 exports.getTourById = async (req, res) => {
@@ -440,7 +496,10 @@ exports.getTourById = async (req, res) => {
       .populate("userGuide", "name phone address")
       .populate("tourType", "typeName")
       .populate("tourDirectory", "directoryName")
-      .populate("promotion", "namePromotion discountPercentage");
+      .populate(
+        "promotion",
+        "namePromotion discountPercentage startDatePromotion endDatePromotion"
+      );
 
     if (!tour) {
       return res
@@ -448,11 +507,31 @@ exports.getTourById = async (req, res) => {
         .json({ success: false, message: "Tour not found" });
     }
 
-    res.json({ success: true, tour: tour });
+    const now = new Date();
+    const tourData = tour.toObject();
+
+    // Apply discounts to the tour if within the promotion period
+    if (
+      tourData.promotion &&
+      new Date(tourData.promotion.startDatePromotion) <= now &&
+      new Date(tourData.promotion.endDatePromotion) >= now
+    ) {
+      const discountPercentage = tourData.promotion.discountPercentage / 100; // Convert percentage to decimal
+      tourData.originalPrice = tourData.price; // Save original prices before applying discounts
+      tourData.originalPriceForChildren = tourData.priceForChildren;
+      tourData.originalPriceForYoungChildren = tourData.priceForYoungChildren;
+
+      // Apply discount
+      tourData.price *= 1 - discountPercentage;
+      tourData.priceForChildren *= 1 - discountPercentage;
+      tourData.priceForYoungChildren *= 1 - discountPercentage;
+    }
+
+    res.json({ success: true, tour: tourData });
   } catch (error) {
     res.status(500).json({
       success: false,
-      message: "Lỗi tìm chuyến tham quan",
+      message: "Error fetching the tour",
       error: error.message,
     });
   }
@@ -607,23 +686,52 @@ exports.getToursByPromotionId = async (req, res) => {
       .populate("userGuide", "name phone address")
       .populate("tourType", "typeName")
       .populate("tourDirectory", "directoryName")
-      .populate("promotion", "namePromotion discountPercentage");
+      .populate(
+        "promotion",
+        "namePromotion discountPercentage startDatePromotion endDatePromotion"
+      );
+
     if (!tours || tours.length === 0) {
       return res.status(404).json({
         success: false,
-        error:
+        message:
           "Không tìm thấy chuyến tham quan nào cho chương trình khuyến mãi được chỉ định",
       });
     }
 
+    const now = new Date();
+    const processedTours = tours.map((tour) => {
+      const tourData = tour.toObject();
+
+      // Apply discounts to the tour if within the promotion period
+      if (
+        tourData.promotion &&
+        new Date(tourData.promotion.startDatePromotion) <= now &&
+        new Date(tourData.promotion.endDatePromotion) >= now
+      ) {
+        const discountPercentage = tourData.promotion.discountPercentage / 100; // Convert percentage to decimal
+        tourData.originalPrice = tourData.price; // Save original prices before applying discounts
+        tourData.originalPriceForChildren = tourData.priceForChildren;
+        tourData.originalPriceForYoungChildren = tourData.priceForYoungChildren;
+
+        // Apply discount
+        tourData.price *= 1 - discountPercentage;
+        tourData.priceForChildren *= 1 - discountPercentage;
+        tourData.priceForYoungChildren *= 1 - discountPercentage;
+      }
+
+      return tourData;
+    });
+
     res.json({
       success: true,
-      tours: tours,
+      tours: processedTours,
     });
   } catch (error) {
     res.status(500).json({
       success: false,
-      error: "Lỗi truy xuất tour theo khuyến mãi",
+      message: "Lỗi truy xuất tour theo khuyến mãi",
+      error: error.message,
     });
   }
 };
@@ -692,7 +800,7 @@ exports.getAllToursGuide = async (req, res) => {
     // Lấy lại danh sách tours đã cập nhật để phản hồi
     tours = await Tour.find({ userGuide: { $ne: null } })
       .populate("userGuide", "name phone address")
-      // .populate("tourType", "typeName")
+      .populate("tourType", "typeName")
       .populate("tourDirectory", "directoryName")
       .populate(
         "promotion",

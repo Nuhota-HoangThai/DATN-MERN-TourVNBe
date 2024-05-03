@@ -73,9 +73,10 @@ exports.getAllPromotions = async (req, res) => {
     // Duyệt qua từng khuyến mãi để kiểm tra thời hạn áp dụng
     const updatedPromotions = promotions.map((promotion) => {
       const now = new Date();
+      // Kiểm tra xem khuyến mãi có nằm ngoài thời hạn hiện tại không
       if (
-        now < promotion.startDatePromotion ||
-        now > promotion.endDatePromotion
+        now < new Date(promotion.startDatePromotion) ||
+        now > new Date(promotion.endDatePromotion)
       ) {
         promotion.descriptionPromotion = "Khuyến mãi này hiện không áp dụng.";
       }
@@ -104,8 +105,8 @@ exports.getAllPromotionsLimit = async (req, res) => {
     const updatedPromotions = promotions.map((promotion) => {
       const now = new Date();
       if (
-        now < promotion.startDatePromotion ||
-        now > promotion.endDatePromotion
+        now < new Date(promotion.startDatePromotion) ||
+        now > new Date(promotion.endDatePromotion)
       ) {
         promotion.descriptionPromotion = "Khuyến mãi này hiện không áp dụng.";
       }

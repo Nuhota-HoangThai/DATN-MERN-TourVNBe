@@ -44,7 +44,7 @@ const BillController = {
         .populate("user")
         .populate("tour");
       if (!booking) {
-        return res.status(404).json({ error: "Không tìm thấy đặt chỗ." });
+        return res.status(404).json({ error: "Không tìm thấy mã đặt tour" });
       }
 
       const newBillDetails = {
