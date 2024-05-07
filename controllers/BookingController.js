@@ -316,7 +316,7 @@ const BookingController = {
       var tmnCode = "5I5PNIK3";
       var secretKey = "QUXPZIAVAUZHVGUPFGFHGNWVBECPRFEJ";
       var vnpUrl = "https://sandbox.vnpayment.vn/paymentv2/vpcpay.html";
-      var returnUrl = `http://localhost:5174/booking/payment_vnpay_return?totalAmount=${totalAmount}&surcharge=${surcharge}`;
+      var returnUrl = `http://localhost:5174/booking/payment_vnpay_return?bookingId=${newBooking._id}`;
 
       const date = new Date();
       const createDate = moment(date).format("YYYYMMDDHHmmss");
