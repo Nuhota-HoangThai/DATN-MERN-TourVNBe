@@ -45,6 +45,7 @@ const tourSchema = new mongoose.Schema(
     // Giá cho trẻ em từ dưới 6 tuổi
     priceForYoungChildren: {
       type: Number,
+      required: false,
     },
 
     // Phụ thu khác
